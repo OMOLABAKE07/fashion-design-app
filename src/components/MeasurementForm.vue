@@ -3,14 +3,34 @@
     <div class="form-header">
       <h3>{{ isEditing ? 'Update Measurements' : 'Record New Measurements' }}</h3>
       <p class="customer-info" v-if="customer">
-        For: <strong class="text-success">{{ customer.name }}</strong>
+        For: <strong>{{ customer.name }}</strong>
       </p>
     </div>
 
     <form @submit.prevent="handleSubmit" class="form">
-      <!-- Top Measurements Section -->
-      <div class="measurement-section">
-        <h4>Top Measurements</h4>
+      <!-- Category Filter -->
+      <div class="category-filter">
+        <h4>Filter by Category</h4>
+        <div class="filter-dropdown">
+          <select v-model="activeCategory" class="category-select">
+            <option value="">Select a Category</option>
+            <option value="all">All Categories</option>
+            <option value="agbada">Agbada Measurements</option>
+            <option value="top">Top Measurements</option>
+            <option value="sleeve">Sleeve Measurements</option>
+            <option value="trouser">Trouser Measurements</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Alert as requested by user -->
+      <div class="alert alert-info" v-if="activeCategory === ''">
+        <p>You have not yet select a category , kindly select a category</p>
+      </div>
+
+      <!-- Agbada Measurements Section -->
+      <div class="measurement-section" v-if="activeCategory !== '' && (activeCategory === 'all' || activeCategory === 'agbada')">
+        <h4>Agbada Measurements</h4>
         <div class="measurement-grid">
           <div class="measurement-group">
             <label for="agbadaLength">Agbada Length (inches)</label>
@@ -24,6 +44,49 @@
               placeholder="0.00"
             />
           </div>
+          <div class="measurement-group">
+            <label for="agbadaShoulder">Agbada Shoulder (inches)</label>
+            <input
+              type="number"
+              id="agbadaShoulder"
+              v-model="formData.agbadaShoulder"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="measurement-group">
+            <label for="agbadaChest">Agbada Chest (inches)</label>
+            <input
+              type="number"
+              id="agbadaChest"
+              v-model="formData.agbadaChest"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="measurement-group">
+            <label for="agbadaSleeve">Agbada Sleeve (inches)</label>
+            <input
+              type="number"
+              id="agbadaSleeve"
+              v-model="formData.agbadaSleeve"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Measurements Section -->
+      <div class="measurement-section" v-if="activeCategory !== '' && (activeCategory === 'all' || activeCategory === 'top')">
+        <h4>Top Measurements</h4>
+        <div class="measurement-grid">
           <div class="measurement-group">
             <label for="topLength">Top Length (inches)</label>
             <input
@@ -148,7 +211,7 @@
       </div>
 
       <!-- Sleeve Measurements Section -->
-      <div class="measurement-section">
+      <div class="measurement-section" v-if="activeCategory !== '' && (activeCategory === 'all' || activeCategory === 'sleeve')">
         <h4>Sleeve Measurements</h4>
         <div class="measurement-grid">
           <div class="measurement-group">
@@ -239,7 +302,7 @@
       </div>
 
       <!-- Trouser Measurements Section -->
-      <div class="measurement-section">
+      <div class="measurement-section" v-if="activeCategory !== '' && (activeCategory === 'all' || activeCategory === 'trouser')">
         <h4>Trouser Measurements</h4>
         <div class="measurement-grid">
           <div class="measurement-group">
@@ -366,7 +429,7 @@
       </div>
 
       <!-- Additional Information -->
-      <div class="measurement-section">
+      <div class="measurement-section" v-if="activeCategory !== ''">
         <h4>Additional Information</h4>
         <div class="form-group">
           <label for="measurementDate">Measurement Date</label>
@@ -390,7 +453,7 @@
         </div>
       </div>
 
-      <div class="form-actions">
+      <div class="form-actions" v-if="activeCategory !== ''">
         <button type="button" @click="handleCancel" class="btn-secondary">
           Cancel
         </button>
@@ -417,19 +480,34 @@
             </div>
           </div>
           <div class="measurement-summary">
-            <span>Chest: {{ measurement.chest || 'N/A' }}"</span>
-            <span>Waist: {{ measurement.waist || 'N/A' }}"</span>
-            <span>Hips: {{ measurement.hips || 'N/A' }}"</span>
+            <span>Category: {{ getCategoryName(measurement.category) }}</span>
+            <span v-if="measurement.chest">Chest: {{ measurement.chest }}"</span>
+            <span v-if="measurement.waist">Waist: {{ measurement.waist }}"</span>
+            <span v-if="measurement.hip">Hip: {{ measurement.hip }}"</span>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Measurement Edit Modal -->
+    <MeasurementModal 
+      :is-visible="showEditModal"
+      :measurement="measurementToEdit"
+      @close="showEditModal = false"
+      @save="saveEditedMeasurement"
+    />
   </div>
 </template>
 
 <script>
+import Swal from 'sweetalert2'
+import MeasurementModal from './MeasurementModal.vue'
+
 export default {
   name: 'MeasurementForm',
+  components: {
+    MeasurementModal
+  },
   props: {
     customer: {
       type: Object,
@@ -444,9 +522,17 @@ export default {
   data() {
     return {
       isSubmitting: false,
+      activeCategory: '',
+      showEditModal: false,
+      measurementToEdit: null,
       formData: {
-        // Top measurements
+        // Agbada measurements
         agbadaLength: '',
+        agbadaShoulder: '',
+        agbadaChest: '',
+        agbadaSleeve: '',
+        
+        // Top measurements
         topLength: '',
         kaftanLength: '',
         jalamiaLength: '',
@@ -483,27 +569,7 @@ export default {
         measurementDate: new Date().toISOString().split('T')[0],
         notes: ''
       },
-      measurementHistory: [
-        // Sample data - in a real app this would come from a store/API
-        {
-          id: 1,
-          measurementDate: '2024-01-15',
-          chest: '38.5',
-          waist: '32',
-          hip: '40',
-          shoulder: '16',
-          notes: 'Initial measurements'
-        },
-        {
-          id: 2,
-          measurementDate: '2024-01-10',
-          chest: '38',
-          waist: '31.5',
-          hip: '39.5',
-          shoulder: '15.75',
-          notes: 'First fitting'
-        }
-      ]
+      measurementHistory: []
     }
   },
   computed: {
@@ -516,8 +582,13 @@ export default {
       handler(newMeasurement) {
         if (newMeasurement) {
           this.formData = {
-            // Top measurements
+            // Agbada measurements
             agbadaLength: newMeasurement.agbadaLength || '',
+            agbadaShoulder: newMeasurement.agbadaShoulder || '',
+            agbadaChest: newMeasurement.agbadaChest || '',
+            agbadaSleeve: newMeasurement.agbadaSleeve || '',
+            
+            // Top measurements
             topLength: newMeasurement.topLength || '',
             kaftanLength: newMeasurement.kaftanLength || '',
             jalamiaLength: newMeasurement.jalamiaLength || '',
@@ -561,7 +632,134 @@ export default {
       immediate: true
     }
   },
+  mounted() {
+    // Load measurement history from localStorage when component mounts
+    this.loadMeasurementHistory()
+  },
   methods: {
+    getCategoryName(category) {
+      // Handle empty category
+      if (!category) {
+        return 'No Category Selected'
+      }
+      
+      const categoryNames = {
+        'agbada': 'Agbada',
+        'top': 'Top',
+        'sleeve': 'Sleeve',
+        'trouser': 'Trouser',
+        'all': 'All Categories'
+      }
+      return categoryNames[category] || category
+    },
+    loadMeasurementHistory() {
+      try {
+        const storedHistory = localStorage.getItem(`measurementHistory_${this.customer.id}`)
+        if (storedHistory) {
+          this.measurementHistory = JSON.parse(storedHistory)
+        }
+      } catch (error) {
+        console.error('Error loading measurement history from localStorage:', error)
+        this.measurementHistory = []
+      }
+    },
+    saveMeasurementHistory(measurement) {
+      try {
+        // Get existing history or initialize empty array
+        let history = []
+        const storedHistory = localStorage.getItem(`measurementHistory_${this.customer.id}`)
+        if (storedHistory) {
+          history = JSON.parse(storedHistory)
+        }
+        
+        // Check if measurement already exists (for updates)
+        const existingIndex = history.findIndex(item => item.id === measurement.id)
+        if (existingIndex !== -1) {
+          // Update existing measurement
+          history[existingIndex] = measurement
+        } else {
+          // Add new measurement
+          history.unshift(measurement)
+        }
+        
+        // Save updated history to localStorage
+        localStorage.setItem(`measurementHistory_${this.customer.id}`, JSON.stringify(history))
+        
+        // Update local state
+        this.measurementHistory = history
+      } catch (error) {
+        console.error('Error saving measurement history to localStorage:', error)
+      }
+    },
+    deleteMeasurementHistory(id) {
+      try {
+        let history = []
+        const storedHistory = localStorage.getItem(`measurementHistory_${this.customer.id}`)
+        if (storedHistory) {
+          history = JSON.parse(storedHistory)
+        }
+        
+        // Remove measurement with matching ID
+        history = history.filter(measurement => measurement.id !== id)
+        
+        // Save updated history to localStorage
+        localStorage.setItem(`measurementHistory_${this.customer.id}`, JSON.stringify(history))
+        
+        // Update local state
+        this.measurementHistory = history
+      } catch (error) {
+        console.error('Error deleting measurement from localStorage:', error)
+      }
+    },
+    generateId() {
+      return Date.now() + Math.floor(Math.random() * 10000)
+    },
+    setActiveCategory(category) {
+      this.activeCategory = category;
+    },
+    getFieldsForCategory(category) {
+      // Handle empty category
+      if (!category) {
+        return []
+      }
+      
+      const fieldGroups = {
+        agbada: [
+          'agbadaLength', 'agbadaShoulder', 'agbadaChest', 'agbadaSleeve'
+        ],
+        top: [
+          'topLength', 'kaftanLength', 'jalamiaLength', 'shirtLength',
+          'shoulder', 'neck', 'chest', 'bustUpperChest', 'stomach', 'capSize'
+        ],
+        sleeve: [
+          'longSleeve', 'shortSleeve', 'threeQuarterSleeve', 'roundSleeve',
+          'biceps', 'elbow', 'wrist'
+        ],
+        trouser: [
+          'trouserLength', 'waist', 'hip', 'thigh', 'knee', 'inseam',
+          'outseam', 'ankle', 'crotch', 'calf'
+        ]
+      }
+      
+      return fieldGroups[category] || []
+    },
+    editMeasurement(measurement) {
+      this.measurementToEdit = measurement
+      this.showEditModal = true
+    },
+    saveEditedMeasurement(updatedMeasurement) {
+      // Update the measurement in localStorage
+      this.saveMeasurementHistory(updatedMeasurement)
+      
+      // Update the measurement in the current history list
+      const index = this.measurementHistory.findIndex(m => m.id === updatedMeasurement.id)
+      if (index !== -1) {
+        this.measurementHistory.splice(index, 1, updatedMeasurement)
+      }
+      
+      // Emit edit event
+      this.$emit('edit', updatedMeasurement)
+    },
     async handleSubmit() {
       this.isSubmitting = true
       
@@ -572,46 +770,79 @@ export default {
           return
         }
 
-        // Prepare measurement data
+        // Check if a category is selected
+        if (!this.activeCategory) {
+          alert('Please select a category')
+          return
+        }
+
+        // Prepare measurement data based on active category
         const measurementData = {
-          ...this.formData,
           customerId: this.customer.id,
-          id: this.measurement?.id || null,
-          createdAt: this.measurement?.createdAt || new Date(),
-          updatedAt: new Date()
+          id: this.measurement?.id || this.generateId(),
+          category: this.activeCategory,
+          measurementDate: this.formData.measurementDate,
+          notes: this.formData.notes,
+          createdAt: this.measurement?.createdAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+
+        // Only include fields relevant to the active category
+        if (this.activeCategory === 'all') {
+          // Include all fields except the additional info which is already added
+          Object.keys(this.formData).forEach(key => {
+            if (key !== 'measurementDate' && key !== 'notes') {
+              measurementData[key] = this.formData[key]
+            }
+          })
+        } else {
+          // Include only fields for the active category
+          const categoryFields = this.getFieldsForCategory(this.activeCategory)
+          categoryFields.forEach(field => {
+            if (this.formData[field] !== '' && this.formData[field] !== undefined) {
+              measurementData[field] = this.formData[field]
+            }
+          })
         }
 
         // Convert string values to numbers for numeric fields
-        const numericFields = [
-          // Top measurements
-          'agbadaLength', 'topLength', 'kaftanLength', 'jalamiaLength', 'shirtLength',
-          'shoulder', 'neck', 'chest', 'bustUpperChest', 'stomach', 'capSize',
-          
-          // Sleeve measurements
-          'longSleeve', 'shortSleeve', 'threeQuarterSleeve', 'roundSleeve',
-          'biceps', 'elbow', 'wrist',
-          
-          // Trouser measurements
-          'trouserLength', 'waist', 'hip', 'thigh', 'knee', 'inseam',
-          'outseam', 'ankle', 'crotch', 'calf'
-        ]
-        
-        numericFields.forEach(field => {
-          if (measurementData[field]) {
-            measurementData[field] = parseFloat(measurementData[field])
+        const allFields = Object.keys(measurementData)
+        allFields.forEach(field => {
+          if (field !== 'customerId' && field !== 'id' && field !== 'category' && 
+              field !== 'measurementDate' && field !== 'notes' && 
+              field !== 'createdAt' && field !== 'updatedAt') {
+            if (measurementData[field] !== '' && measurementData[field] !== undefined) {
+              measurementData[field] = parseFloat(measurementData[field])
+            }
           }
         })
 
+        // Save to localStorage
+        this.saveMeasurementHistory(measurementData)
+        
         // Emit save event with measurement data
         this.$emit('save', measurementData)
         
-        // Reset form after successful save
+        // Reset form after successful save (only if not editing)
         if (!this.isEditing) {
           this.resetForm()
         }
+        
+        // Show success message
+        Swal.fire({
+          icon: "success",
+          title: "Saved",
+          text: "Measurement saved successfully!",
+          timer: 2000,
+          showConfirmButton: false
+        })
       } catch (error) {
         console.error('Error saving measurements:', error)
-        alert('Error saving measurements. Please try again.')
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Error saving measurements. Please try again."
+        })
       } finally {
         this.isSubmitting = false
       }
@@ -621,8 +852,13 @@ export default {
     },
     resetForm() {
       this.formData = {
-        // Top measurements
+        // Agbada measurements
         agbadaLength: '',
+        agbadaShoulder: '',
+        agbadaChest: '',
+        agbadaSleeve: '',
+        
+        // Top measurements
         topLength: '',
         kaftanLength: '',
         jalamiaLength: '',
@@ -660,13 +896,34 @@ export default {
         notes: ''
       }
     },
-    editMeasurement(measurement) {
-      this.$emit('edit', measurement)
-    },
     deleteMeasurement(measurementId) {
-      if (confirm('Are you sure you want to delete this measurement record?')) {
-        this.$emit('delete', measurementId)
-      }
+      Swal.fire({
+        icon: "warning",
+        title: "Delete Measurement",
+        text: "Are you sure you want to delete this measurement record?",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Delete",
+        cancelButtonText: "Cancel",
+        cancelButtonColor: "#d92550",
+        showCloseButton: true,
+        showLoaderOnConfirm: true,
+      }).then((result) => {
+        if (result.value) {
+          this.deleteMeasurementHistory(measurementId)
+          this.$emit('delete', measurementId)
+          
+          Swal.fire({
+            icon: "success",
+            title: "Deleted",
+            text: "Measurement deleted successfully!",
+            timer: 2000,
+            showConfirmButton: false
+          })
+        } else {
+          Swal.fire("Cancelled", "Measurement was not deleted", "info")
+        }
+      })
     },
     formatDate(dateString) {
       return new Intl.DateTimeFormat('en-US', {
@@ -686,6 +943,20 @@ export default {
   padding: 2rem;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   margin-bottom: 2rem;
+  position: relative;
+}
+
+.alert {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+}
+
+.alert-info {
+  color: #0c5460;
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
 }
 
 .form-header {
@@ -704,6 +975,40 @@ export default {
   color: #6c757d;
   margin: 0;
   font-size: 1rem;
+}
+
+.category-filter {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.category-filter h4 {
+  color: #2c3e50;
+  margin: 0 0 1rem 0;
+  font-size: 1.2rem;
+}
+
+.filter-dropdown {
+  display: flex;
+  align-items: center;
+}
+
+.category-select {
+  padding: 0.75rem;
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: white;
+  min-width: 200px;
+}
+
+.category-select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 .measurement-section {
@@ -927,6 +1232,10 @@ export default {
   .measurement-summary {
     flex-direction: column;
     gap: 0.25rem;
+  }
+  
+  .category-select {
+    min-width: 100%;
   }
 }
 </style>

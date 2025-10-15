@@ -1,0 +1,356 @@
+<template>
+  <div v-if="isVisible" class="modal-overlay" @click="closeModal">
+    <div class="modal-content" @click.stop>
+      <div class="modal-header">
+        <h3>Edit Measurement</h3>
+        <button class="close-button" @click="closeModal">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <form @submit.prevent="handleSave">
+          <!-- Category Info -->
+          <div class="category-info">
+            <p><strong>Category:</strong> {{ getCategoryName(measurement.category) }}</p>
+            <p><strong>Date:</strong> {{ formatDate(measurement.measurementDate) }}</p>
+          </div>
+          
+          <!-- Dynamic Fields based on Category -->
+          <div class="measurement-fields">
+            <div 
+              v-for="field in getFieldsForCategory(measurement.category)" 
+              :key="field.key"
+              class="form-group"
+            >
+              <label :for="field.key">{{ field.label }}</label>
+              <input
+                :id="field.key"
+                type="number"
+                v-model="editableMeasurement[field.key]"
+                step="0.25"
+                min="0"
+                class="form-input"
+                :placeholder="field.placeholder"
+              />
+            </div>
+          </div>
+          
+          <!-- Notes -->
+          <div class="form-group">
+            <label for="notes">Notes</label>
+            <textarea
+              id="notes"
+              v-model="editableMeasurement.notes"
+              class="form-textarea"
+              rows="3"
+              placeholder="Any special notes about these measurements..."
+            ></textarea>
+          </div>
+        </form>
+      </div>
+      
+      <div class="modal-footer">
+        <button @click="closeModal" class="btn-secondary">Cancel</button>
+        <button @click="handleSave" class="btn-primary">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import Swal from 'sweetalert2'
+
+export default {
+  name: 'MeasurementModal',
+  props: {
+    isVisible: {
+      type: Boolean,
+      required: true
+    },
+    measurement: {
+      type: Object,
+      default: null
+    }
+  },
+  emits: ['close', 'save'],
+  data() {
+    return {
+      editableMeasurement: {}
+    }
+  },
+  watch: {
+    measurement: {
+      handler(newMeasurement) {
+        if (newMeasurement) {
+          // Create a deep copy of the measurement for editing
+          this.editableMeasurement = JSON.parse(JSON.stringify(newMeasurement))
+        }
+      },
+      immediate: true
+    }
+  },
+  methods: {
+    closeModal() {
+      this.$emit('close')
+    },
+    handleSave() {
+      Swal.fire({
+        icon: "warning",
+        title: "Save Changes",
+        text: "Are you sure you want to save these changes?",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Save Changes",
+        cancelButtonText: "Cancel",
+        cancelButtonColor: "#d92550",
+        showCloseButton: true,
+        showLoaderOnConfirm: true,
+      }).then((result) => {
+        if (result.value) {
+          // Emit the updated measurement
+          this.$emit('save', this.editableMeasurement)
+          this.closeModal()
+          
+          Swal.fire({
+            icon: "success",
+            title: "Saved",
+            text: "Measurement updated successfully!",
+            timer: 2000,
+            showConfirmButton: false
+          })
+        } else {
+          Swal.fire("Cancelled", "Changes were not saved", "info")
+        }
+      })
+    },
+    formatDate(dateString) {
+      return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      }).format(new Date(dateString))
+    },
+    getCategoryName(category) {
+      const categoryNames = {
+        'agbada': 'Agbada Measurements',
+        'top': 'Top Measurements',
+        'sleeve': 'Sleeve Measurements',
+        'trouser': 'Trouser Measurements',
+        'all': 'All Categories'
+      }
+      return categoryNames[category] || category
+    },
+    getFieldsForCategory(category) {
+      const fieldDefinitions = {
+        agbada: [
+          { key: 'agbadaLength', label: 'Agbada Length (inches)', placeholder: '0.00' },
+          { key: 'agbadaShoulder', label: 'Agbada Shoulder (inches)', placeholder: '0.00' },
+          { key: 'agbadaChest', label: 'Agbada Chest (inches)', placeholder: '0.00' },
+          { key: 'agbadaSleeve', label: 'Agbada Sleeve (inches)', placeholder: '0.00' }
+        ],
+        top: [
+          { key: 'topLength', label: 'Top Length (inches)', placeholder: '0.00' },
+          { key: 'kaftanLength', label: 'Kaftan Length (inches)', placeholder: '0.00' },
+          { key: 'jalamiaLength', label: 'Jalamia Length (inches)', placeholder: '0.00' },
+          { key: 'shirtLength', label: 'Shirt Length (inches)', placeholder: '0.00' },
+          { key: 'shoulder', label: 'Shoulder (inches)', placeholder: '0.00' },
+          { key: 'neck', label: 'Neck (inches)', placeholder: '0.00' },
+          { key: 'chest', label: 'Chest (inches)', placeholder: '0.00' },
+          { key: 'bustUpperChest', label: 'Bust/Upper Chest (inches)', placeholder: '0.00' },
+          { key: 'stomach', label: 'Stomach (inches)', placeholder: '0.00' },
+          { key: 'capSize', label: 'Cap Size (inches)', placeholder: '0.00' }
+        ],
+        sleeve: [
+          { key: 'longSleeve', label: 'Long Sleeve (inches)', placeholder: '0.00' },
+          { key: 'shortSleeve', label: 'Short Sleeve (inches)', placeholder: '0.00' },
+          { key: 'threeQuarterSleeve', label: '3/4 Sleeve (inches)', placeholder: '0.00' },
+          { key: 'roundSleeve', label: 'Round Sleeve (inches)', placeholder: '0.00' },
+          { key: 'biceps', label: 'Biceps (inches)', placeholder: '0.00' },
+          { key: 'elbow', label: 'Elbow (inches)', placeholder: '0.00' },
+          { key: 'wrist', label: 'Wrist (inches)', placeholder: '0.00' }
+        ],
+        trouser: [
+          { key: 'trouserLength', label: 'Trouser Length (inches)', placeholder: '0.00' },
+          { key: 'waist', label: 'Waist (inches)', placeholder: '0.00' },
+          { key: 'hip', label: 'Hip (inches)', placeholder: '0.00' },
+          { key: 'thigh', label: 'Thigh (inches)', placeholder: '0.00' },
+          { key: 'knee', label: 'Knee (inches)', placeholder: '0.00' },
+          { key: 'inseam', label: 'Inseam (inches)', placeholder: '0.00' },
+          { key: 'outseam', label: 'Outseam (inches)', placeholder: '0.00' },
+          { key: 'ankle', label: 'Ankle (inches)', placeholder: '0.00' },
+          { key: 'crotch', label: 'Crotch (inches)', placeholder: '0.00' },
+          { key: 'calf', label: 'Calf (inches)', placeholder: '0.00' }
+        ]
+      }
+      
+      return fieldDefinitions[category] || []
+    }
+  }
+}
+</script>
+
+<style scoped>
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #6c757d;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-button:hover {
+  color: #2c3e50;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.category-info {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #e9ecef;
+}
+
+.category-info p {
+  margin: 0.25rem 0;
+  color: #495057;
+}
+
+.measurement-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.form-input,
+.form-textarea {
+  padding: 0.75rem;
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  background: #fff;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background: #3498db;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #2980b9;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+}
+
+@media (max-width: 768px) {
+  .measurement-fields {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-content {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .modal-footer {
+    flex-direction: column;
+  }
+}
+</style>
