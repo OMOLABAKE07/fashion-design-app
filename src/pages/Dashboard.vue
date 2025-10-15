@@ -83,11 +83,11 @@ export default {
   margin: 0;
 }
 
-.overview-cards {
+/* .overview-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
-}
+} */
 
 .overview-card {
   background: white;

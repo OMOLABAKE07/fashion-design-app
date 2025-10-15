@@ -3,21 +3,251 @@
     <div class="form-header">
       <h3>{{ isEditing ? 'Update Measurements' : 'Record New Measurements' }}</h3>
       <p class="customer-info" v-if="customer">
-        For: <strong>{{ customer.name }}</strong>
+        For: <strong class="text-success">{{ customer.name }}</strong>
       </p>
     </div>
 
     <form @submit.prevent="handleSubmit" class="form">
-      <!-- Body Measurements Section -->
+      <!-- Top Measurements Section -->
       <div class="measurement-section">
-        <h4>Body Measurements</h4>
+        <h4>Top Measurements</h4>
         <div class="measurement-grid">
+          <div class="measurement-group">
+            <label for="agbadaLength">Agbada Length (inches)</label>
+            <input
+              type="number"
+              id="agbadaLength"
+              v-model="formData.agbadaLength"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="measurement-group">
+            <label for="topLength">Top Length (inches)</label>
+            <input
+              type="number"
+              id="topLength"
+              v-model="formData.topLength"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="measurement-group">
+            <label for="kaftanLength">Kaftan Length (inches)</label>
+            <input
+              type="number"
+              id="kaftanLength"
+              v-model="formData.kaftanLength"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="measurement-group">
+            <label for="jalamiaLength">Jalamia Length (inches)</label>
+            <input
+              type="number"
+              id="jalamiaLength"
+              v-model="formData.jalamiaLength"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="measurement-group">
+            <label for="shirtLength">Shirt Length (inches)</label>
+            <input
+              type="number"
+              id="shirtLength"
+              v-model="formData.shirtLength"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="measurement-group">
+            <label for="shoulder">Shoulder (inches)</label>
+            <input
+              type="number"
+              id="shoulder"
+              v-model="formData.shoulder"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="measurement-group">
+            <label for="neck">Neck (inches)</label>
+            <input
+              type="number"
+              id="neck"
+              v-model="formData.neck"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
           <div class="measurement-group">
             <label for="chest">Chest (inches)</label>
             <input
               type="number"
               id="chest"
               v-model="formData.chest"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="measurement-group">
+            <label for="bustUpperChest">Bust/Upper Chest (inches)</label>
+            <input
+              type="number"
+              id="bustUpperChest"
+              v-model="formData.bustUpperChest"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="measurement-group">
+            <label for="stomach">Stomach (inches)</label>
+            <input
+              type="number"
+              id="stomach"
+              v-model="formData.stomach"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="measurement-group">
+            <label for="capSize">Cap Size (inches)</label>
+            <input
+              type="number"
+              id="capSize"
+              v-model="formData.capSize"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Sleeve Measurements Section -->
+      <div class="measurement-section">
+        <h4>Sleeve Measurements</h4>
+        <div class="measurement-grid">
+          <div class="measurement-group">
+            <label for="longSleeve">Long Sleeve (inches)</label>
+            <input
+              type="number"
+              id="longSleeve"
+              v-model="formData.longSleeve"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="measurement-group">
+            <label for="shortSleeve">Short Sleeve (inches)</label>
+            <input
+              type="number"
+              id="shortSleeve"
+              v-model="formData.shortSleeve"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="measurement-group">
+            <label for="threeQuarterSleeve">3/4 Sleeve (inches)</label>
+            <input
+              type="number"
+              id="threeQuarterSleeve"
+              v-model="formData.threeQuarterSleeve"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="measurement-group">
+            <label for="roundSleeve">Round Sleeve (inches)</label>
+            <input
+              type="number"
+              id="roundSleeve"
+              v-model="formData.roundSleeve"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="measurement-group">
+            <label for="biceps">Biceps (inches)</label>
+            <input
+              type="number"
+              id="biceps"
+              v-model="formData.biceps"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="measurement-group">
+            <label for="elbow">Elbow (inches)</label>
+            <input
+              type="number"
+              id="elbow"
+              v-model="formData.elbow"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="measurement-group">
+            <label for="wrist">Wrist (inches)</label>
+            <input
+              type="number"
+              id="wrist"
+              v-model="formData.wrist"
+              step="0.25"
+              min="0"
+              class="measurement-input"
+              placeholder="0.00"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Trouser Measurements Section -->
+      <div class="measurement-section">
+        <h4>Trouser Measurements</h4>
+        <div class="measurement-grid">
+          <div class="measurement-group">
+            <label for="trouserLength">Trouser Length (inches)</label>
+            <input
+              type="number"
+              id="trouserLength"
+              v-model="formData.trouserLength"
               step="0.25"
               min="0"
               class="measurement-input"
@@ -37,11 +267,11 @@
             />
           </div>
           <div class="measurement-group">
-            <label for="hips">Hips (inches)</label>
+            <label for="hip">Hip (inches)</label>
             <input
               type="number"
-              id="hips"
-              v-model="formData.hips"
+              id="hip"
+              v-model="formData.hip"
               step="0.25"
               min="0"
               class="measurement-input"
@@ -49,30 +279,11 @@
             />
           </div>
           <div class="measurement-group">
-            <label for="shoulderWidth">Shoulder Width (inches)</label>
+            <label for="thigh">Thigh (inches)</label>
             <input
               type="number"
-              id="shoulderWidth"
-              v-model="formData.shoulderWidth"
-              step="0.25"
-              min="0"
-              class="measurement-input"
-              placeholder="0.00"
-            />
-          </div>
-        </div>
-      </div>
-
-      <!-- Length Measurements Section -->
-      <div class="measurement-section">
-        <h4>Length Measurements</h4>
-        <div class="measurement-grid">
-          <div class="measurement-group">
-            <label for="shoulderToWaist">Shoulder to Waist (inches)</label>
-            <input
-              type="number"
-              id="shoulderToWaist"
-              v-model="formData.shoulderToWaist"
+              id="thigh"
+              v-model="formData.thigh"
               step="0.25"
               min="0"
               class="measurement-input"
@@ -80,11 +291,11 @@
             />
           </div>
           <div class="measurement-group">
-            <label for="waistToHip">Waist to Hip (inches)</label>
+            <label for="knee">Knee (inches)</label>
             <input
               type="number"
-              id="waistToHip"
-              v-model="formData.waistToHip"
+              id="knee"
+              v-model="formData.knee"
               step="0.25"
               min="0"
               class="measurement-input"
@@ -115,19 +326,12 @@
               placeholder="0.00"
             />
           </div>
-        </div>
-      </div>
-
-      <!-- Arm Measurements Section -->
-      <div class="measurement-section">
-        <h4>Arm Measurements</h4>
-        <div class="measurement-grid">
           <div class="measurement-group">
-            <label for="armLength">Arm Length (inches)</label>
+            <label for="ankle">Ankle (inches)</label>
             <input
               type="number"
-              id="armLength"
-              v-model="formData.armLength"
+              id="ankle"
+              v-model="formData.ankle"
               step="0.25"
               min="0"
               class="measurement-input"
@@ -135,11 +339,11 @@
             />
           </div>
           <div class="measurement-group">
-            <label for="bicep">Bicep (inches)</label>
+            <label for="crotch">Crotch (inches)</label>
             <input
               type="number"
-              id="bicep"
-              v-model="formData.bicep"
+              id="crotch"
+              v-model="formData.crotch"
               step="0.25"
               min="0"
               class="measurement-input"
@@ -147,23 +351,11 @@
             />
           </div>
           <div class="measurement-group">
-            <label for="wrist">Wrist (inches)</label>
+            <label for="calf">Calf (inches)</label>
             <input
               type="number"
-              id="wrist"
-              v-model="formData.wrist"
-              step="0.25"
-              min="0"
-              class="measurement-input"
-              placeholder="0.00"
-            />
-          </div>
-          <div class="measurement-group">
-            <label for="neck">Neck (inches)</label>
-            <input
-              type="number"
-              id="neck"
-              v-model="formData.neck"
+              id="calf"
+              v-model="formData.calf"
               step="0.25"
               min="0"
               class="measurement-input"
@@ -253,18 +445,41 @@ export default {
     return {
       isSubmitting: false,
       formData: {
+        // Top measurements
+        agbadaLength: '',
+        topLength: '',
+        kaftanLength: '',
+        jalamiaLength: '',
+        shirtLength: '',
+        shoulder: '',
+        neck: '',
         chest: '',
+        bustUpperChest: '',
+        stomach: '',
+        capSize: '',
+        
+        // Sleeve measurements
+        longSleeve: '',
+        shortSleeve: '',
+        threeQuarterSleeve: '',
+        roundSleeve: '',
+        biceps: '',
+        elbow: '',
+        wrist: '',
+        
+        // Trouser measurements
+        trouserLength: '',
         waist: '',
-        hips: '',
-        shoulderWidth: '',
-        shoulderToWaist: '',
-        waistToHip: '',
+        hip: '',
+        thigh: '',
+        knee: '',
         inseam: '',
         outseam: '',
-        armLength: '',
-        bicep: '',
-        wrist: '',
-        neck: '',
+        ankle: '',
+        crotch: '',
+        calf: '',
+        
+        // Additional info
         measurementDate: new Date().toISOString().split('T')[0],
         notes: ''
       },
@@ -275,8 +490,8 @@ export default {
           measurementDate: '2024-01-15',
           chest: '38.5',
           waist: '32',
-          hips: '40',
-          shoulderWidth: '16',
+          hip: '40',
+          shoulder: '16',
           notes: 'Initial measurements'
         },
         {
@@ -284,8 +499,8 @@ export default {
           measurementDate: '2024-01-10',
           chest: '38',
           waist: '31.5',
-          hips: '39.5',
-          shoulderWidth: '15.75',
+          hip: '39.5',
+          shoulder: '15.75',
           notes: 'First fitting'
         }
       ]
@@ -301,18 +516,41 @@ export default {
       handler(newMeasurement) {
         if (newMeasurement) {
           this.formData = {
+            // Top measurements
+            agbadaLength: newMeasurement.agbadaLength || '',
+            topLength: newMeasurement.topLength || '',
+            kaftanLength: newMeasurement.kaftanLength || '',
+            jalamiaLength: newMeasurement.jalamiaLength || '',
+            shirtLength: newMeasurement.shirtLength || '',
+            shoulder: newMeasurement.shoulder || '',
+            neck: newMeasurement.neck || '',
             chest: newMeasurement.chest || '',
+            bustUpperChest: newMeasurement.bustUpperChest || '',
+            stomach: newMeasurement.stomach || '',
+            capSize: newMeasurement.capSize || '',
+            
+            // Sleeve measurements
+            longSleeve: newMeasurement.longSleeve || '',
+            shortSleeve: newMeasurement.shortSleeve || '',
+            threeQuarterSleeve: newMeasurement.threeQuarterSleeve || '',
+            roundSleeve: newMeasurement.roundSleeve || '',
+            biceps: newMeasurement.biceps || '',
+            elbow: newMeasurement.elbow || '',
+            wrist: newMeasurement.wrist || '',
+            
+            // Trouser measurements
+            trouserLength: newMeasurement.trouserLength || '',
             waist: newMeasurement.waist || '',
-            hips: newMeasurement.hips || '',
-            shoulderWidth: newMeasurement.shoulderWidth || '',
-            shoulderToWaist: newMeasurement.shoulderToWaist || '',
-            waistToHip: newMeasurement.waistToHip || '',
+            hip: newMeasurement.hip || '',
+            thigh: newMeasurement.thigh || '',
+            knee: newMeasurement.knee || '',
             inseam: newMeasurement.inseam || '',
             outseam: newMeasurement.outseam || '',
-            armLength: newMeasurement.armLength || '',
-            bicep: newMeasurement.bicep || '',
-            wrist: newMeasurement.wrist || '',
-            neck: newMeasurement.neck || '',
+            ankle: newMeasurement.ankle || '',
+            crotch: newMeasurement.crotch || '',
+            calf: newMeasurement.calf || '',
+            
+            // Additional info
             measurementDate: newMeasurement.measurementDate || new Date().toISOString().split('T')[0],
             notes: newMeasurement.notes || ''
           }
@@ -344,8 +582,19 @@ export default {
         }
 
         // Convert string values to numbers for numeric fields
-        const numericFields = ['chest', 'waist', 'hips', 'shoulderWidth', 'shoulderToWaist', 
-                              'waistToHip', 'inseam', 'outseam', 'armLength', 'bicep', 'wrist', 'neck']
+        const numericFields = [
+          // Top measurements
+          'agbadaLength', 'topLength', 'kaftanLength', 'jalamiaLength', 'shirtLength',
+          'shoulder', 'neck', 'chest', 'bustUpperChest', 'stomach', 'capSize',
+          
+          // Sleeve measurements
+          'longSleeve', 'shortSleeve', 'threeQuarterSleeve', 'roundSleeve',
+          'biceps', 'elbow', 'wrist',
+          
+          // Trouser measurements
+          'trouserLength', 'waist', 'hip', 'thigh', 'knee', 'inseam',
+          'outseam', 'ankle', 'crotch', 'calf'
+        ]
         
         numericFields.forEach(field => {
           if (measurementData[field]) {
@@ -372,18 +621,41 @@ export default {
     },
     resetForm() {
       this.formData = {
+        // Top measurements
+        agbadaLength: '',
+        topLength: '',
+        kaftanLength: '',
+        jalamiaLength: '',
+        shirtLength: '',
+        shoulder: '',
+        neck: '',
         chest: '',
+        bustUpperChest: '',
+        stomach: '',
+        capSize: '',
+        
+        // Sleeve measurements
+        longSleeve: '',
+        shortSleeve: '',
+        threeQuarterSleeve: '',
+        roundSleeve: '',
+        biceps: '',
+        elbow: '',
+        wrist: '',
+        
+        // Trouser measurements
+        trouserLength: '',
         waist: '',
-        hips: '',
-        shoulderWidth: '',
-        shoulderToWaist: '',
-        waistToHip: '',
+        hip: '',
+        thigh: '',
+        knee: '',
         inseam: '',
         outseam: '',
-        armLength: '',
-        bicep: '',
-        wrist: '',
-        neck: '',
+        ankle: '',
+        crotch: '',
+        calf: '',
+        
+        // Additional info
         measurementDate: new Date().toISOString().split('T')[0],
         notes: ''
       }

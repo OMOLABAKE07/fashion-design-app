@@ -249,12 +249,12 @@ export default {
   max-width: 800px;
 }
 
-.form-row {
+/* .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
   margin-bottom: 1.5rem;
-}
+} */
 
 .form-group {
   display: flex;
