@@ -481,9 +481,9 @@
           </div>
           <div class="measurement-summary">
             <span>Category: {{ getCategoryName(measurement.category) }}</span>
-            <span v-if="measurement.chest">Chest: {{ measurement.chest }}"</span>
-            <span v-if="measurement.waist">Waist: {{ measurement.waist }}"</span>
-            <span v-if="measurement.hip">Hip: {{ measurement.hip }}"</span>
+            <span v-if="measurement.chest">Chest: {{ measurement.chest }}</span>
+            <span v-if="measurement.waist">Waist: {{ measurement.waist }}</span>
+            <span v-if="measurement.hip">Hip: {{ measurement.hip }}</span>
           </div>
         </div>
       </div>
@@ -566,7 +566,7 @@ export default {
         calf: '',
         
         // Additional info
-        measurementDate: new Date().toISOString().split('T')[0],
+        measurementDate: '',
         notes: ''
       },
       measurementHistory: []
@@ -892,7 +892,7 @@ export default {
         calf: '',
         
         // Additional info
-        measurementDate: new Date().toISOString().split('T')[0],
+        measurementDate: '',
         notes: ''
       }
     },
@@ -1186,12 +1186,12 @@ export default {
 }
 
 .btn-small:not(.btn-danger) {
-  background: #6c757d;
+  background: #198754;
   color: white;
 }
 
 .btn-small:not(.btn-danger):hover {
-  background: #5a6268;
+  background: #246534;
 }
 
 .btn-danger {

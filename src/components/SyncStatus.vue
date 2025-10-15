@@ -164,18 +164,14 @@ export default {
       this.syncError = null
       
       try {
+        let results = null;
+        
         if (this.syncManager) {
           // Use the sync manager for actual sync
-          const results = await this.syncManager.performSync()
+          results = await this.syncManager.performSync()
           this.lastSyncTime = new Date()
           this.pendingChangesCount = 0
           this.syncState = 'online'
-          
-          // Emit sync event for parent components
-          this.$emit('sync-completed', {
-            timestamp: this.lastSyncTime,
-            changesSynced: results.successful?.length || 0
-          })
         } else {
           // Fallback to simulated sync
           await new Promise(resolve => setTimeout(resolve, 2000))
@@ -183,11 +179,18 @@ export default {
           this.pendingChangesCount = 0
           this.syncState = 'online'
           
-          this.$emit('sync-completed', {
-            timestamp: this.lastSyncTime,
-            changesSynced: 0
-          })
+          // Create a default results object for the fallback
+          results = {
+            successful: [],
+            failed: []
+          }
         }
+        
+        // Emit sync event for parent components (with safety check)
+        this.$emit('sync-completed', {
+          timestamp: this.lastSyncTime,
+          changesSynced: results && results.successful ? results.successful.length : 0
+        })
         
         this.saveSyncState()
       } catch (error) {

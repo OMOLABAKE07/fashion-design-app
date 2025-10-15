@@ -71,13 +71,12 @@
 
       <div class="form-row">
         <div class="form-group">
-          <label for="dateOfBirth">Date of Birth</label>
-          <input
-            type="date"
-            id="dateOfBirth"
-            v-model="formData.dateOfBirth"
-            class="form-input"
-          />
+          <label for="gender">Gender</label>
+          <select id="gender" v-model="formData.gender" class="form-select">
+            <option value="">Select gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
         </div>
         <div class="form-group">
           <label for="preferredContact">Preferred Contact Method</label>
@@ -102,7 +101,7 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" @click="handleCancel" class="btn-secondary">
+        <button type="button" @click="handleCancel" class="btn-secondary bg-danger">
           {{ isEditing ? 'Cancel' : 'Clear' }}
         </button>
         <button type="submit" class="btn-primary" :disabled="isSubmitting">
@@ -132,7 +131,7 @@ export default {
         email: '',
         phone: '',
         address: '',
-        dateOfBirth: '',
+        gender: '',
         preferredContact: '',
         notes: ''
       }
@@ -153,7 +152,7 @@ export default {
             email: newCustomer.email || '',
             phone: newCustomer.phone || '',
             address: newCustomer.address || '',
-            dateOfBirth: newCustomer.dateOfBirth || '',
+            gender: newCustomer.gender || '',
             preferredContact: newCustomer.preferredContact || '',
             notes: newCustomer.notes || ''
           }
@@ -206,7 +205,8 @@ export default {
       if (this.isEditing) {
         this.$emit('cancel')
       } else {
-        this.resetForm()
+        this.$emit('cancel')
+        // this.resetForm() // We'll let the parent component handle form visibility
       }
     },
     resetForm() {
@@ -216,7 +216,7 @@ export default {
         email: '',
         phone: '',
         address: '',
-        dateOfBirth: '',
+        gender: '',
         preferredContact: '',
         notes: ''
       }
@@ -322,8 +322,8 @@ export default {
 }
 
 .btn-primary:disabled {
-  background: #bdc3c7;
-  cursor: not-allowed;
+  /* background: #bdc3c7; */
+  /* cursor: not-allowed; */
 }
 
 .btn-secondary {

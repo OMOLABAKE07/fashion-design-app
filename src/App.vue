@@ -10,50 +10,16 @@
         <div class="sync-status">
           <SyncStatus />
         </div>
-        <button @click="showQuickStats = !showQuickStats" class="btn-secondary">
-          📊 Quick Stats
-        </button>
+        <!-- Removed Quick Stats button as requested -->
       </div>
     </header>
 
-    <!-- Quick Stats Panel -->
-    <div v-if="showQuickStats" class="quick-stats">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon">👥</div>
-          <div class="stat-content">
-            <h3>{{ totalCustomers }}</h3>
-            <p>Total Customers</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">📏</div>
-          <div class="stat-content">
-            <h3>{{ pendingMeasurements }}</h3>
-            <p>Pending Measurements</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">💬</div>
-          <div class="stat-content">
-            <h3>{{ unreadMessages }}</h3>
-            <p>Unread Messages</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">📸</div>
-          <div class="stat-content">
-            <h3>{{ totalDesigns }}</h3>
-            <p>Design Projects</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- Removed Quick Stats Panel as requested -->
 
     <!-- Mobile Navbar Toggle Button -->
-    <button @click="toggleMobileNav" class="mobile-nav-toggle">
+    <!-- <button @click="toggleMobileNav" class="mobile-nav-toggle">
       ☰
-    </button>
+    </button> -->
 
     <!-- Main Layout with Sidebar -->
     <div class="main-layout">
@@ -96,7 +62,6 @@ export default {
   },
   data() {
     return {
-      showQuickStats: false,
       mobileNavOpen: false,
       totalCustomers: 24,
       pendingMeasurements: 3,
@@ -147,17 +112,7 @@ export default {
   top: 0;
   left: 0;
   width: 100%;
-
   z-index: 0;
-}
-
-/* Quick Stats under header */
-.quick-stats {
-  background: white;
-  margin: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  padding: 2rem;
 }
 
 /* Layout under header */
@@ -250,12 +205,12 @@ export default {
     margin-left: 0;
     width: 100%;
   }
-  .mobile-nav-toggle {
+  /* .mobile-nav-toggle {
     display: block;
     position: fixed;
     top: 1rem;
     left: 1rem;
     z-index: 11;
-  }
+  } */
 }
 </style>

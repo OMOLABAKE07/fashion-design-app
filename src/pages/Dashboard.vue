@@ -1,13 +1,13 @@
 <template>
-  <div class="dashboard-content">
+  <div class="dashboard-content my-5">
     <!-- Dashboard Overview -->
     <div class="dashboard-overview">
       <div class="overview-header">
         <h2>Dashboard Overview</h2>
-        <p>Welcome back! Here's a quick overview of your fashion design business.</p>
+        <p>Welcome back! Here's a quick overview of your fashion design business.</p>2
       </div>
       
-      <div class="overview-cards">
+      <div class="overview-cards mb-2">
         <div class="overview-card">
           <div class="card-icon">👥</div>
           <div class="card-content">
@@ -17,7 +17,7 @@
           </div>
         </div>
         
-        <div class="overview-card">
+        <div class="overview-card mb-2">
           <div class="card-icon">📏</div>
           <div class="card-content">
             <h3>Measurements</h3>

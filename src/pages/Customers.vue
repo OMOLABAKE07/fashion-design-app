@@ -2,9 +2,7 @@
   <div class="customers-page">
     <div class="page-header">
       <h2>Customer Management</h2>
-      <button @click="showCustomerForm = !showCustomerForm" class="btn-primary">
-        {{ showCustomerForm ? 'Hide Form' : 'Add New Customer' }}
-      </button>
+     
     </div>
     
     <div v-if="showCustomerForm" class="form-section">

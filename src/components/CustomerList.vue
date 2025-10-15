@@ -1,10 +1,28 @@
 <template>
-  <div class="customer-list">
+  <div class="customer-list mt-5">
     <div class="header">
       <h2>Customer List</h2>
-      <button @click="showAddCustomer = true" class="btn-primary">
-        Add New Customer
-      </button>
+      <div class="header-actions">
+        <div class="search-box">
+          <input
+            type="text"
+            v-model="searchQuery"
+            placeholder="Search customers..."
+            class="search-input"
+          />
+        </div>
+        <button @click="showCustomerForm = !showCustomerForm" class="btn-primary">
+          {{ showCustomerForm ? 'Hide Form' : 'Add New Customer' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Customer Form -->
+    <div v-if="showCustomerForm" class="mb-4">
+      <CustomerForm 
+        @save="handleCustomerSave"
+        @cancel="showCustomerForm = false"
+      />
     </div>
 
     <div v-if="customers.length === 0" class="empty-state">
@@ -13,7 +31,7 @@
 
     <div v-else class="customers-grid">
       <div 
-        v-for="customer in customers" 
+        v-for="customer in filteredCustomers" 
         :key="customer.id" 
         class="customer-card"
         @click="selectCustomer(customer)"
@@ -41,16 +59,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Add Customer Modal -->
-    <div v-if="showAddCustomer" class="modal-overlay" @click="showAddCustomer = false">
-      <div class="modal" @click.stop>
-        <CustomerForm 
-          @save="handleCustomerSave"
-          @cancel="showAddCustomer = false"
-        />
-      </div>
-    </div>
   </div>
 </template>
 
@@ -64,8 +72,23 @@ export default {
   },
   data() {
     return {
-      showAddCustomer: false,
+      showCustomerForm: false,
+      searchQuery: '',
       customers: []
+    }
+  },
+  computed: {
+    filteredCustomers() {
+      if (!this.searchQuery) {
+        return this.customers
+      }
+      
+      const query = this.searchQuery.toLowerCase()
+      return this.customers.filter(customer => 
+        customer.name.toLowerCase().includes(query) ||
+        customer.email.toLowerCase().includes(query) ||
+        customer.phone.toLowerCase().includes(query)
+      )
     }
   },
   async mounted() {
@@ -100,7 +123,7 @@ export default {
         createdAt: new Date()
       }
       this.customers.push(newCustomer)
-      this.showAddCustomer = false
+      this.showCustomerForm = false
     },
     async loadCustomers() {
       try {
@@ -146,11 +169,29 @@ export default {
       }
     },
     formatDate(date) {
-      return new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      }).format(date)
+      // Handle invalid dates more robustly
+      if (!date) {
+        return 'Invalid Date'
+      }
+      
+      // Try to create a Date object
+      const dateObj = new Date(date)
+      
+      // Check if the date is valid
+      if (isNaN(dateObj.getTime())) {
+        return 'Invalid Date'
+      }
+      
+      try {
+        return new Intl.DateTimeFormat('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        }).format(dateObj)
+      } catch (error) {
+        // Fallback to basic formatting if Intl fails
+        return dateObj.toLocaleDateString()
+      }
     }
   }
 }
@@ -175,6 +216,32 @@ export default {
   margin: 0;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.search-box {
+  position: relative;
+}
+
+.search-input {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: white;
+  min-width: 250px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
 .btn-primary {
   background: #3498db;
   color: white;
@@ -184,6 +251,7 @@ export default {
   cursor: pointer;
   font-weight: 500;
   transition: background 0.3s;
+  white-space: nowrap;
 }
 
 .btn-primary:hover {
@@ -195,12 +263,6 @@ export default {
   padding: 4rem 2rem;
   color: #7f8c8d;
 }
-
-/* .customers-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
-} */
 
 .customer-card {
   background: white;
@@ -294,26 +356,20 @@ export default {
   background: #c82333;
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal {
-  background: white;
-  border-radius: 8px;
-  padding: 2rem;
-  max-width: 500px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .header-actions {
+    justify-content: space-between;
+  }
+  
+  .search-input {
+    min-width: auto;
+    flex: 1;
+  }
 }
 </style>

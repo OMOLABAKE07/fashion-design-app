@@ -617,12 +617,12 @@ export default {
 }
 
 .btn-secondary {
-  background: #6c757d;
+  background: #198754;
   color: white;
 }
 
 .btn-secondary:hover {
-  background: #5a6268;
+  background: #246534;
 }
 
 .btn-danger {

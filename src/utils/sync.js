@@ -62,7 +62,11 @@ class OfflineSyncManager {
   // Perform synchronization
   async performSync() {
     if (this.syncInProgress || !this.isOnline || this.syncQueue.length === 0) {
-      return
+      // Return an empty results object instead of undefined
+      return {
+        successful: [],
+        failed: []
+      }
     }
 
     this.syncInProgress = true

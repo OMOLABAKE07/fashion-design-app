@@ -205,21 +205,7 @@ export default {
       newMessageCustomer: '',
       newMessageText: '',
       showAttachmentOptions: false,
-      customers: [
-        // Sample data - in a real app this would come from a store/API
-        {
-          id: 1,
-          name: 'Sarah Johnson',
-          email: 'sarah@email.com',
-          phone: '+1 (555) 123-4567'
-        },
-        {
-          id: 2,
-          name: 'Michael Chen',
-          email: 'michael@email.com',
-          phone: '+1 (555) 987-6543'
-        }
-      ],
+      customers: [],
       messages: [
         // Sample messages - in a real app this would come from a store/API
         {
@@ -267,7 +253,69 @@ export default {
       )
     }
   },
+  async mounted() {
+    await this.loadCustomers()
+    // Listen for customer updates
+    window.addEventListener('storage', this.handleStorageChange)
+    // Auto-scroll to bottom when component mounts
+    this.$nextTick(() => {
+      this.scrollToBottom()
+    })
+  },
+  beforeUnmount() {
+    // Clean up event listener
+    window.removeEventListener('storage', this.handleStorageChange)
+  },
   methods: {
+    async loadCustomers() {
+      try {
+        const { syncUtils } = await import('@/utils/sync.js')
+        const storedCustomers = syncUtils.getAllCustomers()
+        
+        if (storedCustomers.length > 0) {
+          this.customers = storedCustomers
+        } else {
+          // Fallback to sample data if no stored customers
+          this.customers = [
+            {
+              id: 1,
+              name: 'Sarah Johnson',
+              email: 'sarah@email.com',
+              phone: '+1 (555) 123-4567'
+            },
+            {
+              id: 2,
+              name: 'Michael Chen',
+              email: 'michael@email.com',
+              phone: '+1 (555) 987-6543'
+            }
+          ]
+        }
+      } catch (error) {
+        console.error('Error loading customers:', error)
+        // Fallback to sample data
+        this.customers = [
+          {
+            id: 1,
+            name: 'Sarah Johnson',
+            email: 'sarah@email.com',
+            phone: '+1 (555) 123-4567'
+          },
+          {
+            id: 2,
+            name: 'Michael Chen',
+            email: 'michael@email.com',
+            phone: '+1 (555) 987-6543'
+          }
+        ]
+      }
+    },
+    handleStorageChange(event) {
+      // Refresh customers when localStorage changes
+      if (event.key === 'fashion_app_data') {
+        this.loadCustomers()
+      }
+    },
     selectCustomer(customer) {
       this.selectedCustomer = customer
       this.markCustomerMessagesAsRead(customer.id)
@@ -392,12 +440,6 @@ export default {
         this.$refs.messagesContainer.scrollTop = this.$refs.messagesContainer.scrollHeight
       }
     }
-  },
-  mounted() {
-    // Auto-scroll to bottom when component mounts
-    this.$nextTick(() => {
-      this.scrollToBottom()
-    })
   }
 }
 </script>
@@ -408,6 +450,7 @@ export default {
   display: flex;
   flex-direction: column;
   background: #f8f9fa;
+  margin-top: 50px;
 }
 
 .message-header {
