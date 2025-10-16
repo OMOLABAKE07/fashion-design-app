@@ -207,6 +207,9 @@ export default {
                             if (index > -1 && updatedCustomer) {
                                 // Replace the entire customer object to ensure consistency
                                 this.customers.splice(index, 1, updatedCustomer)
+                            } else if (updatedCustomer) {
+                                // If customer not found in list, add it
+                                this.customers.push(updatedCustomer)
                             }
 
                             // Reset form state
@@ -258,7 +261,15 @@ export default {
 
                             // Add to local state
                             if (newCustomer) {
-                                this.customers.push(newCustomer)
+                                // Check if customer already exists in the list
+                                const existingIndex = this.customers.findIndex(c => c.id === newCustomer.id);
+                                if (existingIndex === -1) {
+                                    // Customer doesn't exist, add it
+                                    this.customers.push(newCustomer);
+                                } else {
+                                    // Customer already exists, update it
+                                    this.customers.splice(existingIndex, 1, newCustomer);
+                                }
                             }
 
                             // Reset form state
