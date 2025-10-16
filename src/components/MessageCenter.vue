@@ -450,7 +450,7 @@ export default {
   display: flex;
   flex-direction: column;
   background: #f8f9fa;
-  margin-top: 50px;
+  margin-top: 120px;
 }
 
 .message-header {

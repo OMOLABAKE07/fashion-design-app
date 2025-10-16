@@ -112,7 +112,7 @@ export default {
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 0;
+  z-index: 1;
 }
 
 /* Layout under header */

@@ -101,7 +101,7 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" @click="handleCancel" class="btn-secondary bg-danger">
+        <button type="button" @click="handleCancel" class="btn-secondary">
           {{ isEditing ? 'Cancel' : 'Clear' }}
         </button>
         <button type="submit" class="btn-primary" :disabled="isSubmitting">
@@ -175,28 +175,17 @@ export default {
           return
         }
 
-        // Prepare customer data
+        // Prepare customer data (without ID for new customers)
         const customerData = {
           ...this.formData,
-          name: `${this.formData.firstName} ${this.formData.lastName}`.trim(),
-          id: this.customer?.id || null,
-          updatedAt: new Date()
+          name: `${this.formData.firstName} ${this.formData.lastName}`.trim()
         }
 
-        // Save to local storage and queue for sync
-        const { syncUtils } = await import('@/utils/sync.js')
-        const savedCustomer = await syncUtils.saveCustomer(customerData)
-        
-        // Emit save event with customer data
-        this.$emit('save', savedCustomer)
-        
-        // Reset form after successful save
-        if (!this.isEditing) {
-          this.resetForm()
-        }
+        // Emit save event with customer data for parent to handle storage
+        this.$emit('save', customerData)
       } catch (error) {
-        console.error('Error saving customer:', error)
-        alert('Error saving customer. Please try again.')
+        console.error('Error preparing customer data:', error)
+        alert('Error preparing customer data. Please try again.')
       } finally {
         this.isSubmitting = false
       }
@@ -322,8 +311,8 @@ export default {
 }
 
 .btn-primary:disabled {
-  /* background: #bdc3c7; */
-  /* cursor: not-allowed; */
+  background: #bdc3c7;
+  cursor: not-allowed;
 }
 
 .btn-secondary {

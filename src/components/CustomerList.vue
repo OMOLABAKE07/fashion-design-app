@@ -1,207 +1,400 @@
 <template>
-  <div class="customer-list mt-5">
-    <div class="header">
-      <h2>Customer List</h2>
-      <div class="header-actions">
-        <div class="search-box">
-          <input
-            type="text"
-            v-model="searchQuery"
-            placeholder="Search customers..."
-            class="search-input"
-          />
+    <div class="customer-list mt-5">
+        <div class="header">
+            <h2>Customer List</h2>
+            <div class="header-actions">
+                <div class="search-box">
+                    <input type="text" v-model="searchQuery" placeholder="Search customers..." class="search-input" />
+                </div>
+                <button @click="showCustomerForm = !showCustomerForm" class="btn-primary">
+                    {{ showCustomerForm ? 'Hide Form' : 'Add New Customer' }}
+                </button>
+            </div>
         </div>
-        <button @click="showCustomerForm = !showCustomerForm" class="btn-primary">
-          {{ showCustomerForm ? 'Hide Form' : 'Add New Customer' }}
-        </button>
-      </div>
-    </div>
 
-    <!-- Customer Form -->
-    <div v-if="showCustomerForm" class="mb-4">
-      <CustomerForm 
-        @save="handleCustomerSave"
-        @cancel="showCustomerForm = false"
-      />
-    </div>
-
-    <div v-if="customers.length === 0" class="empty-state">
-      <p>No customers found. Add your first customer to get started!</p>
-    </div>
-
-    <div v-else class="customers-grid">
-      <div 
-        v-for="customer in filteredCustomers" 
-        :key="customer.id" 
-        class="customer-card"
-        @click="selectCustomer(customer)"
-      >
-        <div class="customer-info">
-          <h3>{{ customer.name }}</h3>
-          <p class="email">{{ customer.email }}</p>
-          <p class="phone">{{ customer.phone }}</p>
-          <div class="customer-meta">
-            <span class="status" :class="customer.status">
-              {{ customer.status }}
-            </span>
-            <span class="date-added">
-              Added {{ formatDate(customer.createdAt) }}
-            </span>
-          </div>
+        <!-- Customer Form -->
+        <div v-if="showCustomerForm" class="mb-4">
+            <CustomerForm :customer="editingCustomer" @save="handleCustomerSave" @cancel="handleFormCancel" />
         </div>
-        <div class="customer-actions">
-          <button @click.stop="editCustomer(customer)" class="btn-secondary">
-            Edit
-          </button>
-          <button @click.stop="deleteCustomer(customer.id)" class="btn-danger">
-            Delete
-          </button>
+
+        <div v-if="customers.length === 0" class="empty-state">
+            <p>No customers found. Add your first customer to get started!</p>
         </div>
-      </div>
+
+        <div v-else class="customers-grid">
+            <div class="card-border mb-3 border-primary mt-4">
+                <table class="table table-sm table-striped table-bordered table-hover table-responsive-sm">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone No.</th>
+                            <th>Address</th>
+                            <th>Gender</th>
+                            <th>Comment</th>
+                            <th>Date Added</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <template v-if="filteredCustomers.length > 0">
+                            <tr v-for="(customer, index) in filteredCustomers" :key="customer.id">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ customer.name }}</td>
+                                <td>{{ customer.email }}</td>
+                                <td>{{ customer.phone }}</td>
+                                <td>{{ customer.address }}</td>
+                                <td>{{ customer.gender }}</td>
+                                <td>
+                                    <span class="comment" :class="customer.notes ? 'active' : 'pending'">
+                                        {{ customer.notes || 'No comments' }}
+                                    </span>
+                                </td>
+                                <td>{{ formatDate(customer.createdAt) }}</td>
+                                <td>
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <button @click.stop="editCustomer(customer)" class="btn btn-sm btn-success">
+                                            Edit
+                                        </button>
+                                        <button @click.stop="deleteCustomer(customer.id)" class="btn btn-sm btn-danger">
+                                            Delete
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+
+                        <template v-else>
+                            <tr>
+                                <td colspan="9" class="text-center">
+                                    <div class="alert alert-info m-0">No Record Found</div>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
+import Swal from 'sweetalert2'
+
 import CustomerForm from './CustomerForm.vue'
 
 export default {
-  name: 'CustomerList',
-  components: {
-    CustomerForm
-  },
-  data() {
-    return {
-      showCustomerForm: false,
-      searchQuery: '',
-      customers: []
-    }
-  },
-  computed: {
-    filteredCustomers() {
-      if (!this.searchQuery) {
-        return this.customers
-      }
-      
-      const query = this.searchQuery.toLowerCase()
-      return this.customers.filter(customer => 
-        customer.name.toLowerCase().includes(query) ||
-        customer.email.toLowerCase().includes(query) ||
-        customer.phone.toLowerCase().includes(query)
-      )
-    }
-  },
-  async mounted() {
-    await this.loadCustomers()
-  },
-  methods: {
-    selectCustomer(customer) {
-      // Navigate to customer detail view or emit event
-      this.$emit('customer-selected', customer)
+    name: 'CustomerList',
+    components: {
+        CustomerForm
     },
-    editCustomer(customer) {
-      // Open edit modal or navigate to edit page
-      this.$emit('customer-edit', customer)
-    },
-    async deleteCustomer(customerId) {
-      if (confirm('Are you sure you want to delete this customer?')) {
-        const index = this.customers.findIndex(c => c.id === customerId)
-        if (index > -1) {
-          this.customers.splice(index, 1)
-          // Also delete from local storage and queue for sync
-          const { syncUtils } = await import('@/utils/sync.js')
-          await syncUtils.deleteCustomer(customerId)
+    data() {
+        return {
+            showCustomerForm: false,
+            searchQuery: '',
+            customers: [],
+            editingCustomer: null
         }
-      }
     },
-    handleCustomerSave(customerData) {
-      // Add new customer to the list
-      const newCustomer = {
-        id: Date.now(), // Simple ID generation
-        ...customerData,
-        status: 'active',
-        createdAt: new Date()
-      }
-      this.customers.push(newCustomer)
-      this.showCustomerForm = false
-    },
-    async loadCustomers() {
-      try {
-        const { syncUtils } = await import('@/utils/sync.js')
-        const storedCustomers = syncUtils.getAllCustomers()
-        
-        if (storedCustomers.length > 0) {
-          this.customers = storedCustomers
-        } else {
-          // Load sample data if no stored customers
-          this.customers = [
-            {
-              id: 1,
-              name: 'Sarah Johnson',
-              email: 'sarah@email.com',
-              phone: '+1 (555) 123-4567',
-              status: 'active',
-              createdAt: new Date('2024-01-15')
-            },
-            {
-              id: 2,
-              name: 'Michael Chen',
-              email: 'michael@email.com',
-              phone: '+1 (555) 987-6543',
-              status: 'pending',
-              createdAt: new Date('2024-01-20')
+    computed: {
+        filteredCustomers() {
+            if (!this.searchQuery) {
+                return this.customers
             }
-          ]
+
+            const query = this.searchQuery.toLowerCase()
+            return this.customers.filter(customer =>
+                customer.name.toLowerCase().includes(query) ||
+                customer.email.toLowerCase().includes(query) ||
+                customer.phone.toLowerCase().includes(query)
+            )
         }
-      } catch (error) {
-        console.error('Error loading customers:', error)
-        // Fallback to sample data
-        this.customers = [
-          {
-            id: 1,
-            name: 'Sarah Johnson',
-            email: 'sarah@email.com',
-            phone: '+1 (555) 123-4567',
-            status: 'active',
-            createdAt: new Date('2024-01-15')
-          }
-        ]
-      }
     },
-    formatDate(date) {
-      // Handle invalid dates more robustly
-      if (!date) {
-        return 'Invalid Date'
-      }
-      
-      // Try to create a Date object
-      const dateObj = new Date(date)
-      
-      // Check if the date is valid
-      if (isNaN(dateObj.getTime())) {
-        return 'Invalid Date'
-      }
-      
-      try {
-        return new Intl.DateTimeFormat('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        }).format(dateObj)
-      } catch (error) {
-        // Fallback to basic formatting if Intl fails
-        return dateObj.toLocaleDateString()
-      }
+    async mounted() {
+        await this.loadCustomers()
+    },
+    methods: {
+        selectCustomer(customer) {
+            // Navigate to customer detail view or emit event
+            this.$emit('customer-selected', customer)
+        },
+        editCustomer(customer) {
+            // Set the customer to edit and show the form
+            this.editingCustomer = customer
+            this.showCustomerForm = true
+        },
+        async deleteCustomer(customerId) {
+            Swal.fire({
+                icon: "warning",
+                title: "Delete Customer",
+                text: "Are you sure you want to delete this customer record?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Delete",
+                cancelButtonText: "Cancel",
+                cancelButtonColor: "#d92550",
+                showCloseButton: true,
+                showLoaderOnConfirm: true,
+            }).then(async (result) => {
+                if (result.value) {
+                    try {
+                        // Remove from local state
+                        const index = this.customers.findIndex(c => c.id === customerId)
+                        if (index > -1) {
+                            this.customers.splice(index, 1)
+                        }
+
+                        // Also delete from local storage and queue for sync
+                        const { syncUtils } = await import('@/utils/sync.js')
+                        const deleted = await syncUtils.deleteCustomer(customerId)
+                        
+                        if (!deleted) {
+                            console.warn('Customer may not have been deleted from storage')
+                        }
+
+                        Swal.fire({
+                            icon: "success",
+                            title: "Deleted",
+                            text: "Customer deleted successfully!",
+                            timer: 2000,
+                            showConfirmButton: false
+                        })
+                    } catch (error) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: "Error deleting customer. Please try again."
+                        })
+                    }
+                } else {
+                    Swal.fire("Cancelled", "Customer was not deleted", "info")
+                }
+            })
+        },
+        async handleCustomerSave(customerData) {
+            const Swal = (await import('sweetalert2')).default
+
+            // Check if we're editing an existing customer or adding a new one
+            if (this.editingCustomer) {
+                // For editing, show confirmation dialog
+                Swal.fire({
+                    icon: "warning",
+                    title: "Save Changes",
+                    text: "Are you sure you want to save these changes?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, Save Changes",
+                    cancelButtonText: "Cancel",
+                    cancelButtonColor: "#d92550",
+                    showCloseButton: true,
+                    showLoaderOnConfirm: true,
+                }).then(async (result) => {
+                    if (result.value) {
+                        try {
+                            // Update existing customer in storage
+                            const { syncUtils } = await import('@/utils/sync.js')
+                            const updatedCustomer = await syncUtils.updateCustomer(
+                                this.editingCustomer.id,
+                                {
+                                    ...customerData,
+                                    name: `${customerData.firstName} ${customerData.lastName}`.trim(),
+                                    updatedAt: new Date().toISOString()
+                                }
+                            )
+
+                            // Update in local state
+                            const index = this.customers.findIndex(c => c.id === this.editingCustomer.id)
+                            if (index > -1 && updatedCustomer) {
+                                // Replace the entire customer object to ensure consistency
+                                this.customers.splice(index, 1, updatedCustomer)
+                            }
+
+                            // Reset form state
+                            this.showCustomerForm = false
+                            this.editingCustomer = null
+
+                            Swal.fire({
+                                icon: "success",
+                                title: "Saved",
+                                text: "Customer updated successfully!",
+                                timer: 2000,
+                                showConfirmButton: false
+                            })
+                        } catch (error) {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error",
+                                text: "Error saving customer. Please try again."
+                            })
+                        }
+                    } else {
+                        Swal.fire("Cancelled", "Changes were not saved", "info")
+                    }
+                })
+            } else {
+                // For adding new customer, show confirmation dialog
+                Swal.fire({
+                    icon: "warning",
+                    title: "Add Customer",
+                    text: "Are you sure you want to add this new customer?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, Add Customer",
+                    cancelButtonText: "Cancel",
+                    cancelButtonColor: "#d92550",
+                    showCloseButton: true,
+                    showLoaderOnConfirm: true,
+                }).then(async (result) => {
+                    if (result.value) {
+                        try {
+                            // Add new customer to storage
+                            const { syncUtils } = await import('@/utils/sync.js')
+                            const newCustomer = await syncUtils.saveCustomer({
+                                ...customerData,
+                                name: `${customerData.firstName} ${customerData.lastName}`.trim(),
+                                status: 'active',
+                                createdAt: new Date().toISOString(),
+                                updatedAt: new Date().toISOString()
+                            })
+
+                            // Add to local state
+                            if (newCustomer) {
+                                this.customers.push(newCustomer)
+                            }
+
+                            // Reset form state
+                            this.showCustomerForm = false
+                            this.editingCustomer = null
+
+                            Swal.fire({
+                                icon: "success",
+                                title: "Saved",
+                                text: "Customer added successfully!",
+                                timer: 2000,
+                                showConfirmButton: false
+                            })
+                        } catch (error) {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error",
+                                text: "Error adding customer. Please try again."
+                            })
+                        }
+                    } else {
+                        Swal.fire("Cancelled", "Customer was not added", "info")
+                    }
+                })
+            }
+        },
+        handleFormCancel() {
+            // Reset form state
+            this.showCustomerForm = false
+            this.editingCustomer = null
+        },
+        async loadCustomers() {
+            try {
+                const { syncUtils } = await import('@/utils/sync.js')
+                const storedCustomers = syncUtils.getAllCustomers()
+
+                // Check if this is the first time the app is being used
+                // We'll check if there's any data in localStorage at all
+                const hasUsedAppBefore = localStorage.getItem('fashion_app_data') !== null;
+
+                // Use stored customers if they exist, or if the user has used the app before (even if they deleted all customers)
+                if (storedCustomers && (storedCustomers.length > 0 || hasUsedAppBefore)) {
+                    this.customers = storedCustomers
+                } else {
+                    // Only use sample data for first-time users
+                    this.customers = [
+                        {
+                            id: 'sample_1',
+                            firstName: 'Sarah',
+                            lastName: 'Johnson',
+                            name: 'Sarah Johnson',
+                            email: 'sarah@email.com',
+                            phone: '+1 (555) 123-4567',
+                            address: '123 Main St',
+                            gender: 'female',
+                            notes: 'Regular customer',
+                            status: 'active',
+                            createdAt: new Date('2024-01-15').toISOString(),
+                            updatedAt: new Date('2024-01-15').toISOString()
+                        },
+                        {
+                            id: 'sample_2',
+                            firstName: 'Michael',
+                            lastName: 'Chen',
+                            name: 'Michael Chen',
+                            email: 'michael@email.com',
+                            phone: '+1 (555) 987-6543',
+                            address: '456 Oak Ave',
+                            gender: 'male',
+                            notes: 'Prefers email communication',
+                            status: 'active',
+                            createdAt: new Date('2024-01-20').toISOString(),
+                            updatedAt: new Date('2024-01-20').toISOString()
+                        }
+                    ]
+                }
+            } catch (error) {
+                console.error('Error loading customers:', error)
+                // Fallback to sample data with proper structure
+                this.customers = [
+                    {
+                        id: 'fallback_1',
+                        firstName: 'Sarah',
+                        lastName: 'Johnson',
+                        name: 'Sarah Johnson',
+                        email: 'sarah@email.com',
+                        phone: '+1 (555) 123-4567',
+                        address: '123 Main St',
+                        gender: 'female',
+                        notes: 'Regular customer',
+                        status: 'active',
+                        createdAt: new Date('2024-01-15').toISOString(),
+                        updatedAt: new Date('2024-01-15').toISOString()
+                    }
+                ]
+            }
+        },
+        formatDate(date) {
+            // Handle invalid dates more robustly
+            if (!date) {
+                return 'Invalid Date'
+            }
+
+            // Try to create a Date object
+            const dateObj = new Date(date)
+
+            // Check if the date is valid
+            if (isNaN(dateObj.getTime())) {
+                return 'Invalid Date'
+            }
+
+            try {
+                return new Intl.DateTimeFormat('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                }).format(dateObj)
+            } catch (error) {
+                // Fallback to basic formatting if Intl fails
+                return dateObj.toLocaleDateString()
+            }
+        }
     }
-  }
 }
 </script>
 
 <style scoped>
 .customer-list {
-  padding: 2rem;
+  padding: 1rem;
   max-width: 1200px;
-  margin: 0 auto;
+  /* margin: 0 auto; */
+  width: 100%;
 }
 
 .header {
@@ -339,12 +532,12 @@ export default {
 }
 
 .btn-secondary {
-  background: #6c757d;
+  background: #198754;
   color: white;
 }
 
 .btn-secondary:hover {
-  background: #5a6268;
+  background: #246534;
 }
 
 .btn-danger {
@@ -371,5 +564,52 @@ export default {
     min-width: auto;
     flex: 1;
   }
+}
+.table {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table th {
+    background: #3498db;
+    color: white;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.table td {
+    vertical-align: middle;
+}
+/* 
+.comment.active {
+    background-color: #d4edda;
+    color: #155724;
+    border-radius: 8px;
+    padding: 0.25rem 0.5rem;
+} */
+
+.comment.pending {
+    background-color: #fff3cd;
+    color: #856404;
+    border-radius: 8px;
+    padding: 0.25rem 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    
+    .header-actions {
+        justify-content: space-between;
+    }
+    
+    .search-input {
+        min-width: auto;
+        flex: 1;
+    }
 }
 </style>
