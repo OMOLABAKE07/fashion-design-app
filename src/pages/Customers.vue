@@ -21,6 +21,7 @@
 <script>
 import CustomerForm from '@/components/CustomerForm.vue'
 import CustomerList from '@/components/CustomerList.vue'
+import { syncUtils } from '@/utils/sync.js'
 
 export default {
   name: 'Customers',
@@ -34,8 +35,28 @@ export default {
     }
   },
   methods: {
-    handleCustomerSave(customerData) {
-      console.log('Customer saved:', customerData)
+    async handleCustomerSave(customerData) {
+      try {
+        // Add new customer to storage
+        const newCustomer = await syncUtils.saveCustomer({
+          ...customerData,
+          name: `${customerData.firstName} ${customerData.lastName}`.trim(),
+          status: 'active',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        })
+
+        if (newCustomer) {
+          console.log('Customer saved successfully:', newCustomer)
+          // Emit event or update local state if needed
+          this.$emit('customer-added', newCustomer)
+        } else {
+          console.error('Failed to save customer')
+        }
+      } catch (error) {
+        console.error('Error saving customer:', error)
+      }
+      
       this.showCustomerForm = false
     },
     handleCustomerSelected(customer) {

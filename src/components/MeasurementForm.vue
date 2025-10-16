@@ -502,6 +502,7 @@
 <script>
 import Swal from 'sweetalert2'
 import MeasurementModal from './MeasurementModal.vue'
+import { syncUtils } from '@/utils/sync.js'
 
 export default {
   name: 'MeasurementForm',
@@ -654,61 +655,44 @@ export default {
     },
     loadMeasurementHistory() {
       try {
-        const storedHistory = localStorage.getItem(`measurementHistory_${this.customer.id}`)
-        if (storedHistory) {
-          this.measurementHistory = JSON.parse(storedHistory)
-        }
+        // Use the sync utilities to get measurements for this customer
+        const allMeasurements = syncUtils.getAllMeasurements()
+        
+        // Filter measurements for this specific customer
+        this.measurementHistory = allMeasurements.filter(
+          measurement => measurement.customerId === this.customer.id
+        )
       } catch (error) {
-        console.error('Error loading measurement history from localStorage:', error)
+        console.error('Error loading measurement history:', error)
         this.measurementHistory = []
       }
     },
     saveMeasurementHistory(measurement) {
       try {
-        // Get existing history or initialize empty array
-        let history = []
-        const storedHistory = localStorage.getItem(`measurementHistory_${this.customer.id}`)
-        if (storedHistory) {
-          history = JSON.parse(storedHistory)
-        }
-        
-        // Check if measurement already exists (for updates)
-        const existingIndex = history.findIndex(item => item.id === measurement.id)
-        if (existingIndex !== -1) {
+        // Use sync utilities to save the measurement
+        if (measurement.id && this.measurementHistory.some(m => m.id === measurement.id)) {
           // Update existing measurement
-          history[existingIndex] = measurement
+          syncUtils.updateMeasurement(measurement.id, measurement)
         } else {
           // Add new measurement
-          history.unshift(measurement)
+          syncUtils.saveMeasurement(measurement)
         }
         
-        // Save updated history to localStorage
-        localStorage.setItem(`measurementHistory_${this.customer.id}`, JSON.stringify(history))
-        
-        // Update local state
-        this.measurementHistory = history
+        // Reload the history to ensure consistency
+        this.loadMeasurementHistory()
       } catch (error) {
-        console.error('Error saving measurement history to localStorage:', error)
+        console.error('Error saving measurement history:', error)
       }
     },
     deleteMeasurementHistory(id) {
       try {
-        let history = []
-        const storedHistory = localStorage.getItem(`measurementHistory_${this.customer.id}`)
-        if (storedHistory) {
-          history = JSON.parse(storedHistory)
-        }
+        // Use sync utilities to delete the measurement
+        syncUtils.deleteMeasurement(id)
         
-        // Remove measurement with matching ID
-        history = history.filter(measurement => measurement.id !== id)
-        
-        // Save updated history to localStorage
-        localStorage.setItem(`measurementHistory_${this.customer.id}`, JSON.stringify(history))
-        
-        // Update local state
-        this.measurementHistory = history
+        // Reload the history to ensure consistency
+        this.loadMeasurementHistory()
       } catch (error) {
-        console.error('Error deleting measurement from localStorage:', error)
+        console.error('Error deleting measurement:', error)
       }
     },
     generateId() {
@@ -748,14 +732,8 @@ export default {
       this.showEditModal = true
     },
     saveEditedMeasurement(updatedMeasurement) {
-      // Update the measurement in localStorage
+      // Update the measurement using sync utilities
       this.saveMeasurementHistory(updatedMeasurement)
-      
-      // Update the measurement in the current history list
-      const index = this.measurementHistory.findIndex(m => m.id === updatedMeasurement.id)
-      if (index !== -1) {
-        this.measurementHistory.splice(index, 1, updatedMeasurement)
-      }
       
       // Emit edit event
       this.$emit('edit', updatedMeasurement)
@@ -817,16 +795,28 @@ export default {
           }
         })
 
-        // Save to localStorage
-        this.saveMeasurementHistory(measurementData)
+        // Save using sync utilities
+        if (this.isEditing && this.measurement?.id) {
+          // Update existing measurement
+          await syncUtils.updateMeasurement(this.measurement.id, measurementData)
+        } else {
+          // Add new measurement
+          await syncUtils.saveMeasurement(measurementData)
+        }
         
-        // Emit save event with measurement data
-        this.$emit('save', measurementData)
+        // Reload measurement history
+        this.loadMeasurementHistory()
         
         // Reset form after successful save (only if not editing)
         if (!this.isEditing) {
           this.resetForm()
         }
+        
+        // Reload measurement history to reflect changes
+        this.loadMeasurementHistory()
+        
+        // Emit save event with measurement data
+        this.$emit('save', measurementData)
         
         // Show success message
         Swal.fire({
@@ -908,18 +898,32 @@ export default {
         cancelButtonColor: "#d92550",
         showCloseButton: true,
         showLoaderOnConfirm: true,
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.value) {
-          this.deleteMeasurementHistory(measurementId)
-          this.$emit('delete', measurementId)
-          
-          Swal.fire({
-            icon: "success",
-            title: "Deleted",
-            text: "Measurement deleted successfully!",
-            timer: 2000,
-            showConfirmButton: false
-          })
+          try {
+            // Use sync utilities to delete the measurement
+            await syncUtils.deleteMeasurement(measurementId)
+            
+            // Reload measurement history
+            this.loadMeasurementHistory()
+            
+            this.$emit('delete', measurementId)
+            
+            Swal.fire({
+              icon: "success",
+              title: "Deleted",
+              text: "Measurement deleted successfully!",
+              timer: 2000,
+              showConfirmButton: false
+            })
+          } catch (error) {
+            console.error('Error deleting measurement:', error)
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "Error deleting measurement. Please try again."
+            })
+          }
         } else {
           Swal.fire("Cancelled", "Measurement was not deleted", "info")
         }

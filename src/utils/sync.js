@@ -3,6 +3,7 @@
 
 class OfflineSyncManager {
   constructor() {
+    console.log('Initializing OfflineSyncManager') // Debug log
     this.isOnline = navigator.onLine
     this.syncQueue = []
     this.syncInProgress = false
@@ -187,6 +188,12 @@ class OfflineSyncManager {
 
   // Save sync queue to localStorage
   saveSyncQueue() {
+    // Check if we're in a browser environment where localStorage is available
+    if (typeof localStorage === 'undefined') {
+      console.warn('localStorage is not available in this environment')
+      return
+    }
+    
     try {
       localStorage.setItem('fashion_app_sync_queue', JSON.stringify(this.syncQueue))
     } catch (error) {
@@ -196,6 +203,13 @@ class OfflineSyncManager {
 
   // Load sync queue from localStorage
   loadSyncQueue() {
+    // Check if we're in a browser environment where localStorage is available
+    if (typeof localStorage === 'undefined') {
+      console.warn('localStorage is not available in this environment')
+      this.syncQueue = []
+      return
+    }
+    
     try {
       const saved = localStorage.getItem('fashion_app_sync_queue')
       if (saved) {
@@ -258,19 +272,48 @@ class OfflineSyncManager {
 class LocalStorageManager {
   constructor() {
     this.storageKey = 'fashion_app_data'
+    console.log('Initializing LocalStorageManager') // Debug log
     this.data = this.loadData()
+    console.log('LocalStorageManager initialized with data:', this.data) // Debug log
   }
 
   // Load data from localStorage
   loadData() {
-    try {
-      const saved = localStorage.getItem(this.storageKey)
-      return saved ? JSON.parse(saved) : {
+    // Check if we're in a browser environment where localStorage is available
+    if (typeof localStorage === 'undefined') {
+      console.warn('localStorage is not available in this environment')
+      return {
         customers: [],
         measurements: [],
         designs: [],
         messages: [],
         lastUpdated: null
+      }
+    }
+    
+    try {
+      const saved = localStorage.getItem(this.storageKey)
+      console.log('Raw data from localStorage:', saved) // Debug log
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        console.log('Parsed data from localStorage:', parsed) // Debug log
+        // Ensure all required data structures exist
+        return {
+          customers: Array.isArray(parsed.customers) ? parsed.customers : [],
+          measurements: Array.isArray(parsed.measurements) ? parsed.measurements : [],
+          designs: Array.isArray(parsed.designs) ? parsed.designs : [],
+          messages: Array.isArray(parsed.messages) ? parsed.messages : [],
+          lastUpdated: parsed.lastUpdated || null
+        }
+      } else {
+        console.log('No data found in localStorage') // Debug log
+        return {
+          customers: [],
+          measurements: [],
+          designs: [],
+          messages: [],
+          lastUpdated: null
+        }
       }
     } catch (error) {
       console.error('Failed to load data from localStorage:', error)
@@ -286,9 +329,16 @@ class LocalStorageManager {
 
   // Save data to localStorage
   saveData() {
+    // Check if we're in a browser environment where localStorage is available
+    if (typeof localStorage === 'undefined') {
+      console.warn('localStorage is not available in this environment')
+      return
+    }
+    
     try {
       this.data.lastUpdated = new Date().toISOString()
       localStorage.setItem(this.storageKey, JSON.stringify(this.data))
+      console.log('Data saved to localStorage:', this.data) // Debug log
     } catch (error) {
       console.error('Failed to save data to localStorage:', error)
     }
@@ -296,11 +346,13 @@ class LocalStorageManager {
 
   // Get all data
   getAllData() {
+    console.log('Getting all data:', this.data) // Debug log
     return { ...this.data }
   }
 
   // Get data by type
   getData(type) {
+    console.log(`Getting data for type: ${type}`, this.data[type] || []) // Debug log
     return this.data[type] || []
   }
 
@@ -320,6 +372,7 @@ class LocalStorageManager {
     
     this.data[type].push(newItem)
     this.saveData()
+    console.log(`Added ${type} item:`, newItem) // Debug log
     return newItem
   }
 
@@ -342,6 +395,7 @@ class LocalStorageManager {
     }
     
     this.saveData()
+    console.log(`Updated ${type} item:`, this.data[type][index]) // Debug log
     return this.data[type][index]
   }
 
@@ -356,8 +410,9 @@ class LocalStorageManager {
       return false
     }
     
-    this.data[type].splice(index, 1)
+    const deletedItem = this.data[type].splice(index, 1)
     this.saveData()
+    console.log(`Deleted ${type} item:`, deletedItem) // Debug log
     return true
   }
 
@@ -420,23 +475,30 @@ class LocalStorageManager {
 }
 
 // Export singleton instances
+console.log('Creating syncManager instance') // Debug log
 export const syncManager = new OfflineSyncManager()
+console.log('Creating storageManager instance') // Debug log
 export const storageManager = new LocalStorageManager()
 
 // Export classes for testing or custom instances
 export { OfflineSyncManager, LocalStorageManager }
 
 // Helper functions for components to use
+console.log('Initializing syncUtils') // Debug log
 export const syncUtils = {
   // Customer operations
   async saveCustomer(customerData) {
+    console.log('Saving customer:', customerData) // Debug log
     const savedCustomer = storageManager.addItem('customers', customerData)
+    console.log('Saved customer result:', savedCustomer) // Debug log
     syncManager.queueForSync(savedCustomer, 'create', 'customer')
     return savedCustomer
   },
 
   async updateCustomer(id, customerData) {
+    console.log('Updating customer:', id, customerData) // Debug log
     const updatedCustomer = storageManager.updateItem('customers', id, customerData)
+    console.log('Updated customer result:', updatedCustomer) // Debug log
     if (updatedCustomer) {
       syncManager.queueForSync(updatedCustomer, 'update', 'customer')
     }
@@ -444,7 +506,9 @@ export const syncUtils = {
   },
 
   async deleteCustomer(id) {
+    console.log('Deleting customer:', id) // Debug log
     const deleted = storageManager.deleteItem('customers', id)
+    console.log('Delete customer result:', deleted) // Debug log
     if (deleted) {
       syncManager.queueForSync({ id }, 'delete', 'customer')
     }
@@ -490,7 +554,9 @@ export const syncUtils = {
 
   // Get all data
   getAllCustomers() {
-    return storageManager.getData('customers')
+    const customers = storageManager.getData('customers')
+    console.log('getAllCustomers result:', customers) // Debug log
+    return customers
   },
 
   getAllMeasurements() {

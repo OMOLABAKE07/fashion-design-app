@@ -178,7 +178,10 @@ export default {
         // Prepare customer data (without ID for new customers)
         const customerData = {
           ...this.formData,
-          name: `${this.formData.firstName} ${this.formData.lastName}`.trim()
+          name: `${this.formData.firstName} ${this.formData.lastName}`.trim(),
+          status: 'active',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         }
 
         // Emit save event with customer data for parent to handle storage

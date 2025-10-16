@@ -85,6 +85,7 @@
 import Swal from 'sweetalert2'
 
 import CustomerForm from './CustomerForm.vue'
+import { syncUtils } from '@/utils/sync.js'
 
 export default {
     name: 'CustomerList',
@@ -148,7 +149,6 @@ export default {
                         }
 
                         // Also delete from local storage and queue for sync
-                        const { syncUtils } = await import('@/utils/sync.js')
                         const deleted = await syncUtils.deleteCustomer(customerId)
                         
                         if (!deleted) {
@@ -175,8 +175,6 @@ export default {
             })
         },
         async handleCustomerSave(customerData) {
-            const Swal = (await import('sweetalert2')).default
-
             // Check if we're editing an existing customer or adding a new one
             if (this.editingCustomer) {
                 // For editing, show confirmation dialog
@@ -195,7 +193,6 @@ export default {
                     if (result.value) {
                         try {
                             // Update existing customer in storage
-                            const { syncUtils } = await import('@/utils/sync.js')
                             const updatedCustomer = await syncUtils.updateCustomer(
                                 this.editingCustomer.id,
                                 {
@@ -251,7 +248,6 @@ export default {
                     if (result.value) {
                         try {
                             // Add new customer to storage
-                            const { syncUtils } = await import('@/utils/sync.js')
                             const newCustomer = await syncUtils.saveCustomer({
                                 ...customerData,
                                 name: `${customerData.firstName} ${customerData.lastName}`.trim(),
@@ -296,48 +292,75 @@ export default {
         },
         async loadCustomers() {
             try {
-                const { syncUtils } = await import('@/utils/sync.js')
+                // Always try to load customers from localStorage through syncUtils
                 const storedCustomers = syncUtils.getAllCustomers()
-
-                // Check if this is the first time the app is being used
-                // We'll check if there's any data in localStorage at all
-                const hasUsedAppBefore = localStorage.getItem('fashion_app_data') !== null;
-
-                // Use stored customers if they exist, or if the user has used the app before (even if they deleted all customers)
-                if (storedCustomers && (storedCustomers.length > 0 || hasUsedAppBefore)) {
+                
+                console.log('Loaded customers from syncUtils:', storedCustomers) // Debug log
+                
+                // Check if we have any stored customers
+                if (storedCustomers && storedCustomers.length > 0) {
                     this.customers = storedCustomers
+                    console.log('Using stored customers:', this.customers) // Debug log
                 } else {
-                    // Only use sample data for first-time users
-                    this.customers = [
-                        {
-                            id: 'sample_1',
-                            firstName: 'Sarah',
-                            lastName: 'Johnson',
-                            name: 'Sarah Johnson',
-                            email: 'sarah@email.com',
-                            phone: '+1 (555) 123-4567',
-                            address: '123 Main St',
-                            gender: 'female',
-                            notes: 'Regular customer',
-                            status: 'active',
-                            createdAt: new Date('2024-01-15').toISOString(),
-                            updatedAt: new Date('2024-01-15').toISOString()
-                        },
-                        {
-                            id: 'sample_2',
-                            firstName: 'Michael',
-                            lastName: 'Chen',
-                            name: 'Michael Chen',
-                            email: 'michael@email.com',
-                            phone: '+1 (555) 987-6543',
-                            address: '456 Oak Ave',
-                            gender: 'male',
-                            notes: 'Prefers email communication',
-                            status: 'active',
-                            createdAt: new Date('2024-01-20').toISOString(),
-                            updatedAt: new Date('2024-01-20').toISOString()
+                    // More robust check for localStorage data
+                    let hasRealData = false
+                    if (typeof localStorage !== 'undefined') {
+                        try {
+                            const rawData = localStorage.getItem('fashion_app_data')
+                            console.log('Raw localStorage data:', rawData) // Debug log
+                            if (rawData) {
+                                const parsed = JSON.parse(rawData)
+                                console.log('Parsed localStorage data:', parsed) // Debug log
+                                // Check if there's actual customer data
+                                if (parsed && Array.isArray(parsed.customers) && parsed.customers.length > 0) {
+                                    hasRealData = true
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Error parsing localStorage data:', e)
                         }
-                    ]
+                    }
+                    
+                    console.log('Has real customer data in localStorage:', hasRealData) // Debug log
+                    
+                    // If localStorage has real customer data, use empty array (will be populated by syncUtils)
+                    // Only show sample data if localStorage is truly empty/non-existent
+                    if (hasRealData) {
+                        this.customers = []
+                        console.log('LocalStorage has real data, using empty array') // Debug log
+                    } else {
+                        this.customers = [
+                            {
+                                id: 'sample_1',
+                                firstName: 'Sarah',
+                                lastName: 'Johnson',
+                                name: 'Sarah Johnson',
+                                email: 'sarah@email.com',
+                                phone: '+1 (555) 123-4567',
+                                address: '123 Main St',
+                                gender: 'female',
+                                notes: 'Regular customer',
+                                status: 'active',
+                                createdAt: new Date('2024-01-15').toISOString(),
+                                updatedAt: new Date('2024-01-15').toISOString()
+                            },
+                            {
+                                id: 'sample_2',
+                                firstName: 'Michael',
+                                lastName: 'Chen',
+                                name: 'Michael Chen',
+                                email: 'michael@email.com',
+                                phone: '+1 (555) 987-6543',
+                                address: '456 Oak Ave',
+                                gender: 'male',
+                                notes: 'Prefers email communication',
+                                status: 'active',
+                                createdAt: new Date('2024-01-20').toISOString(),
+                                updatedAt: new Date('2024-01-20').toISOString()
+                            }
+                        ]
+                        console.log('Using sample customers:', this.customers) // Debug log
+                    }
                 }
             } catch (error) {
                 console.error('Error loading customers:', error)

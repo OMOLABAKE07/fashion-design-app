@@ -47,6 +47,7 @@
 </template>
 
 <script>
+import { syncManager, storageManager, syncUtils } from '@/utils/sync.js'
 export default {
   name: 'SyncStatus',
   data() {
@@ -98,7 +99,6 @@ export default {
   methods: {
     async initializeSync() {
       try {
-        const { syncManager, storageManager } = await import('@/utils/sync.js')
         this.syncManager = syncManager
         this.storageManager = storageManager
         
@@ -204,14 +204,15 @@ export default {
         try {
           if (this.storageManager && this.syncManager) {
             // Use the sync utilities to clear cache
-            const { syncUtils } = await import('@/utils/sync.js')
             syncUtils.clearCache()
           } else {
-            // Fallback to manual clearing
-            localStorage.removeItem('fashion_app_cache')
-            localStorage.removeItem('fashion_app_data')
-            localStorage.removeItem('fashion_app_sync_queue')
-            localStorage.removeItem('sync_state')
+            // Fallback to manual clearing with proper localStorage checks
+            if (typeof localStorage !== 'undefined') {
+              localStorage.removeItem('fashion_app_cache')
+              localStorage.removeItem('fashion_app_data')
+              localStorage.removeItem('fashion_app_sync_queue')
+              localStorage.removeItem('sync_state')
+            }
           }
           
           this.pendingChangesCount = 0
@@ -226,6 +227,12 @@ export default {
       }
     },
     loadSyncState() {
+      // Check if we're in a browser environment where localStorage is available
+      if (typeof localStorage === 'undefined') {
+        console.warn('localStorage is not available in this environment')
+        return
+      }
+      
       try {
         const syncState = localStorage.getItem('sync_state')
         if (syncState) {
@@ -238,6 +245,12 @@ export default {
       }
     },
     saveSyncState() {
+      // Check if we're in a browser environment where localStorage is available
+      if (typeof localStorage === 'undefined') {
+        console.warn('localStorage is not available in this environment')
+        return
+      }
+      
       try {
         const syncState = {
           lastSyncTime: this.lastSyncTime?.toISOString(),

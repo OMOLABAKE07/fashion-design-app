@@ -190,6 +190,7 @@
 
 <script>
 import SyncStatus from './SyncStatus.vue'
+import { syncUtils } from '@/utils/sync.js'
 
 export default {
   name: 'MessageCenter',
@@ -269,27 +270,59 @@ export default {
   methods: {
     async loadCustomers() {
       try {
-        const { syncUtils } = await import('@/utils/sync.js')
+        // Always try to load customers from localStorage through syncUtils
         const storedCustomers = syncUtils.getAllCustomers()
         
-        if (storedCustomers.length > 0) {
+        console.log('Loaded customers from syncUtils:', storedCustomers) // Debug log
+        
+        // Check if we have any stored customers
+        if (storedCustomers && storedCustomers.length > 0) {
           this.customers = storedCustomers
+          console.log('Using stored customers:', this.customers) // Debug log
         } else {
-          // Fallback to sample data if no stored customers
-          this.customers = [
-            {
-              id: 1,
-              name: 'Sarah Johnson',
-              email: 'sarah@email.com',
-              phone: '+1 (555) 123-4567'
-            },
-            {
-              id: 2,
-              name: 'Michael Chen',
-              email: 'michael@email.com',
-              phone: '+1 (555) 987-6543'
+          // More robust check for localStorage data
+          let hasRealData = false
+          if (typeof localStorage !== 'undefined') {
+            try {
+              const rawData = localStorage.getItem('fashion_app_data')
+              console.log('Raw localStorage data:', rawData) // Debug log
+              if (rawData) {
+                const parsed = JSON.parse(rawData)
+                console.log('Parsed localStorage data:', parsed) // Debug log
+                // Check if there's actual customer data
+                if (parsed && Array.isArray(parsed.customers) && parsed.customers.length > 0) {
+                  hasRealData = true
+                }
+              }
+            } catch (e) {
+              console.error('Error parsing localStorage data:', e)
             }
-          ]
+          }
+          
+          console.log('Has real customer data in localStorage:', hasRealData) // Debug log
+          
+          // If localStorage has real customer data, use empty array (will be populated by syncUtils)
+          // Only show sample data if localStorage is truly empty/non-existent
+          if (hasRealData) {
+            this.customers = []
+            console.log('LocalStorage has real data, using empty array') // Debug log
+          } else {
+            this.customers = [
+              {
+                id: 1,
+                name: 'Sarah Johnson',
+                email: 'sarah@email.com',
+                phone: '+1 (555) 123-4567'
+              },
+              {
+                id: 2,
+                name: 'Michael Chen',
+                email: 'michael@email.com',
+                phone: '+1 (555) 987-6543'
+              }
+            ]
+            console.log('Using sample customers:', this.customers) // Debug log
+          }
         }
       } catch (error) {
         console.error('Error loading customers:', error)
