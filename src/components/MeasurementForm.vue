@@ -1584,6 +1584,8 @@ export default {
   padding: 0.75rem;
   cursor: pointer;
   border-bottom: 1px solid #e9ecef;
+  background-color: #ced4da;
+  color: black;
 }
 
 .customer-option:hover {

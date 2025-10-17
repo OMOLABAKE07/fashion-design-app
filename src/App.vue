@@ -3,7 +3,7 @@
     <!-- Global Header -->
     <header class="app-header">
       <div class="header-content">
-        <h1 class="app-title">Welcome to Fashion Design Studio</h1>
+        <h1 class="app-title">Welcome to Efizzy Clothing Studio</h1>
         <p class="app-subtitle">Manage your customers, measurements, designs, and communications all in one place.</p>
       </div>
       <div class="header-actions gap-3">
