@@ -68,6 +68,7 @@ export default {
 .overview-header {
   text-align: center;
   margin-bottom: 3rem;
+  margin-top: 3rem;
 }
 
 .overview-header h2 {

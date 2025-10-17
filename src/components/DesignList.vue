@@ -26,6 +26,10 @@
               {{ customer.name }}
             </option>
           </select>
+          <!-- Always visible Create Design button -->
+          <button @click="createNewDesign" class="btn-primary filter-create-btn">
+            Create Design
+          </button>
         </div>
       </div>
     </div>
@@ -181,6 +185,18 @@
                   <span class="label">Final Price:</span>
                   <span class="price">{{ formatPrice(selectedDesign.finalPrice) }}</span>
                 </div>
+                <div class="info-item" v-if="selectedDesign.firstFitting">
+                  <span class="label">First Fitting:</span>
+                  <span>{{ formatDate(selectedDesign.firstFitting) }}</span>
+                </div>
+                <div class="info-item" v-if="selectedDesign.finalFitting">
+                  <span class="label">Final Fitting:</span>
+                  <span>{{ formatDate(selectedDesign.finalFitting) }}</span>
+                </div>
+                <div class="info-item" v-if="selectedDesign.deliveryDate">
+                  <span class="label">Delivery Date:</span>
+                  <span>{{ formatDate(selectedDesign.deliveryDate) }}</span>
+                </div>
               </div>
               
               <div v-if="selectedDesign.specialInstructions" class="instructions">
@@ -209,71 +225,20 @@
 </template>
 
 <script>
+import { syncUtils } from '@/utils/sync.js'
+import Swal from 'sweetalert2'
+
 export default {
   name: 'DesignList',
-  emits: ['design-selected', 'design-edit'],
+  emits: ['design-selected', 'design-edit', 'create-new-design'],
   data() {
     return {
       searchQuery: '',
       statusFilter: '',
       customerFilter: '',
       selectedDesign: null,
-      customers: [
-        // Sample data - in a real app this would come from a store/API
-        {
-          id: 1,
-          name: 'Sarah Johnson',
-          email: 'sarah@email.com'
-        },
-        {
-          id: 2,
-          name: 'Michael Chen',
-          email: 'michael@email.com'
-        }
-      ],
-      designs: [
-        // Sample data - in a real app this would come from a store/API
-        {
-          id: 1,
-          designName: 'Wedding Dress - Sarah',
-          customerId: 1,
-          designDate: '2024-01-15',
-          status: 'in-progress',
-          style: 'dress',
-          fabricType: 'Silk',
-          color: 'Ivory',
-          occasion: 'Wedding',
-          completionDate: '2024-03-15',
-          estimatedPrice: 2500,
-          finalPrice: null,
-          photos: [
-            {
-              name: 'dress-concept.jpg',
-              preview: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPldlZGRpbmcgRHJlc3M8L3RleHQ+PC9zdmc+',
-              url: null
-            }
-          ],
-          specialInstructions: 'Custom beading on the bodice',
-          notes: 'Client prefers A-line silhouette'
-        },
-        {
-          id: 2,
-          designName: 'Business Suit - Michael',
-          customerId: 2,
-          designDate: '2024-01-20',
-          status: 'fitting',
-          style: 'suit',
-          fabricType: 'Wool',
-          color: 'Navy Blue',
-          occasion: 'Business',
-          completionDate: '2024-02-28',
-          estimatedPrice: 1800,
-          finalPrice: null,
-          photos: [],
-          specialInstructions: 'Double-breasted with peak lapels',
-          notes: 'First fitting scheduled for next week'
-        }
-      ]
+      customers: [],
+      designs: []
     }
   },
   computed: {
@@ -287,7 +252,9 @@ export default {
           design.designName.toLowerCase().includes(query) ||
           this.getCustomerName(design.customerId).toLowerCase().includes(query) ||
           (design.style && design.style.toLowerCase().includes(query)) ||
-          (design.fabricType && design.fabricType.toLowerCase().includes(query))
+          (design.fabricType && design.fabricType.toLowerCase().includes(query)) ||
+          (design.occasion && design.occasion.toLowerCase().includes(query)) ||
+          (design.color && design.color.toLowerCase().includes(query))
         )
       }
 
@@ -304,7 +271,33 @@ export default {
       return filtered.sort((a, b) => new Date(b.designDate) - new Date(a.designDate))
     }
   },
+  mounted() {
+    this.loadDesigns()
+    this.loadCustomers()
+    // Listen for designs updates
+    window.addEventListener('designs-updated', this.loadDesigns)
+  },
+  beforeDestroy() {
+    // Clean up event listener
+    window.removeEventListener('designs-updated', this.loadDesigns)
+  },
   methods: {
+    loadDesigns() {
+      try {
+        this.designs = syncUtils.getAllDesigns()
+      } catch (error) {
+        console.error('Error loading designs:', error)
+        this.designs = []
+      }
+    },
+    loadCustomers() {
+      try {
+        this.customers = syncUtils.getAllCustomers()
+      } catch (error) {
+        console.error('Error loading customers:', error)
+        this.customers = []
+      }
+    },
     selectDesign(design) {
       this.selectedDesign = design
       this.$emit('design-selected', design)
@@ -316,13 +309,38 @@ export default {
     viewDesign(design) {
       this.selectDesign(design)
     },
-    deleteDesign(designId) {
-      if (confirm('Are you sure you want to delete this design? This action cannot be undone.')) {
-        const index = this.designs.findIndex(d => d.id === designId)
-        if (index > -1) {
-          this.designs.splice(index, 1)
+    async deleteDesign(designId) {
+      Swal.fire({
+        title: 'Delete Design',
+        text: 'Are you sure you want to delete this design? This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, Delete',
+        cancelButtonText: 'Cancel',
+        cancelButtonColor: '#6c757d'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            await syncUtils.deleteDesign(designId)
+            this.loadDesigns()
+            
+            Swal.fire({
+              title: 'Deleted!',
+              text: 'The design has been deleted successfully.',
+              icon: 'success',
+              timer: 2000,
+              showConfirmButton: false
+            })
+          } catch (error) {
+            console.error('Error deleting design:', error)
+            Swal.fire({
+              title: 'Error',
+              text: 'Failed to delete the design. Please try again.',
+              icon: 'error'
+              })
+          }
         }
-      }
+      })
     },
     getCustomerName(customerId) {
       const customer = this.customers.find(c => c.id === customerId)
@@ -339,10 +357,15 @@ export default {
       }).format(new Date(dateString))
     },
     formatPrice(price) {
+      if (!price) return 'N/A'
       return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD'
       }).format(price)
+    },
+    createNewDesign() {
+      // Emit an event to notify the parent component to show the design form
+      this.$emit('create-new-design');
     }
   }
 }
@@ -399,17 +422,21 @@ export default {
   gap: 0.5rem;
 }
 
-.filter-select {
-  padding: 0.75rem;
-  border: 2px solid #e9ecef;
+.filter-create-btn {
+  padding: 0.75rem 1rem;
+  border: none;
   border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
   font-size: 1rem;
-  background: white;
+  transition: all 0.3s;
+  background: #3498db;
+  color: white;
+  white-space: nowrap;
 }
 
-.filter-select:focus {
-  outline: none;
-  border-color: #3498db;
+.filter-create-btn:hover {
+  background: #2980b9;
 }
 
 .empty-state {
@@ -435,6 +462,23 @@ export default {
 .empty-content h3 {
   margin: 0 0 1rem 0;
   color: #2c3e50;
+}
+
+.empty-content .btn-primary {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.3s;
+  background: #3498db;
+  color: white;
+}
+
+.empty-content .btn-primary:hover {
+  background: #2980b9;
 }
 
 .designs-grid {
@@ -806,5 +850,22 @@ export default {
   .design-actions {
     flex-direction: column;
   }
+}
+
+.empty-content .btn-primary {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.3s;
+  background: #3498db;
+  color: white;
+}
+
+.empty-content .btn-primary:hover {
+  background: #2980b9;
 }
 </style>

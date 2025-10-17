@@ -3,18 +3,25 @@
     <div class="page-header">
       <h2>Design Management</h2>
       <button @click="showDesignForm = !showDesignForm" class="btn-primary">
-        {{ showDesignForm ? 'Hide Form' : 'Add New Design' }}
+        {{ showDesignForm ? 'Hide Form' : (editingDesign ? 'Cancel Edit' : 'Add New Design') }}
       </button>
     </div>
     
     <div v-if="showDesignForm" class="form-section">
-      <DesignForm @save="handleDesignSave" @cancel="showDesignForm = false" />
+      <DesignForm 
+        :design="editingDesign" 
+        @save="handleDesignSave" 
+        @cancel="handleFormCancel" 
+      />
     </div>
+    <!-- Debug: show current state -->
+    <!-- <div>showDesignForm: {{ showDesignForm }}</div> -->
     
     <div class="list-section">
       <DesignList 
         @design-selected="handleDesignSelected"
         @design-edit="handleDesignEdit"
+        @create-new-design="handleCreateNewDesign"
       />
     </div>
   </div>
@@ -32,19 +39,34 @@ export default {
   },
   data() {
     return {
-      showDesignForm: false
+      showDesignForm: false,
+      editingDesign: null
     }
   },
   methods: {
     handleDesignSave(designData) {
       console.log('Design saved:', designData)
       this.showDesignForm = false
+      this.editingDesign = null
+      // Refresh the design list by emitting a custom event
+      window.dispatchEvent(new Event('designs-updated'))
     },
     handleDesignSelected(design) {
       console.log('Design selected:', design)
     },
     handleDesignEdit(design) {
       console.log('Edit design:', design)
+      this.editingDesign = design
+      this.showDesignForm = true
+    },
+    handleFormCancel() {
+      this.showDesignForm = false
+      this.editingDesign = null
+    },
+    handleCreateNewDesign() {
+      // Show the design form when user clicks "Create Your First Design"
+      this.editingDesign = null
+      this.showDesignForm = true
     }
   }
 }

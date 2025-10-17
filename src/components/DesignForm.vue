@@ -276,6 +276,9 @@
 </template>
 
 <script>
+import { syncUtils } from '@/utils/sync.js'
+import Swal from 'sweetalert2'
+
 export default {
   name: 'DesignForm',
   props: {
@@ -307,19 +310,7 @@ export default {
         finalPrice: '',
         notes: ''
       },
-      customers: [
-        // Sample data - in a real app this would come from a store/API
-        {
-          id: 1,
-          name: 'Sarah Johnson',
-          email: 'sarah@email.com'
-        },
-        {
-          id: 2,
-          name: 'Michael Chen',
-          email: 'michael@email.com'
-        }
-      ]
+      customers: []
     }
   },
   computed: {
@@ -357,14 +348,29 @@ export default {
       immediate: true
     }
   },
+  mounted() {
+    this.loadCustomers()
+  },
   methods: {
+    loadCustomers() {
+      try {
+        this.customers = syncUtils.getAllCustomers()
+      } catch (error) {
+        console.error('Error loading customers:', error)
+        this.customers = []
+      }
+    },
     async handleSubmit() {
       this.isSubmitting = true
       
       try {
         // Validate required fields
         if (!this.formData.designName || !this.formData.customerId || !this.formData.designDate) {
-          alert('Please fill in all required fields')
+          Swal.fire({
+            icon: 'warning',
+            title: 'Missing Required Fields',
+            text: 'Please fill in all required fields (Design Name, Customer, and Design Date)'
+          })
           return
         }
 
@@ -372,8 +378,8 @@ export default {
         const designData = {
           ...this.formData,
           id: this.design?.id || null,
-          createdAt: this.design?.createdAt || new Date(),
-          updatedAt: new Date()
+          createdAt: this.design?.createdAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         }
 
         // Convert price strings to numbers
@@ -384,6 +390,13 @@ export default {
           designData.finalPrice = parseFloat(designData.finalPrice)
         }
 
+        // Save using sync utilities
+        if (this.isEditing) {
+          await syncUtils.updateDesign(this.design.id, designData)
+        } else {
+          await syncUtils.saveDesign(designData)
+        }
+
         // Emit save event with design data
         this.$emit('save', designData)
         
@@ -391,9 +404,22 @@ export default {
         if (!this.isEditing) {
           this.resetForm()
         }
+        
+        // Show success message
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: `Design ${this.isEditing ? 'updated' : 'created'} successfully!`,
+          timer: 2000,
+          showConfirmButton: false
+        })
       } catch (error) {
         console.error('Error saving design:', error)
-        alert('Error saving design. Please try again.')
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: `Error ${this.isEditing ? 'updating' : 'creating'} design. Please try again.`
+        })
       } finally {
         this.isSubmitting = false
       }

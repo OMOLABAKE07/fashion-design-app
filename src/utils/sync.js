@@ -545,6 +545,14 @@ export const syncUtils = {
     return updatedDesign
   },
 
+  async deleteDesign(id) {
+    const deleted = storageManager.deleteItem('designs', id)
+    if (deleted) {
+      syncManager.queueForSync({ id }, 'delete', 'design')
+    }
+    return deleted
+  },
+
   // Message operations
   async saveMessage(messageData) {
     const savedMessage = storageManager.addItem('messages', messageData)
