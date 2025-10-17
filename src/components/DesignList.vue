@@ -226,7 +226,6 @@
 
 <script>
 import { syncUtils } from '@/utils/sync.js'
-import eventBus from '@/utils/eventBus.js'
 import Swal from 'sweetalert2'
 
 export default {
@@ -275,12 +274,12 @@ export default {
   mounted() {
     this.loadDesigns()
     this.loadCustomers()
-    // Listen for design saved events through event bus
-    eventBus.on('design-saved', this.handleDesignSaved)
+    // Listen for design saved events
+    window.addEventListener('design-saved', this.handleDesignSaved)
   },
   beforeDestroy() {
     // Clean up event listener
-    eventBus.off('design-saved', this.handleDesignSaved)
+    window.removeEventListener('design-saved', this.handleDesignSaved)
   },
   methods: {
     loadDesigns() {
