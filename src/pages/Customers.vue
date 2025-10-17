@@ -61,6 +61,9 @@ export default {
     },
     handleCustomerSelected(customer) {
       console.log('Customer selected:', customer)
+      // Store selected customer in localStorage and navigate to measurements
+      localStorage.setItem('selectedCustomer', JSON.stringify(customer))
+      this.$router.push('/measurements')
     },
     handleCustomerEdit(customer) {
       console.log('Edit customer:', customer)

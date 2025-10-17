@@ -40,7 +40,7 @@
 
                     <tbody>
                         <template v-if="filteredCustomers.length > 0">
-                            <tr v-for="(customer, index) in filteredCustomers" :key="customer.id">
+                            <tr v-for="(customer, index) in filteredCustomers" :key="customer.id" @click="selectCustomer(customer)" class="customer-row">
                                 <td>{{ index + 1 }}</td>
                                 <td>{{ customer.name }}</td>
                                 <td>{{ customer.email }}</td>
@@ -119,13 +119,13 @@ export default {
     },
     methods: {
         selectCustomer(customer) {
-            // Navigate to customer detail view or emit event
-            this.$emit('customer-selected', customer)
+          // Navigate to customer detail view or emit event
+          this.$emit('customer-selected', customer)
         },
         editCustomer(customer) {
-            // Set the customer to edit and show the form
-            this.editingCustomer = customer
-            this.showCustomerForm = true
+          // Set the customer to edit and show the form
+          this.editingCustomer = customer
+          this.showCustomerForm = true
         },
         async deleteCustomer(customerId) {
             Swal.fire({
@@ -615,6 +615,15 @@ export default {
 .table td {
     vertical-align: middle;
 }
+
+.customer-row {
+    cursor: pointer;
+}
+
+.customer-row:hover {
+    background-color: #f8f9fa;
+}
+
 /* 
 .comment.active {
     background-color: #d4edda;

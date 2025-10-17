@@ -7,17 +7,7 @@
       </div>
     </div>
     
-    <div v-if="!selectedCustomer" class="no-selection">
-      <div class="no-selection-content">
-        <h3>Select a Customer First</h3>
-        <p>Please select a customer from the Customers page to record or view their measurements.</p>
-        <router-link to="/customers" class="btn-primary">
-          Go to Customers
-        </router-link>
-      </div>
-    </div>
-    
-    <div v-else class="measurement-section">
+    <div class="measurement-section">
       <MeasurementForm 
         :customer="selectedCustomer"
         :measurement="editingMeasurement"
@@ -25,6 +15,7 @@
         @cancel="editingMeasurement = null"
         @edit="editingMeasurement = $event"
         @delete="handleMeasurementDelete"
+        @customer-selected="handleCustomerSelected"
       />
     </div>
   </div>
@@ -32,6 +23,7 @@
 
 <script>
 import MeasurementForm from '@/components/MeasurementForm.vue'
+import { syncUtils } from '@/utils/sync.js'
 
 export default {
   name: 'Measurements',
@@ -45,19 +37,26 @@ export default {
     }
   },
   mounted() {
-    // Load selected customer from localStorage or route params
+    // Load selected customer from localStorage
     this.loadSelectedCustomer()
   },
   methods: {
     loadSelectedCustomer() {
-      // In a real app, this would load from store or route params
-      // For now, we'll use sample data
-      this.selectedCustomer = {
-        id: 1,
-        name: 'Sarah Johnson',
-        email: 'sarah@email.com',
-        phone: '+1 (555) 123-4567'
+      // Load selected customer from localStorage
+      const storedCustomer = localStorage.getItem('selectedCustomer')
+      if (storedCustomer) {
+        try {
+          this.selectedCustomer = JSON.parse(storedCustomer)
+        } catch (error) {
+          console.error('Error parsing stored customer:', error)
+          this.selectedCustomer = null
+        }
       }
+    },
+    handleCustomerSelected(customer) {
+      this.selectedCustomer = customer
+      // Store selected customer in localStorage
+      localStorage.setItem('selectedCustomer', JSON.stringify(customer))
     },
     handleMeasurementSave(measurementData) {
       console.log('Measurement saved:', measurementData)
@@ -95,26 +94,6 @@ export default {
 .selected-customer {
   color: #6c757d;
   font-size: 1rem;
-}
-
-.no-selection {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.no-selection-content {
-  text-align: center;
-  color: #6c757d;
-}
-
-.no-selection-content h3 {
-  margin-bottom: 1rem;
-  color: #2c3e50;
 }
 
 .measurement-section {
