@@ -10,28 +10,36 @@
         <form @submit.prevent="handleSave">
           <!-- Category Info -->
           <div class="category-info">
-            <p><strong>Category:</strong> {{ getCategoryName(measurement.category) }}</p>
+            <p><strong>Categories:</strong> {{ formatCategories(measurement.categories) }}</p>
             <p><strong>Date:</strong> {{ formatDate(measurement.measurementDate) }}</p>
           </div>
           
-          <!-- Dynamic Fields based on Category -->
+          <!-- Dynamic Fields grouped by Category -->
           <div class="measurement-fields">
-            <div 
-              v-for="field in getFieldsForCategory(measurement.category)" 
-              :key="field.key"
-              class="form-group"
-            >
-              <label :for="field.key">{{ field.label }}</label>
-              <input
-                :id="field.key"
-                type="number"
-                v-model="editableMeasurement[field.key]"
-                step="0.25"
-                min="0"
-                class="form-input"
-                :placeholder="field.placeholder"
-              />
-            </div>
+            <!-- Render fields for each category -->
+            <template v-for="category in measurement.categories" :key="category">
+              <div class="category-section">
+                <h4>{{ getCategoryName(category) }}</h4>
+                <div class="category-fields">
+                  <div 
+                    v-for="field in getFieldsForCategory(category)" 
+                    :key="field.key"
+                    class="form-group"
+                  >
+                    <label :for="field.key">{{ field.label }}</label>
+                    <input
+                      :id="field.key"
+                      type="number"
+                      v-model="editableMeasurement[field.key]"
+                      step="0.25"
+                      min="0"
+                      class="form-input"
+                      :placeholder="field.placeholder"
+                    />
+                  </div>
+                </div>
+              </div>
+            </template>
           </div>
           
           <!-- Notes -->
@@ -135,12 +143,72 @@ export default {
         'top': 'Top Measurements',
         'sleeve': 'Sleeve Measurements',
         'trouser': 'Trouser Measurements',
+        'bust': 'Bust Measurements',
+        'shoulder': 'Shoulder Measurements',
+        'length': 'Length Measurements',
+        'skirt': 'Skirt Measurements',
+        'gown': 'Gown Measurements',
         'all': 'All Categories'
       }
       return categoryNames[category] || category
     },
+    formatCategories(categories) {
+      if (!categories || categories.length === 0) return 'No Categories'
+      
+      return categories.map(cat => this.getCategoryName(cat)).join(', ')
+    },
     getFieldsForCategory(category) {
       const fieldDefinitions = {
+        bust: [
+          { key: 'bust', label: 'Bust (inches)', placeholder: '0.00' },
+          { key: 'shoulderToUnderBust', label: 'Shoulder to Under Bust (inches)', placeholder: '0.00' },
+          { key: 'shoulderToUpperBust', label: 'Shoulder to Upper Bust (inches)', placeholder: '0.00' },
+          { key: 'shoulderToNipplePoint', label: 'Shoulder to Nipple Point (inches)', placeholder: '0.00' },
+          { key: 'nippleToNipple', label: 'Nipple to Nipple (inches)', placeholder: '0.00' },
+          { key: 'roundUpperBust', label: 'Round Upper Bust (inches)', placeholder: '0.00' },
+          { key: 'roundUnderBust', label: 'Round Under Bust (inches)', placeholder: '0.00' }
+        ],
+        shoulder: [
+          { key: 'shoulder', label: 'Shoulder (inches)', placeholder: '0.00' }
+        ],
+        length: [
+          { key: 'halfLength', label: 'Half Length (inches)', placeholder: '0.00' },
+          { key: 'blouseLength', label: 'Blouse Length (inches)', placeholder: '0.00' },
+          { key: 'longGownLength', label: 'Long Gown Length (inches)', placeholder: '0.00' },
+          { key: 'shortGownLength', label: 'Short Gown Length (inches)', placeholder: '0.00' },
+          { key: 'threeQuarterGownLength', label: '3/4 Gown Length (inches)', placeholder: '0.00' },
+          { key: 'trouserLength', label: 'Trouser Length (inches)', placeholder: '0.00' }
+        ],
+        sleeve: [
+          { key: 'roundSleeve', label: 'Round Sleeve (inches)', placeholder: '0.00' },
+          { key: 'biceps', label: 'Biceps (inches)', placeholder: '0.00' },
+          { key: 'elbow', label: 'Elbow (inches)', placeholder: '0.00' },
+          { key: 'longSleeve', label: 'Long Sleeve (inches)', placeholder: '0.00' },
+          { key: 'shortSleeve', label: 'Short Sleeve (inches)', placeholder: '0.00' },
+          { key: 'threeQuarterSleeve', label: '3/4 Sleeve (inches)', placeholder: '0.00' }
+        ],
+        skirt: [
+          { key: 'longSkirt', label: 'Long Skirt (inches)', placeholder: '0.00' },
+          { key: 'shortSkirt', label: 'Short Skirt (inches)', placeholder: '0.00' },
+          { key: 'threeQuarterSkirt', label: '3/4 Skirt (inches)', placeholder: '0.00' }
+        ],
+        gown: [
+          { key: 'longGownLength', label: 'Long Gown Length (inches)', placeholder: '0.00' },
+          { key: 'shortGownLength', label: 'Short Gown Length (inches)', placeholder: '0.00' },
+          { key: 'threeQuarterGownLength', label: '3/4 Gown Length (inches)', placeholder: '0.00' }
+        ],
+        trouser: [
+          { key: 'trouserLength', label: 'Trouser Length (inches)', placeholder: '0.00' },
+          { key: 'waist', label: 'Waist (inches)', placeholder: '0.00' },
+          { key: 'band', label: 'Band (inches)', placeholder: '0.00' },
+          { key: 'thigh', label: 'Thigh (inches)', placeholder: '0.00' },
+          { key: 'knee', label: 'Knee (inches)', placeholder: '0.00' },
+          { key: 'inseam', label: 'Inseam (inches)', placeholder: '0.00' },
+          { key: 'outseam', label: 'Outseam (inches)', placeholder: '0.00' },
+          { key: 'ankle', label: 'Ankle (inches)', placeholder: '0.00' },
+          { key: 'crotch', label: 'Crotch (inches)', placeholder: '0.00' },
+          { key: 'calf', label: 'Calf (inches)', placeholder: '0.00' }
+        ],
         agbada: [
           { key: 'agbadaLength', label: 'Agbada Length (inches)', placeholder: '0.00' },
           { key: 'agbadaShoulder', label: 'Agbada Shoulder (inches)', placeholder: '0.00' },
@@ -158,27 +226,6 @@ export default {
           { key: 'bustUpperChest', label: 'Bust/Upper Chest (inches)', placeholder: '0.00' },
           { key: 'stomach', label: 'Stomach (inches)', placeholder: '0.00' },
           { key: 'capSize', label: 'Cap Size (inches)', placeholder: '0.00' }
-        ],
-        sleeve: [
-          { key: 'longSleeve', label: 'Long Sleeve (inches)', placeholder: '0.00' },
-          { key: 'shortSleeve', label: 'Short Sleeve (inches)', placeholder: '0.00' },
-          { key: 'threeQuarterSleeve', label: '3/4 Sleeve (inches)', placeholder: '0.00' },
-          { key: 'roundSleeve', label: 'Round Sleeve (inches)', placeholder: '0.00' },
-          { key: 'biceps', label: 'Biceps (inches)', placeholder: '0.00' },
-          { key: 'elbow', label: 'Elbow (inches)', placeholder: '0.00' },
-          { key: 'wrist', label: 'Wrist (inches)', placeholder: '0.00' }
-        ],
-        trouser: [
-          { key: 'trouserLength', label: 'Trouser Length (inches)', placeholder: '0.00' },
-          { key: 'waist', label: 'Waist (inches)', placeholder: '0.00' },
-          { key: 'hip', label: 'Hip (inches)', placeholder: '0.00' },
-          { key: 'thigh', label: 'Thigh (inches)', placeholder: '0.00' },
-          { key: 'knee', label: 'Knee (inches)', placeholder: '0.00' },
-          { key: 'inseam', label: 'Inseam (inches)', placeholder: '0.00' },
-          { key: 'outseam', label: 'Outseam (inches)', placeholder: '0.00' },
-          { key: 'ankle', label: 'Ankle (inches)', placeholder: '0.00' },
-          { key: 'crotch', label: 'Crotch (inches)', placeholder: '0.00' },
-          { key: 'calf', label: 'Calf (inches)', placeholder: '0.00' }
         ]
       }
       
@@ -262,10 +309,28 @@ export default {
 }
 
 .measurement-fields {
+  margin-bottom: 1.5rem;
+}
+
+.category-section {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  background: #f8f9fa;
+}
+
+.category-section h4 {
+  margin: 0 0 1rem 0;
+  color: #2c3e50;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.category-fields {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
-  margin-bottom: 1.5rem;
 }
 
 .form-group {
@@ -340,7 +405,7 @@ export default {
 }
 
 @media (max-width: 768px) {
-  .measurement-fields {
+  .category-fields {
     grid-template-columns: 1fr;
   }
   
