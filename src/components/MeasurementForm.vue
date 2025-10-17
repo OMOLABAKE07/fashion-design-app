@@ -772,6 +772,7 @@
             </div>
           </div>
           <div class="measurement-summary">
+            <span>Customer: {{ measurement.customerName }}</span>
             <span>Category: {{ getCategoryName(measurement.category) }}</span>
             <span v-if="measurement.chest">Chest: {{ measurement.chest }}</span>
             <span v-if="measurement.waist">Waist: {{ measurement.waist }}</span>
@@ -1169,6 +1170,7 @@ export default {
         // Prepare measurement data based on active category
         const measurementData = {
           customerId: this.customer.id,
+          customerName: this.customer.name, // Add customer name to measurement data
           id: this.measurement?.id || this.generateId(),
           category: this.activeCategory,
           measurementDate: this.formData.measurementDate,
@@ -1200,7 +1202,7 @@ export default {
         allFields.forEach(field => {
           if (field !== 'customerId' && field !== 'id' && field !== 'category' && 
               field !== 'measurementDate' && field !== 'notes' && 
-              field !== 'createdAt' && field !== 'updatedAt') {
+              field !== 'createdAt' && field !== 'updatedAt' && field !== 'customerName') {
             if (measurementData[field] !== '' && measurementData[field] !== undefined) {
               measurementData[field] = parseFloat(measurementData[field])
             }
