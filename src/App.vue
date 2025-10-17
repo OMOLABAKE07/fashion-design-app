@@ -186,7 +186,7 @@ export default {
   background: #f8f9fa;
   padding: 2rem;
   margin-left: 280px; /* Match navbar width */
-  overflow-y: auto; /* Scrollable content */
+  overflow-y: auto; 
   height: calc(100vh - 200px); /* Adjust based on header height */
 }
 

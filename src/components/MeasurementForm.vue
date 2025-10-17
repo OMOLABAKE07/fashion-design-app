@@ -1,10 +1,28 @@
 <template>
   <div class="measurement-form">
     <div class="form-header">
-      <h3>{{ isEditing ? 'Update Measurements' : 'Record New Measurements' }}</h3>
-      <p class="customer-info" v-if="customer">
-        For: <strong>{{ customer.name }}</strong>
-      </p>
+      <div class="header-content">
+        <h3>{{ isEditing ? 'Update Measurements' : 'Record New Measurements' }}</h3>
+        <p class="customer-info" v-if="customer">
+          For: <strong>{{ customer.name }}</strong>
+        </p>
+      </div>
+      <div class="header-actions">
+        <button 
+          v-if="!isEditing && customer" 
+          @click="toggleHistory" 
+          class="btn-history"
+        >
+          {{ showHistory ? 'Hide History' : 'View History' }}
+        </button>
+        <button 
+          v-if="!isEditing && customer && showHistory" 
+          @click="refreshHistory" 
+          class="btn-refresh"
+        >
+          Refresh
+        </button>
+      </div>
     </div>
 
     <form @submit.prevent="handleSubmit" class="form">
@@ -65,23 +83,22 @@
             <h6>Selected Measurement Categories</h6>
           </div>
           <div class="card-body">
-            <ul class="list-group">
-              <li 
+            <div class="selected-categories-container">
+              <div 
                 v-for="(category, index) in selectedCategories" 
                 :key="index"
-                class="list-group-item d-flex justify-content-between align-items-center"
+                class="category-box"
               >
-                {{ getCategoryName(category) }}
+                <span class="category-name">{{ getCategoryName(category) }}</span>
                 <button 
                   type="button" 
-                  class="btn btn-link p-0"
-                  @click="removeSelectedCategory(index)" 
-                  style="width: auto;"
+                  class="remove-category-btn"
+                  @click="removeSelectedCategory(index)"
                 >
-                  <i class="fa fa-trash text-danger"></i>
+                  ×
                 </button>
-              </li>
-            </ul>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -793,7 +810,7 @@
     </form>
 
     <!-- Measurement History -->
-    <div v-if="measurementHistory.length > 0" class="measurement-history">
+    <div v-if="showHistory && measurementHistory.length > 0" class="measurement-history">
       <h4>Measurement History</h4>
       <div class="history-list">
         <div 
@@ -860,6 +877,7 @@ export default {
       customerSearchQuery: '',
       allCustomers: [],
       filteredCustomers: [],
+      showHistory: false,
       formData: {
         // Bust measurements
         bust: '',
@@ -933,7 +951,8 @@ export default {
         measurementDate: '',
         notes: ''
       },
-      measurementHistory: []
+      measurementHistory: [],
+      showHistory: false
     }
   },
   computed: {
@@ -1021,6 +1040,13 @@ export default {
         } else {
           this.resetForm()
         }
+      },
+      immediate: true
+    },
+    customer: {
+      handler(newCustomer) {
+        // Reload measurement history when customer changes
+        this.loadMeasurementHistory()
       },
       immediate: true
     }
@@ -1355,6 +1381,12 @@ export default {
         notes: ''
       }
     },
+    toggleHistory() {
+      this.showHistory = !this.showHistory
+    },
+    refreshHistory() {
+      this.loadMeasurementHistory()
+    },
     deleteMeasurement(measurementId) {
       Swal.fire({
         icon: "warning",
@@ -1438,15 +1470,61 @@ export default {
 }
 
 .form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
   border-bottom: 2px solid #e9ecef;
+}
+
+.header-content {
+  flex: 1;
 }
 
 .form-header h3 {
   color: #2c3e50;
   margin: 0 0 0.5rem 0;
   font-size: 1.5rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-history {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: background 0.3s;
+  white-space: nowrap;
+}
+
+.btn-history:hover {
+  background: #5a6268;
+}
+
+.btn-refresh {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: background 0.3s;
+  white-space: nowrap;
+}
+
+.btn-refresh:hover {
+  background: #2980b9;
 }
 
 .customer-info {
@@ -1887,6 +1965,47 @@ export default {
   gap: 1rem;
   font-size: 0.9rem;
   color: #6c757d;
+}
+
+.selected-categories-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.category-box {
+  display: flex;
+  align-items: center;
+  background-color: #e9f7fe;
+  border: 1px solid #bee5eb;
+  border-radius: 20px;
+  padding: 0.25rem 0.75rem;
+}
+
+.category-name {
+  font-size: 0.875rem;
+  color: #0c5460;
+  margin-right: 0.5rem;
+}
+
+.remove-category-btn {
+  background: none;
+  border: none;
+  color: #dc3545;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.remove-category-btn:hover {
+  background-color: #f8d7da;
 }
 
 @media (max-width: 768px) {
