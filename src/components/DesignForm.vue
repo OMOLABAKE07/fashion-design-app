@@ -277,6 +277,7 @@
 
 <script>
 import { syncUtils } from '@/utils/sync.js'
+import eventBus from '@/utils/eventBus.js'
 import Swal from 'sweetalert2'
 
 export default {
@@ -399,6 +400,9 @@ export default {
 
         // Emit save event with design data
         this.$emit('save', designData)
+        
+        // Emit event through event bus
+        eventBus.emit('design-saved', designData)
         
         // Reset form after successful save
         if (!this.isEditing) {

@@ -293,10 +293,8 @@ class LocalStorageManager {
     
     try {
       const saved = localStorage.getItem(this.storageKey)
-      console.log('Raw data from localStorage:', saved) // Debug log
       if (saved) {
         const parsed = JSON.parse(saved)
-        console.log('Parsed data from localStorage:', parsed) // Debug log
         // Ensure all required data structures exist
         return {
           customers: Array.isArray(parsed.customers) ? parsed.customers : [],
@@ -306,7 +304,6 @@ class LocalStorageManager {
           lastUpdated: parsed.lastUpdated || null
         }
       } else {
-        console.log('No data found in localStorage') // Debug log
         return {
           customers: [],
           measurements: [],
@@ -338,7 +335,6 @@ class LocalStorageManager {
     try {
       this.data.lastUpdated = new Date().toISOString()
       localStorage.setItem(this.storageKey, JSON.stringify(this.data))
-      console.log('Data saved to localStorage:', this.data) // Debug log
     } catch (error) {
       console.error('Failed to save data to localStorage:', error)
     }
@@ -346,13 +342,11 @@ class LocalStorageManager {
 
   // Get all data
   getAllData() {
-    console.log('Getting all data:', this.data) // Debug log
     return { ...this.data }
   }
 
   // Get data by type
   getData(type) {
-    console.log(`Getting data for type: ${type}`, this.data[type] || []) // Debug log
     return this.data[type] || []
   }
 
@@ -372,7 +366,6 @@ class LocalStorageManager {
     
     this.data[type].push(newItem)
     this.saveData()
-    console.log(`Added ${type} item:`, newItem) // Debug log
     return newItem
   }
 
@@ -395,7 +388,6 @@ class LocalStorageManager {
     }
     
     this.saveData()
-    console.log(`Updated ${type} item:`, this.data[type][index]) // Debug log
     return this.data[type][index]
   }
 
@@ -412,7 +404,6 @@ class LocalStorageManager {
     
     const deletedItem = this.data[type].splice(index, 1)
     this.saveData()
-    console.log(`Deleted ${type} item:`, deletedItem) // Debug log
     return true
   }
 
@@ -551,13 +542,6 @@ export const syncUtils = {
       syncManager.queueForSync({ id }, 'delete', 'design')
     }
     return deleted
-  },
-
-  // Message operations
-  async saveMessage(messageData) {
-    const savedMessage = storageManager.addItem('messages', messageData)
-    syncManager.queueForSync(savedMessage, 'create', 'message')
-    return savedMessage
   },
 
   // Get all data

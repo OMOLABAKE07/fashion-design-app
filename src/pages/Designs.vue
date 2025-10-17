@@ -14,11 +14,10 @@
         @cancel="handleFormCancel" 
       />
     </div>
-    <!-- Debug: show current state -->
-    <!-- <div>showDesignForm: {{ showDesignForm }}</div> -->
     
     <div class="list-section">
       <DesignList 
+        ref="designList"
         @design-selected="handleDesignSelected"
         @design-edit="handleDesignEdit"
         @create-new-design="handleCreateNewDesign"
@@ -45,17 +44,14 @@ export default {
   },
   methods: {
     handleDesignSave(designData) {
-      console.log('Design saved:', designData)
       this.showDesignForm = false
       this.editingDesign = null
-      // Refresh the design list by emitting a custom event
-      window.dispatchEvent(new Event('designs-updated'))
+      // The DesignList component will automatically refresh when it receives the design-saved event
     },
     handleDesignSelected(design) {
       console.log('Design selected:', design)
     },
     handleDesignEdit(design) {
-      console.log('Edit design:', design)
       this.editingDesign = design
       this.showDesignForm = true
     },
