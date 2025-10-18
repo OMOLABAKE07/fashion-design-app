@@ -63,12 +63,13 @@ export default {
 
 .dashboard-overview {
   margin-bottom: 2rem;
+  /* margin-top: 2rem; */
 }
 
 .overview-header {
   text-align: center;
   margin-bottom: 3rem;
-  margin-top: 3rem;
+  margin-top: 4rem;
 }
 
 .overview-header h2 {

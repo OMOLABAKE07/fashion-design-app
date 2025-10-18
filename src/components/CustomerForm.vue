@@ -78,7 +78,7 @@
             <option value="female">Female</option>
           </select>
         </div>
-        <div class="form-group">
+        <!-- <div class="form-group">
           <label for="preferredContact">Preferred Contact Method</label>
           <select id="preferredContact" v-model="formData.preferredContact" class="form-select">
             <option value="">Select preferred method</option>
@@ -86,7 +86,7 @@
             <option value="phone">WhatsApp</option>
             <option value="sms">SMS</option>
           </select>
-        </div>
+        </div> -->
       </div>
 
       <div class="form-group">
@@ -132,7 +132,7 @@ export default {
         phone: '',
         address: '',
         gender: '',
-        preferredContact: '',
+       // preferredContact: '',
         notes: ''
       }
     }
@@ -153,7 +153,7 @@ export default {
             phone: newCustomer.phone || '',
             address: newCustomer.address || '',
             gender: newCustomer.gender || '',
-            preferredContact: newCustomer.preferredContact || '',
+            // preferredContact: newCustomer.preferredContact || '',
             notes: newCustomer.notes || ''
           }
         } else {
@@ -209,7 +209,7 @@ export default {
         phone: '',
         address: '',
         gender: '',
-        preferredContact: '',
+        // preferredContact: '',
         notes: ''
       }
     }
