@@ -51,8 +51,11 @@ export default {
           console.error('Error parsing stored customer:', error)
           this.selectedCustomer = null
         }
+        
       }
+      
     },
+    
     handleCustomerSelected(customer) {
       this.selectedCustomer = customer
       // Store selected customer in localStorage

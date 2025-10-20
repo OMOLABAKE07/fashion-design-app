@@ -15,6 +15,8 @@
             <p>Register and manage customer information, track their preferences and history.</p>
             <router-link to="/customers" class="card-link">Manage Customers →</router-link>
           </div>
+
+        
         </div>
         
         <div class="overview-card mb-2">
