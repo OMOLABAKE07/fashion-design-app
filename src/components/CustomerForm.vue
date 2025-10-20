@@ -10,22 +10,22 @@
     <form @submit.prevent="handleSubmit" class="form">
       <div class="form-row">
         <div class="form-group">
-          <label for="firstName">First Name *</label>
+          <label for="first_name">First Name *</label>
           <input
             type="text"
-            id="firstName"
-            v-model="formData.firstName"
+            id="first_name"
+            v-model="formData.first_name"
             required
             class="form-input"
             placeholder="Enter first name"
           />
         </div>
         <div class="form-group">
-          <label for="lastName">Last Name *</label>
+          <label for="last_name">Last Name *</label>
           <input
             type="text"
-            id="lastName"
-            v-model="formData.lastName"
+            id="last_name"
+            v-model="formData.last_name"
             required
             class="form-input"
             placeholder="Enter last name"
@@ -126,14 +126,13 @@ export default {
     return {
       isSubmitting: false,
       formData: {
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        address: '',
-        gender: '',
-       // preferredContact: '',
-        notes: ''
+      first_name: '',
+      last_name: '',
+      email: '',
+      phone: '',
+      address: '',
+      gender: '',
+      notes: ''
       }
     }
   },
@@ -147,8 +146,8 @@ export default {
       handler(newCustomer) {
         if (newCustomer) {
           this.formData = {
-            firstName: newCustomer.firstName || '',
-            lastName: newCustomer.lastName || '',
+             first_name: newCustomer.first_name || '',
+            last_name: newCustomer.last_name || '',
             email: newCustomer.email || '',
             phone: newCustomer.phone || '',
             address: newCustomer.address || '',
@@ -169,7 +168,7 @@ export default {
       
       try {
         // Validate required fields
-        if (!this.formData.firstName || !this.formData.lastName || 
+        if (!this.formData.first_name || !this.formData.last_name || 
             !this.formData.email || !this.formData.phone) {
           alert('Please fill in all required fields')
           return
@@ -178,7 +177,7 @@ export default {
         // Prepare customer data (without ID for new customers)
         const customerData = {
           ...this.formData,
-          name: `${this.formData.firstName} ${this.formData.lastName}`.trim(),
+          name: `${this.formData.first_name} ${this.formData.last_name}`.trim(),
           status: 'active',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
