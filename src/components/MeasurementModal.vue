@@ -2,10 +2,12 @@
   <div v-if="isVisible" class="modal-overlay" @click="closeModal">
     <div class="modal-content" @click.stop>
       <div class="modal-header">
-        <h3>Edit Measurement</h3>
+        <!-- <h3>Edit Measurement</h3> -->
+         <h3>{{ mode === 'view' ? 'View Measurement' : 'Edit Measurement' }}</h3>
+
         <button class="close-button" @click="closeModal">&times;</button>
       </div>
-      
+
       <div class="modal-body">
         <form @submit.prevent="handleSave">
           <!-- Category Info -->
@@ -13,7 +15,7 @@
             <p><strong>Categories:</strong> {{ formatCategories(measurement.categories) }}</p>
             <p><strong>Date:</strong> {{ formatDate(measurement.measurementDate) }}</p>
           </div>
-          
+
           <!-- Dynamic Fields grouped by Category -->
           <div class="measurement-fields">
             <!-- Render fields for each category -->
@@ -21,44 +23,28 @@
               <div class="category-section">
                 <h4>{{ getCategoryName(category) }}</h4>
                 <div class="category-fields">
-                  <div 
-                    v-for="field in getFieldsForCategory(category)" 
-                    :key="field.key"
-                    class="form-group"
-                  >
+                  <div v-for="field in getFieldsForCategory(category)" :key="field.key" class="form-group">
                     <label :for="field.key">{{ field.label }}</label>
-                    <input
-                      :id="field.key"
-                      type="number"
-                      v-model="editableMeasurement[field.key]"
-                      step="0.25"
-                      min="0"
-                      class="form-input"
-                      :placeholder="field.placeholder"
-                    />
+                    <input :id="field.key" type="number" v-model="editableMeasurement[field.key]" step="0.25" min="0"
+                      class="form-input" :placeholder="field.placeholder" :readonly="mode === 'view'" />
                   </div>
                 </div>
               </div>
             </template>
           </div>
-          
+
           <!-- Notes -->
           <div class="form-group">
             <label for="notes">Notes</label>
-            <textarea
-              id="notes"
-              v-model="editableMeasurement.notes"
-              class="form-textarea"
-              rows="3"
-              placeholder="Any special notes about these measurements..."
-            ></textarea>
+            <textarea id="notes" v-model="editableMeasurement.notes" class="form-textarea" rows="3"
+              placeholder="Any special notes about these measurements..." :readonly="mode === 'view'"></textarea>
           </div>
         </form>
       </div>
-      
+
       <div class="modal-footer">
-        <button @click="closeModal" class="btn-secondary">Cancel</button>
-        <button @click="handleSave" class="btn-primary">Save Changes</button>
+        <button @click="closeModal" class="btn-secondary"> {{ mode === 'view' ? 'Close' : 'Cancel' }}</button>
+        <button v-if="mode === 'edit'" @click="handleSave" class="btn-primary">Save Changes</button>
       </div>
     </div>
   </div>
@@ -77,6 +63,10 @@ export default {
     measurement: {
       type: Object,
       default: null
+    },
+    mode: {
+      type: String,
+      default: 'edit' // can be 'edit' or 'view'
     }
   },
   emits: ['close', 'save'],
@@ -117,7 +107,7 @@ export default {
           // Emit the updated measurement
           this.$emit('save', this.editableMeasurement)
           this.closeModal()
-          
+
           Swal.fire({
             icon: "success",
             title: "Saved",
@@ -154,7 +144,7 @@ export default {
     },
     formatCategories(categories) {
       if (!categories || categories.length === 0) return 'No Categories'
-      
+
       return categories.map(cat => this.getCategoryName(cat)).join(', ')
     },
     getFieldsForCategory(category) {
@@ -228,7 +218,7 @@ export default {
           { key: 'capSize', label: 'Cap Size (inches)', placeholder: '0.00' }
         ]
       }
-      
+
       return fieldDefinitions[category] || []
     }
   }
@@ -408,12 +398,12 @@ export default {
   .category-fields {
     grid-template-columns: 1fr;
   }
-  
+
   .modal-content {
     width: 95%;
     margin: 20px;
   }
-  
+
   .modal-footer {
     flex-direction: column;
   }

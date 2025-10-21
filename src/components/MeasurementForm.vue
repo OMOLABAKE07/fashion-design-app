@@ -431,7 +431,7 @@
           <div class="history-header">
             <span class="date">{{ formatDate(measurement.measurementDate) }}</span>
             <div class="history-actions">
-              <button @click="viewMeasurement(measurement.id)" class="btn btn-warning">view</button>
+              <button @click="viewMeasurement(measurement)" class="btn btn-warning">view</button>
               <button @click="editMeasurement(measurement)" class="btn-small">Edit</button>
               <button @click="deleteMeasurement(measurement.id)" class="btn-small btn-danger">Delete</button>
             </div>
@@ -450,6 +450,16 @@
     <!-- Measurement Edit Modal -->
     <MeasurementModal :is-visible="showEditModal" :measurement="measurementToEdit" @close="showEditModal = false"
       @save="saveEditedMeasurement" />
+    
+      <!-- View Modal -->
+<MeasurementModal 
+  :is-visible="showViewModal" 
+  :measurement="measurementToView" 
+  mode="view"
+  @close="showViewModal = false"
+
+/>
+
   </div>
 </template>
 
@@ -843,7 +853,6 @@ export default {
         viewMeasurement(measurement) {
       this.measurementToView = measurement
       this.showViewModal = true
-
       
     },
     saveEditedMeasurement(updatedMeasurement) {
@@ -853,81 +862,85 @@ export default {
       // Emit edit event
       this.$emit('edit', updatedMeasurement)
     },
-    async handleSubmit() {
-      this.isSubmitting = true
+  async handleSubmit() {
+  this.isSubmitting = true;
 
-      try {
-        // Validate required fields
-        if (!this.formData.measurementDate) {
-          alert('Please select a measurement date')
-          return
-        }
+  try {
+    // Validate required fields
+    if (!this.formData.measurementDate) {
+      alert('Please select a measurement date');
+      return;
+    }
 
-        // Check if any categories are selected
-        if (this.selectedCategories.length === 0) {
-          alert('Please select at least one category')
-          return
-        }
+    if (this.selectedCategories.length === 0) {
+      alert('Please select at least one category');
+      return;
+    }
 
-        // Check if a customer is selected
-        if (!this.customer) {
-          alert('Please select a customer')
-          return
-        }
+    if (!this.customer) {
+      alert('Please select a customer');
+      return;
+    }
 
-        // Prepare a single measurement data object with all fields
-        const measurementData = {
-          customerId: this.customer.id,
-          customerName: this.customer.name,
-          id: this.generateId(),
-          categories: [...this.selectedCategories], // Store all selected categories
-          measurementDate: this.formData.measurementDate,
-          notes: this.formData.notes,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }
+    // ✅ 1. Prepare the measurement data
+    const measurementData = {
+      customer_id: this.customer.id, // Laravel expects snake_case usually
+      customer_name: this.customer.name,
+      categories: [...this.selectedCategories],
+      measurement_date: this.formData.measurementDate,
+      notes: this.formData.notes,
+      // data: this.formData, // all the actual measurements go here
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+       measurements: this.formData,
+    };
 
-        // Include all fields from formData that have values
-        const allFields = Object.keys(this.formData)
-        allFields.forEach(field => {
-          if (field !== 'measurementDate' && field !== 'notes' &&
-            this.formData[field] !== '' && this.formData[field] !== undefined) {
-            measurementData[field] = parseFloat(this.formData[field]) || this.formData[field]
-          }
-        })
+    // ✅ 2. Save locally first
+    await syncUtils.saveMeasurement(measurementData);
+    this.loadMeasurementHistory();
 
-        // Save using sync utilities
-        await syncUtils.saveMeasurement(measurementData)
+    // ✅ 3. Try saving to the backend API
+    const response = await fetch("http://localhost:8000/api/v1/measurements", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(measurementData),
+    });
 
-        // Reload measurement history
-        this.loadMeasurementHistory()
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
 
-        // Reset form after successful save
-        this.resetForm()
-        this.selectedCategories = []
+    const savedToDb = await response.json();
+    console.log("✅ Saved to database:", savedToDb);
 
-        // Emit save event
-        this.$emit('save')
+    // ✅ 4. Reset form and notify user
+    this.resetForm();
+    this.selectedCategories = [];
+    this.$emit("save", savedToDb);
 
-        // Show success message
-        Swal.fire({
-          icon: "success",
-          title: "Saved",
-          text: "Measurements saved successfully!",
-          timer: 2000,
-          showConfirmButton: false
-        })
-      } catch (error) {
-        console.error('Error saving measurements:', error)
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Error saving measurements. Please try again."
-        })
-      } finally {
-        this.isSubmitting = false
-      }
-    },
+    Swal.fire({
+      icon: "success",
+      title: "Saved",
+      text: "Measurement saved locally and synced to the database!",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+  } catch (error) {
+    console.error("❌ Error saving measurement:", error);
+
+    // Still saved locally even if DB fails
+    Swal.fire({
+      icon: "warning",
+      title: "Saved Offline",
+      text: "Measurement saved locally. Will sync when online.",
+      timer: 2500,
+      showConfirmButton: false,
+    });
+  } finally {
+    this.isSubmitting = false;
+  }
+},
+
     handleCancel() {
       this.$emit('cancel')
     },
