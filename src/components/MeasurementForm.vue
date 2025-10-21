@@ -8,18 +8,10 @@
         </p>
       </div>
       <div class="header-actions">
-        <button 
-          v-if="!isEditing && customer" 
-          @click="toggleHistory" 
-          class="btn-history"
-        >
+        <button v-if="!isEditing && customer" @click="toggleHistory" class="btn-history">
           {{ showHistory ? 'Hide History' : 'View History' }}
         </button>
-        <button 
-          v-if="!isEditing && customer && showHistory" 
-          @click="refreshHistory" 
-          class="btn-refresh"
-        >
+        <button v-if="!isEditing && customer && showHistory" @click="refreshHistory" class="btn-refresh">
           Refresh
         </button>
       </div>
@@ -30,20 +22,11 @@
       <div class="customer-search-filter">
         <h4>Select Customer</h4>
         <div class="search-container">
-          <input
-            type="text"
-            v-model="customerSearchQuery"
-            @input="filterCustomers"
-            placeholder="Search customers..."
-            class="search-input"
-          />
+          <input type="text" v-model="customerSearchQuery" @input="filterCustomers" placeholder="Search customers..."
+            class="search-input" />
           <div v-if="filteredCustomers.length > 0 && customerSearchQuery" class="customer-dropdown">
-            <div
-              v-for="customer in filteredCustomers"
-              :key="customer.id"
-              @click="selectCustomer(customer)"
-              class="customer-option"
-            >
+            <div v-for="customer in filteredCustomers" :key="customer.id" @click="selectCustomer(customer)"
+              class="customer-option">
               {{ customer.name }} - {{ customer.phone }}
             </div>
           </div>
@@ -84,17 +67,9 @@
           </div>
           <div class="card-body">
             <div class="selected-categories-container">
-              <div 
-                v-for="(category, index) in selectedCategories" 
-                :key="index"
-                class="category-box"
-              >
+              <div v-for="(category, index) in selectedCategories" :key="index" class="category-box">
                 <span class="category-name">{{ getCategoryName(category) }}</span>
-                <button 
-                  type="button" 
-                  class="remove-category-btn"
-                  @click="removeSelectedCategory(index)"
-                >
+                <button type="button" class="remove-category-btn" @click="removeSelectedCategory(index)">
                   ×
                 </button>
               </div>
@@ -116,87 +91,38 @@
           <div class="measurement-grid">
             <div class="measurement-group">
               <label for="bust">Bust (inches)</label>
-              <input
-                type="number"
-                id="bust"
-                v-model="formData.bust"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="bust" v-model="formData.bust" step="0.25" min="0" class="measurement-input"
+                placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="shoulderToUnderBust">Shoulder to Under Bust (inches)</label>
-              <input
-                type="number"
-                id="shoulderToUnderBust"
-                v-model="formData.shoulderToUnderBust"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="shoulderToUnderBust" v-model="formData.shoulderToUnderBust" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="shoulderToUpperBust">Shoulder to Upper Bust (inches)</label>
-              <input
-                type="number"
-                id="shoulderToUpperBust"
-                v-model="formData.shoulderToUpperBust"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="shoulderToUpperBust" v-model="formData.shoulderToUpperBust" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="shoulderToNipplePoint">Shoulder to Nipple Point (inches)</label>
-              <input
-                type="number"
-                id="shoulderToNipplePoint"
-                v-model="formData.shoulderToNipplePoint"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="shoulderToNipplePoint" v-model="formData.shoulderToNipplePoint" step="0.25"
+                min="0" class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="nippleToNipple">Nipple to Nipple (inches)</label>
-              <input
-                type="number"
-                id="nippleToNipple"
-                v-model="formData.nippleToNipple"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="nippleToNipple" v-model="formData.nippleToNipple" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="roundUpperBust">Round Upper Bust (inches)</label>
-              <input
-                type="number"
-                id="roundUpperBust"
-                v-model="formData.roundUpperBust"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="roundUpperBust" v-model="formData.roundUpperBust" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="roundUnderBust">Round Under Bust (inches)</label>
-              <input
-                type="number"
-                id="roundUnderBust"
-                v-model="formData.roundUnderBust"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="roundUnderBust" v-model="formData.roundUnderBust" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
           </div>
         </div>
@@ -207,15 +133,8 @@
           <div class="measurement-grid">
             <div class="measurement-group">
               <label for="shoulder">Shoulder (inches)</label>
-              <input
-                type="number"
-                id="shoulder"
-                v-model="formData.shoulder"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="shoulder" v-model="formData.shoulder" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
           </div>
         </div>
@@ -226,75 +145,33 @@
           <div class="measurement-grid">
             <div class="measurement-group">
               <label for="halfLength">Half Length (inches)</label>
-              <input
-                type="number"
-                id="halfLength"
-                v-model="formData.halfLength"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="halfLength" v-model="formData.halfLength" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="blouseLength">Blouse Length (inches)</label>
-              <input
-                type="number"
-                id="blouseLength"
-                v-model="formData.blouseLength"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="blouseLength" v-model="formData.blouseLength" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="longGownLength">Long Gown Length (inches)</label>
-              <input
-                type="number"
-                id="longGownLength"
-                v-model="formData.longGownLength"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="longGownLength" v-model="formData.longGownLength" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="shortGownLength">Short Gown Length (inches)</label>
-              <input
-                type="number"
-                id="shortGownLength"
-                v-model="formData.shortGownLength"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="shortGownLength" v-model="formData.shortGownLength" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="threeQuarterGownLength">3/4 Gown Length (inches)</label>
-              <input
-                type="number"
-                id="threeQuarterGownLength"
-                v-model="formData.threeQuarterGownLength"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="threeQuarterGownLength" v-model="formData.threeQuarterGownLength" step="0.25"
+                min="0" class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="trouserLength">Trouser Length (inches)</label>
-              <input
-                type="number"
-                id="trouserLength"
-                v-model="formData.trouserLength"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="trouserLength" v-model="formData.trouserLength" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
           </div>
         </div>
@@ -305,75 +182,33 @@
           <div class="measurement-grid">
             <div class="measurement-group">
               <label for="roundSleeve">Round Sleeve (inches)</label>
-              <input
-                type="number"
-                id="roundSleeve"
-                v-model="formData.roundSleeve"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="roundSleeve" v-model="formData.roundSleeve" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="biceps">Biceps (inches)</label>
-              <input
-                type="number"
-                id="biceps"
-                v-model="formData.biceps"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="biceps" v-model="formData.biceps" step="0.25" min="0" class="measurement-input"
+                placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="elbow">Elbow (inches)</label>
-              <input
-                type="number"
-                id="elbow"
-                v-model="formData.elbow"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="elbow" v-model="formData.elbow" step="0.25" min="0" class="measurement-input"
+                placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="longSleeve">Long Sleeve (inches)</label>
-              <input
-                type="number"
-                id="longSleeve"
-                v-model="formData.longSleeve"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="longSleeve" v-model="formData.longSleeve" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="shortSleeve">Short Sleeve (inches)</label>
-              <input
-                type="number"
-                id="shortSleeve"
-                v-model="formData.shortSleeve"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="shortSleeve" v-model="formData.shortSleeve" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="threeQuarterSleeve">3/4 Sleeve (inches)</label>
-              <input
-                type="number"
-                id="threeQuarterSleeve"
-                v-model="formData.threeQuarterSleeve"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="threeQuarterSleeve" v-model="formData.threeQuarterSleeve" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
           </div>
         </div>
@@ -384,39 +219,18 @@
           <div class="measurement-grid">
             <div class="measurement-group">
               <label for="longSkirt">Long Skirt (inches)</label>
-              <input
-                type="number"
-                id="longSkirt"
-                v-model="formData.longSkirt"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="longSkirt" v-model="formData.longSkirt" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="shortSkirt">Short Skirt (inches)</label>
-              <input
-                type="number"
-                id="shortSkirt"
-                v-model="formData.shortSkirt"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="shortSkirt" v-model="formData.shortSkirt" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="threeQuarterSkirt">3/4 Skirt (inches)</label>
-              <input
-                type="number"
-                id="threeQuarterSkirt"
-                v-model="formData.threeQuarterSkirt"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="threeQuarterSkirt" v-model="formData.threeQuarterSkirt" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
           </div>
         </div>
@@ -427,39 +241,18 @@
           <div class="measurement-grid">
             <div class="measurement-group">
               <label for="longGownLength">Long Gown Length (inches)</label>
-              <input
-                type="number"
-                id="longGownLength"
-                v-model="formData.longGownLength"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="longGownLength" v-model="formData.longGownLength" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="shortGownLength">Short Gown Length (inches)</label>
-              <input
-                type="number"
-                id="shortGownLength"
-                v-model="formData.shortGownLength"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="shortGownLength" v-model="formData.shortGownLength" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="threeQuarterGownLength">3/4 Gown Length (inches)</label>
-              <input
-                type="number"
-                id="threeQuarterGownLength"
-                v-model="formData.threeQuarterGownLength"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="threeQuarterGownLength" v-model="formData.threeQuarterGownLength" step="0.25"
+                min="0" class="measurement-input" placeholder="0.00" />
             </div>
           </div>
         </div>
@@ -470,123 +263,53 @@
           <div class="measurement-grid">
             <div class="measurement-group">
               <label for="trouserLength">Trouser Length (inches)</label>
-              <input
-                type="number"
-                id="trouserLength"
-                v-model="formData.trouserLength"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="trouserLength" v-model="formData.trouserLength" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="waist">Waist (inches)</label>
-              <input
-                type="number"
-                id="waist"
-                v-model="formData.waist"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="waist" v-model="formData.waist" step="0.25" min="0" class="measurement-input"
+                placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="band">Band (inches)</label>
-              <input
-                type="number"
-                id="band"
-                v-model="formData.band"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="band" v-model="formData.band" step="0.25" min="0" class="measurement-input"
+                placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="thigh">Thigh (inches)</label>
-              <input
-                type="number"
-                id="thigh"
-                v-model="formData.thigh"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="thigh" v-model="formData.thigh" step="0.25" min="0" class="measurement-input"
+                placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="knee">Knee (inches)</label>
-              <input
-                type="number"
-                id="knee"
-                v-model="formData.knee"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="knee" v-model="formData.knee" step="0.25" min="0" class="measurement-input"
+                placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="inseam">Inseam (inches)</label>
-              <input
-                type="number"
-                id="inseam"
-                v-model="formData.inseam"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="inseam" v-model="formData.inseam" step="0.25" min="0" class="measurement-input"
+                placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="outseam">Outseam (inches)</label>
-              <input
-                type="number"
-                id="outseam"
-                v-model="formData.outseam"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="outseam" v-model="formData.outseam" step="0.25" min="0" class="measurement-input"
+                placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="ankle">Ankle (inches)</label>
-              <input
-                type="number"
-                id="ankle"
-                v-model="formData.ankle"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="ankle" v-model="formData.ankle" step="0.25" min="0" class="measurement-input"
+                placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="crotch">Crotch (inches)</label>
-              <input
-                type="number"
-                id="crotch"
-                v-model="formData.crotch"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="crotch" v-model="formData.crotch" step="0.25" min="0" class="measurement-input"
+                placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="calf">Calf (inches)</label>
-              <input
-                type="number"
-                id="calf"
-                v-model="formData.calf"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="calf" v-model="formData.calf" step="0.25" min="0" class="measurement-input"
+                placeholder="0.00" />
             </div>
           </div>
         </div>
@@ -597,51 +320,23 @@
           <div class="measurement-grid">
             <div class="measurement-group">
               <label for="agbadaLength">Agbada Length (inches)</label>
-              <input
-                type="number"
-                id="agbadaLength"
-                v-model="formData.agbadaLength"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="agbadaLength" v-model="formData.agbadaLength" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="agbadaShoulder">Agbada Shoulder (inches)</label>
-              <input
-                type="number"
-                id="agbadaShoulder"
-                v-model="formData.agbadaShoulder"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="agbadaShoulder" v-model="formData.agbadaShoulder" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="agbadaChest">Agbada Chest (inches)</label>
-              <input
-                type="number"
-                id="agbadaChest"
-                v-model="formData.agbadaChest"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="agbadaChest" v-model="formData.agbadaChest" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="agbadaSleeve">Agbada Sleeve (inches)</label>
-              <input
-                type="number"
-                id="agbadaSleeve"
-                v-model="formData.agbadaSleeve"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="agbadaSleeve" v-model="formData.agbadaSleeve" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
           </div>
         </div>
@@ -652,123 +347,53 @@
           <div class="measurement-grid">
             <div class="measurement-group">
               <label for="topLength">Top Length (inches)</label>
-              <input
-                type="number"
-                id="topLength"
-                v-model="formData.topLength"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="topLength" v-model="formData.topLength" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="kaftanLength">Kaftan Length (inches)</label>
-              <input
-                type="number"
-                id="kaftanLength"
-                v-model="formData.kaftanLength"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="kaftanLength" v-model="formData.kaftanLength" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="jalamiaLength">Jalamia Length (inches)</label>
-              <input
-                type="number"
-                id="jalamiaLength"
-                v-model="formData.jalamiaLength"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="jalamiaLength" v-model="formData.jalamiaLength" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="shirtLength">Shirt Length (inches)</label>
-              <input
-                type="number"
-                id="shirtLength"
-                v-model="formData.shirtLength"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="shirtLength" v-model="formData.shirtLength" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="shoulder">Shoulder (inches)</label>
-              <input
-                type="number"
-                id="shoulder"
-                v-model="formData.shoulder"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="shoulder" v-model="formData.shoulder" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="neck">Neck (inches)</label>
-              <input
-                type="number"
-                id="neck"
-                v-model="formData.neck"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="neck" v-model="formData.neck" step="0.25" min="0" class="measurement-input"
+                placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="chest">Chest (inches)</label>
-              <input
-                type="number"
-                id="chest"
-                v-model="formData.chest"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="chest" v-model="formData.chest" step="0.25" min="0" class="measurement-input"
+                placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="bustUpperChest">Bust/Upper Chest (inches)</label>
-              <input
-                type="number"
-                id="bustUpperChest"
-                v-model="formData.bustUpperChest"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="bustUpperChest" v-model="formData.bustUpperChest" step="0.25" min="0"
+                class="measurement-input" placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="stomach">Stomach (inches)</label>
-              <input
-                type="number"
-                id="stomach"
-                v-model="formData.stomach"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="stomach" v-model="formData.stomach" step="0.25" min="0" class="measurement-input"
+                placeholder="0.00" />
             </div>
             <div class="measurement-group">
               <label for="capSize">Cap Size (inches)</label>
-              <input
-                type="number"
-                id="capSize"
-                v-model="formData.capSize"
-                step="0.25"
-                min="0"
-                class="measurement-input"
-                placeholder="0.00"
-              />
+              <input type="number" id="capSize" v-model="formData.capSize" step="0.25" min="0" class="measurement-input"
+                placeholder="0.00" />
             </div>
           </div>
         </div>
@@ -779,23 +404,12 @@
         <h4>Additional Information</h4>
         <div class="form-group">
           <label for="measurementDate">Measurement Date</label>
-          <input
-            type="date"
-            id="measurementDate"
-            v-model="formData.measurementDate"
-            class="form-input"
-            required
-          />
+          <input type="date" id="measurementDate" v-model="formData.measurementDate" class="form-input" required />
         </div>
         <div class="form-group">
           <label for="notes">Measurement Notes</label>
-          <textarea
-            id="notes"
-            v-model="formData.notes"
-            class="form-textarea"
-            rows="3"
-            placeholder="Any special notes about these measurements..."
-          ></textarea>
+          <textarea id="notes" v-model="formData.notes" class="form-textarea" rows="3"
+            placeholder="Any special notes about these measurements..."></textarea>
         </div>
       </div>
 
@@ -813,14 +427,11 @@
     <div v-if="showHistory && measurementHistory.length > 0" class="measurement-history">
       <h4>Measurement History</h4>
       <div class="history-list">
-        <div 
-          v-for="measurement in measurementHistory" 
-          :key="measurement.id"
-          class="history-item"
-        >
+        <div v-for="measurement in measurementHistory" :key="measurement.id" class="history-item">
           <div class="history-header">
             <span class="date">{{ formatDate(measurement.measurementDate) }}</span>
             <div class="history-actions">
+              <button @click="viewMeasurement(measurement.id)" class="btn btn-warning">view</button>
               <button @click="editMeasurement(measurement)" class="btn-small">Edit</button>
               <button @click="deleteMeasurement(measurement.id)" class="btn-small btn-danger">Delete</button>
             </div>
@@ -837,12 +448,8 @@
     </div>
 
     <!-- Measurement Edit Modal -->
-    <MeasurementModal 
-      :is-visible="showEditModal"
-      :measurement="measurementToEdit"
-      @close="showEditModal = false"
-      @save="saveEditedMeasurement"
-    />
+    <MeasurementModal :is-visible="showEditModal" :measurement="measurementToEdit" @close="showEditModal = false"
+      @save="saveEditedMeasurement" />
   </div>
 </template>
 
@@ -869,6 +476,9 @@ export default {
   emits: ['save', 'cancel', 'edit', 'delete', 'customer-selected'],
   data() {
     return {
+ measurementToView: null,
+    showViewModal: false,
+
       isSubmitting: false,
       selectedCategory: '', // Single category selection for the dropdown
       selectedCategories: [], // Array to hold multiple selected categories
@@ -887,10 +497,10 @@ export default {
         nippleToNipple: '',
         roundUpperBust: '',
         roundUnderBust: '',
-        
+
         // Shoulder measurements
         shoulder: '',
-        
+
         // Length measurements
         halfLength: '',
         blouseLength: '',
@@ -898,7 +508,7 @@ export default {
         shortGownLength: '',
         threeQuarterGownLength: '',
         trouserLength: '',
-        
+
         // Sleeve measurements
         roundSleeve: '',
         biceps: '',
@@ -906,17 +516,17 @@ export default {
         longSleeve: '',
         shortSleeve: '',
         threeQuarterSleeve: '',
-        
+
         // Skirt measurements
         longSkirt: '',
         shortSkirt: '',
         threeQuarterSkirt: '',
-        
+
         // Gown measurements
         longGownLength: '',
         shortGownLength: '',
         threeQuarterGownLength: '',
-        
+
         // Trouser measurements
         trouserLength: '',
         waist: '',
@@ -928,13 +538,13 @@ export default {
         ankle: '',
         crotch: '',
         calf: '',
-        
+
         // Agbada measurements
         agbadaLength: '',
         agbadaShoulder: '',
         agbadaChest: '',
         agbadaSleeve: '',
-        
+
         // Top measurements
         topLength: '',
         kaftanLength: '',
@@ -946,7 +556,7 @@ export default {
         bustUpperChest: '',
         stomach: '',
         capSize: '',
-        
+
         // Additional info
         measurementDate: '',
         notes: ''
@@ -973,10 +583,10 @@ export default {
             nippleToNipple: newMeasurement.nippleToNipple || '',
             roundUpperBust: newMeasurement.roundUpperBust || '',
             roundUnderBust: newMeasurement.roundUnderBust || '',
-            
+
             // Shoulder measurements
             shoulder: newMeasurement.shoulder || '',
-            
+
             // Length measurements
             halfLength: newMeasurement.halfLength || '',
             blouseLength: newMeasurement.blouseLength || '',
@@ -984,7 +594,7 @@ export default {
             shortGownLength: newMeasurement.shortGownLength || '',
             threeQuarterGownLength: newMeasurement.threeQuarterGownLength || '',
             trouserLength: newMeasurement.trouserLength || '',
-            
+
             // Sleeve measurements
             roundSleeve: newMeasurement.roundSleeve || '',
             biceps: newMeasurement.biceps || '',
@@ -992,17 +602,17 @@ export default {
             longSleeve: newMeasurement.longSleeve || '',
             shortSleeve: newMeasurement.shortSleeve || '',
             threeQuarterSleeve: newMeasurement.threeQuarterSleeve || '',
-            
+
             // Skirt measurements
             longSkirt: newMeasurement.longSkirt || '',
             shortSkirt: newMeasurement.shortSkirt || '',
             threeQuarterSkirt: newMeasurement.threeQuarterSkirt || '',
-            
+
             // Gown measurements
             longGownLength: newMeasurement.longGownLength || '',
             shortGownLength: newMeasurement.shortGownLength || '',
             threeQuarterGownLength: newMeasurement.threeQuarterGownLength || '',
-            
+
             // Trouser measurements
             trouserLength: newMeasurement.trouserLength || '',
             waist: newMeasurement.waist || '',
@@ -1014,13 +624,13 @@ export default {
             ankle: newMeasurement.ankle || '',
             crotch: newMeasurement.crotch || '',
             calf: newMeasurement.calf || '',
-            
+
             // Agbada measurements
             agbadaLength: newMeasurement.agbadaLength || '',
             agbadaShoulder: newMeasurement.agbadaShoulder || '',
             agbadaChest: newMeasurement.agbadaChest || '',
             agbadaSleeve: newMeasurement.agbadaSleeve || '',
-            
+
             // Top measurements
             topLength: newMeasurement.topLength || '',
             kaftanLength: newMeasurement.kaftanLength || '',
@@ -1032,7 +642,7 @@ export default {
             bustUpperChest: newMeasurement.bustUpperChest || '',
             stomach: newMeasurement.stomach || '',
             capSize: newMeasurement.capSize || '',
-            
+
             // Additional info
             measurementDate: newMeasurement.measurementDate || new Date().toISOString().split('T')[0],
             notes: newMeasurement.notes || ''
@@ -1060,24 +670,33 @@ export default {
   methods: {
     async loadAllCustomers() {
       try {
-        this.allCustomers = syncUtils.getAllCustomers()
+        // ✅ Fetch customers directly from Laravel backend
+        const response = await fetch("http://localhost:8000/api/v1/customers");
+        if (!response.ok) throw new Error("Network response was not ok");
+
+        const customers = await response.json();
+        this.allCustomers = customers; // Store all customers
       } catch (error) {
-        console.error('Error loading customers:', error)
-        this.allCustomers = []
+        console.error("Error loading customers from API:", error);
+        // 🔄 Fall back to offline sync if API fails
+        this.allCustomers = syncUtils.getAllCustomers() || [];
       }
     },
-    filterCustomers() {
-      if (!this.customerSearchQuery) {
-        this.filteredCustomers = []
-        return
+    async filterCustomers() {
+      const query = this.customerSearchQuery.toLowerCase().trim();
+      if (!query) {
+        this.filteredCustomers = [];
+        return;
       }
-      
-      const query = this.customerSearchQuery.toLowerCase()
-      this.filteredCustomers = this.allCustomers.filter(customer =>
-        customer.name.toLowerCase().includes(query) ||
-        (customer.phone && customer.phone.toLowerCase().includes(query)) ||
-        (customer.email && customer.email.toLowerCase().includes(query))
-      )
+
+      try {
+        const response = await fetch(`http://localhost:8000/api/v1/customers?search=${query}`);
+        if (!response.ok) throw new Error("Network response was not ok");
+        const customers = await response.json();
+        this.filteredCustomers = customers;
+      } catch (error) {
+        console.error("Error searching customers:", error);
+      }
     },
     selectCustomer(customer) {
       this.$emit('customer-selected', customer)
@@ -1090,16 +709,16 @@ export default {
         alert('Please select a category')
         return
       }
-      
+
       // Check if category is already selected
       if (this.selectedCategories.includes(this.selectedCategory)) {
         alert('This category is already selected')
         return
       }
-      
+
       // Add category to selected categories
       this.selectedCategories.push(this.selectedCategory)
-      
+
       // Reset the dropdown
       this.selectedCategory = ''
     },
@@ -1111,7 +730,7 @@ export default {
       if (!category) {
         return 'No Category Selected'
       }
-      
+
       const categoryNames = {
         'agbada': 'Agbada Measurements',
         'top': 'Top Measurements',
@@ -1130,7 +749,7 @@ export default {
       try {
         // Use the sync utilities to get measurements for this customer
         const allMeasurements = syncUtils.getAllMeasurements()
-        
+
         // Filter measurements for this specific customer
         if (this.customer && this.customer.id) {
           this.measurementHistory = allMeasurements.filter(
@@ -1154,7 +773,7 @@ export default {
           // Add new measurement
           syncUtils.saveMeasurement(measurement)
         }
-        
+
         // Reload the history to ensure consistency
         this.loadMeasurementHistory()
       } catch (error) {
@@ -1165,7 +784,7 @@ export default {
       try {
         // Use sync utilities to delete the measurement
         syncUtils.deleteMeasurement(id)
-        
+
         // Reload the history to ensure consistency
         this.loadMeasurementHistory()
       } catch (error) {
@@ -1180,7 +799,7 @@ export default {
       if (!category) {
         return []
       }
-      
+
       const fieldGroups = {
         bust: [
           'bust', 'shoulderToUnderBust', 'shoulderToUpperBust', 'shoulderToNipplePoint',
@@ -1214,23 +833,29 @@ export default {
           'shoulder', 'neck', 'chest', 'bustUpperChest', 'stomach', 'capSize'
         ]
       }
-      
+
       return fieldGroups[category] || []
     },
     editMeasurement(measurement) {
       this.measurementToEdit = measurement
       this.showEditModal = true
     },
+        viewMeasurement(measurement) {
+      this.measurementToView = measurement
+      this.showViewModal = true
+
+      
+    },
     saveEditedMeasurement(updatedMeasurement) {
       // Update the measurement using sync utilities
       this.saveMeasurementHistory(updatedMeasurement)
-      
+
       // Emit edit event
       this.$emit('edit', updatedMeasurement)
     },
     async handleSubmit() {
       this.isSubmitting = true
-      
+
       try {
         // Validate required fields
         if (!this.formData.measurementDate) {
@@ -1265,25 +890,25 @@ export default {
         // Include all fields from formData that have values
         const allFields = Object.keys(this.formData)
         allFields.forEach(field => {
-          if (field !== 'measurementDate' && field !== 'notes' && 
-              this.formData[field] !== '' && this.formData[field] !== undefined) {
+          if (field !== 'measurementDate' && field !== 'notes' &&
+            this.formData[field] !== '' && this.formData[field] !== undefined) {
             measurementData[field] = parseFloat(this.formData[field]) || this.formData[field]
           }
         })
 
         // Save using sync utilities
         await syncUtils.saveMeasurement(measurementData)
-        
+
         // Reload measurement history
         this.loadMeasurementHistory()
-        
+
         // Reset form after successful save
         this.resetForm()
         this.selectedCategories = []
-        
+
         // Emit save event
         this.$emit('save')
-        
+
         // Show success message
         Swal.fire({
           icon: "success",
@@ -1316,10 +941,10 @@ export default {
         nippleToNipple: '',
         roundUpperBust: '',
         roundUnderBust: '',
-        
+
         // Shoulder measurements
         shoulder: '',
-        
+
         // Length measurements
         halfLength: '',
         blouseLength: '',
@@ -1327,7 +952,7 @@ export default {
         shortGownLength: '',
         threeQuarterGownLength: '',
         trouserLength: '',
-        
+
         // Sleeve measurements
         roundSleeve: '',
         biceps: '',
@@ -1335,17 +960,17 @@ export default {
         longSleeve: '',
         shortSleeve: '',
         threeQuarterSleeve: '',
-        
+
         // Skirt measurements
         longSkirt: '',
         shortSkirt: '',
         threeQuarterSkirt: '',
-        
+
         // Gown measurements
         longGownLength: '',
         shortGownLength: '',
         threeQuarterGownLength: '',
-        
+
         // Trouser measurements
         trouserLength: '',
         waist: '',
@@ -1357,13 +982,13 @@ export default {
         ankle: '',
         crotch: '',
         calf: '',
-        
+
         // Agbada measurements
         agbadaLength: '',
         agbadaShoulder: '',
         agbadaChest: '',
         agbadaSleeve: '',
-        
+
         // Top measurements
         topLength: '',
         kaftanLength: '',
@@ -1375,7 +1000,7 @@ export default {
         bustUpperChest: '',
         stomach: '',
         capSize: '',
-        
+
         // Additional info
         measurementDate: '',
         notes: ''
@@ -1404,12 +1029,12 @@ export default {
           try {
             // Use sync utilities to delete the measurement
             await syncUtils.deleteMeasurement(measurementId)
-            
+
             // Reload measurement history
             this.loadMeasurementHistory()
-            
+
             this.$emit('delete', measurementId)
-            
+
             Swal.fire({
               icon: "success",
               title: "Deleted",
@@ -1439,7 +1064,7 @@ export default {
     },
     formatCategories(categories) {
       if (!categories || categories.length === 0) return 'No Categories'
-      
+
       return categories.map(cat => this.getCategoryName(cat)).join(', ')
     }
   }
@@ -1451,7 +1076,7 @@ export default {
   background: white;
   border-radius: 8px;
   padding: 2rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
   position: relative;
 }
@@ -1574,7 +1199,7 @@ export default {
   background: white;
   border: 1px solid #e9ecef;
   border-radius: 6px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   max-height: 200px;
   overflow-y: auto;
@@ -1944,6 +1569,7 @@ export default {
   transition: all 0.3s;
 }
 
+
 .btn-small:not(.btn-danger) {
   background: #198754;
   color: white;
@@ -1951,6 +1577,10 @@ export default {
 
 .btn-small:not(.btn-danger):hover {
   background: #246534;
+}
+
+.btn-warning:hover {
+  background: #fbf70c;
 }
 
 .btn-danger {
@@ -2014,34 +1644,34 @@ export default {
   .measurement-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .measurement-form {
     padding: 1.5rem;
   }
-  
+
   .form-actions {
     flex-direction: column;
   }
-  
+
   .history-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .measurement-summary {
     flex-direction: column;
     gap: 0.25rem;
   }
-  
+
   .category-select {
     min-width: 100%;
   }
-  
+
   .input-group {
     flex-direction: column;
   }
-  
+
   .input-group-text,
   .form-control,
   .custom-select,
@@ -2049,11 +1679,11 @@ export default {
     border-radius: 0.375rem;
     width: 100%;
   }
-  
+
   .input-group-text {
     border-radius: 0.375rem 0.375rem 0 0;
   }
-  
+
   .input-group-append .btn {
     border-radius: 0 0 0.375rem 0.375rem;
   }
