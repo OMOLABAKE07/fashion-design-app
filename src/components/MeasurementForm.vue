@@ -19,19 +19,33 @@
 
     <form @submit.prevent="handleSubmit" class="form">
       <!-- Customer Search Filter -->
-      <div class="customer-search-filter">
-        <h4>Select Customer</h4>
-        <div class="search-container">
-          <input type="text" v-model="customerSearchQuery" @input="filterCustomers" placeholder="Search customers..."
-            class="search-input" />
-          <div v-if="filteredCustomers.length > 0 && customerSearchQuery" class="customer-dropdown">
-            <div v-for="customer in filteredCustomers" :key="customer.id" @click="selectCustomer(customer)"
-              class="customer-option">
-              {{ customer.name }} - {{ customer.phone }}
-            </div>
-          </div>
-        </div>
+      <div class="customer-search-filter" ref="dropdownRef">
+  <h4>Select Customer</h4>
+  <div class="search-container">
+    <input
+      type="text"
+      v-model="customerSearchQuery"
+      @focus="openDropdown"
+      @input="filterCustomers"
+      placeholder="Search customers..."
+      class="search-input"
+    />
+    <div
+      v-if="showDropdown && filteredCustomers.length"
+      class="customer-dropdown"
+    >
+      <div
+        v-for="customer in filteredCustomers"
+        :key="customer.id"
+        @click="selectCustomer(customer)"
+        class="customer-option"
+      >
+        {{ customer.name }} - {{ customer.phone }}
       </div>
+    </div>
+  </div>
+</div>
+
 
       <!-- Category Filter with Multiple Selection -->
       <div class="col-md-12 mb-3">
@@ -486,6 +500,7 @@ export default {
   emits: ['save', 'cancel', 'edit', 'delete', 'customer-selected'],
   data() {
     return {
+      showDropdown: false,
  measurementToView: null,
     showViewModal: false,
 
@@ -676,43 +691,60 @@ export default {
     this.loadMeasurementHistory()
     // Load all customers for search
     this.loadAllCustomers()
+
+    //  this.loadAllCustomers();
+  document.addEventListener('click', this.handleClickOutside);
   },
+  beforeUnmount() {
+  document.removeEventListener('click', this.handleClickOutside);
+},
   methods: {
-    async loadAllCustomers() {
-      try {
-        // ✅ Fetch customers directly from Laravel backend
-        const response = await fetch("http://localhost:8000/api/v1/customers");
-        if (!response.ok) throw new Error("Network response was not ok");
+  async loadAllCustomers() {
+    try {
+      const response = await fetch("http://localhost:8000/api/v1/customers");
+      if (!response.ok) throw new Error("Network response was not ok");
+      const customers = await response.json();
 
-        const customers = await response.json();
-        this.allCustomers = customers; // Store all customers
-      } catch (error) {
-        console.error("Error loading customers from API:", error);
-        // 🔄 Fall back to offline sync if API fails
-        this.allCustomers = syncUtils.getAllCustomers() || [];
-      }
-    },
-    async filterCustomers() {
-      const query = this.customerSearchQuery.toLowerCase().trim();
-      if (!query) {
-        this.filteredCustomers = [];
-        return;
-      }
+      this.allCustomers = customers;
+      this.filteredCustomers = customers; // ✅ show all on mount
+    } catch (error) {
+      console.error("Error loading customers:", error);
+      this.allCustomers = syncUtils.getAllCustomers() || [];
+      this.filteredCustomers = this.allCustomers;
+    }
+  },
 
-      try {
-        const response = await fetch(`http://localhost:8000/api/v1/customers?search=${query}`);
-        if (!response.ok) throw new Error("Network response was not ok");
-        const customers = await response.json();
-        this.filteredCustomers = customers;
-      } catch (error) {
-        console.error("Error searching customers:", error);
-      }
-    },
+    openDropdown() {
+    this.showDropdown = true;
+    this.filteredCustomers = this.allCustomers; // ✅ open with full list
+  },
+ async filterCustomers() {
+    const query = this.customerSearchQuery.toLowerCase().trim();
+
+    if (!query) {
+      // ✅ if input empty, show all customers
+      this.filteredCustomers = this.allCustomers;
+      return;
+    }
+
+    // 🔎 Local filtering (no need to hit API every keystroke)
+    this.filteredCustomers = this.allCustomers.filter(
+      (c) =>
+        c.name.toLowerCase().includes(query) ||
+        c.phone.toLowerCase().includes(query)
+    );
+  },
     selectCustomer(customer) {
-      this.$emit('customer-selected', customer)
-      this.customerSearchQuery = ''
-      this.filteredCustomers = []
-    },
+    this.$emit('customer-selected', customer);
+    this.customerSearchQuery = `${customer.name} (${customer.phone})`;
+    this.showDropdown = false;
+  },
+
+  handleClickOutside(event) {
+    if (this.$refs.dropdownRef && !this.$refs.dropdownRef.contains(event.target)) {
+      this.showDropdown = false;
+    }
+  },
     addCategory() {
       // Check if a category is selected
       if (!this.selectedCategory) {
