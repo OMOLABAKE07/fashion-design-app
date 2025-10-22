@@ -101,7 +101,7 @@ export default {
 .app-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 2.5rem 3rem;
+  padding: 1.5rem 2rem;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -184,10 +184,10 @@ export default {
 .main-content {
   flex: 1;
   background: #f8f9fa;
-  padding: 2rem;
+  /* padding: 2rem; */
   margin-left: 280px; /* Match navbar width */
   overflow-y: auto; 
-  height: calc(100vh - 200px); /* Adjust based on header height */
+  /* height: calc(100vh - 200px); Adjust based on header height */
 }
 
 /* Mobile */
