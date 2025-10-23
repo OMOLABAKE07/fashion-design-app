@@ -22,3 +22,30 @@ export default {
   }
 }
 </script>
+<!-- 
+<script>
+import MessageCenter from '@/components/MessageCenter.vue'
+import { syncUtils } from '@/utils/sync.js'
+
+export default {
+  name: 'Message',
+  components: { MessageCenter },
+  async mounted() {
+    // Auto-sync when page loads
+    await syncUtils.syncAll()
+  },
+  methods: {
+    showSuccess(message) {
+      console.log('✅ EMAIL SENT:', message)
+    },
+    showError(message) {
+      console.log('❌ EMAIL ERROR:', message)
+    }
+  }
+}
+</script> -->
+<style scoped>
+.messages-page{
+  margin-top: 50px;
+}
+</style>

@@ -230,31 +230,31 @@ export default {
   },
   methods: {
     // ✅ LOAD CUSTOMERS - WORKS WITH YOUR SEARCH CONTROLLER
-    async loadCustomers() {
-      try {
-        // 1️⃣ LOCAL FIRST (INSTANT)
-        let localCustomers = syncUtils.getAllCustomers()
-        if (localCustomers?.length > 0) {
-          this.customers = localCustomers
-        }
+  // ✅ FIXED loadCustomers() - WORKS WITH YOUR API
+async loadCustomers() {
+  try {
+    // 1️⃣ LOCAL FIRST (INSTANT LOAD)
+    let localCustomers = syncUtils.getAllCustomers()
+    if (localCustomers?.length > 0) {
+      this.customers = localCustomers
+      console.log(  this.customers, 88);
+    }
 
-        // 2️⃣ YOUR DATABASE (with search support)
-        const response = await fetch('http://localhost:8000/api/v1/customers')
-        if (response.ok) {
-          const result = await response.json()
-          // Handle Laravel's response format
-          const dbCustomers = Array.isArray(result.data) ? result.data : (result.data ? Object.values(result.data) : [])
-          const merged = this.mergeCustomers(localCustomers || [], dbCustomers)
-          this.customers = merged
-          syncUtils.saveAllCustomers(merged)
-        } else {
-          // Handle non-OK responses
-          console.error('Failed to load customers:', response.status, response.statusText)
-        }
-      } catch (error) {
-        console.warn('⚠️ Using local customers only:', error)
-      }
-    },
+    // 2️⃣ YOUR BACKEND API
+    const response = await fetch('http://localhost:8000/api/v1/customers')
+    if (response.ok) {
+      const result = await response.json()
+      const dbCustomers = Array.isArray(result.data) ? result.data : []
+      
+      // MERGE LOCAL + DB (NO DUPLICATES)
+      const merged = this.mergeCustomers(localCustomers || [], dbCustomers)
+      this.customers = merged.sort((a, b) => a.name.localeCompare(b.name))
+      syncUtils.saveAllCustomers(this.customers)
+    }
+  } catch (error) {
+    console.warn('⚠️ Using local customers:', error)
+  }
+},
 
     mergeCustomers(local, db) {
       const merged = [...local]

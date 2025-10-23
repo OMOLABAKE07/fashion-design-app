@@ -134,28 +134,7 @@ export default {
           this.editingCustomer = null
           Swal.fire({ icon: "success", title: "Saved", text: "Customer updated successfully!", timer: 2000, showConfirmButton: false })
         } catch (error) {
-          console.error('Error updating customer:', error)
-          let errorMessage = "Error updating customer."
-          if (error.response) {
-            if (error.response.status === 404) {
-              errorMessage = "Customer not found."
-            } else if (error.response.status === 422) {
-              // Validation error
-              const errors = error.response.data.errors
-              if (errors) {
-                errorMessage = Object.values(errors).flat()[0]
-              } else {
-                errorMessage = "Validation error. Please check your input."
-              }
-            } else if (error.response.data && error.response.data.message) {
-              errorMessage = error.response.data.message
-            } else {
-              errorMessage = `Server error: ${error.response.status}`
-            }
-          } else if (error.request) {
-            errorMessage = "Network error. Please check your connection."
-          }
-          Swal.fire({ icon: "error", title: "Error", text: errorMessage })
+          Swal.fire({ icon: "error", title: "Error", text: "Error updating customer." })
         }
       } else {
         // Add new customer
@@ -166,30 +145,18 @@ export default {
           this.editingCustomer = null
           Swal.fire({ icon: "success", title: "Saved", text: "Customer added successfully!", timer: 2000, showConfirmButton: false })
         } catch (error) {
-          console.error('Error adding customer:', error)
-          if (error.response && error.response.status === 422) {
-            // Validation error
-            const errors = error.response.data.errors
-            if (errors) {
-              const firstError = Object.values(errors).flat()[0]
-              Swal.fire({ icon: "error", title: "Validation Error", text: firstError })
-            } else {
-              Swal.fire({ icon: "error", title: "Validation Error", text: "Please check your input." })
-            }
-          } else {
-            let errorMessage = "Error adding customer."
-            if (error.response) {
-              if (error.response.data && error.response.data.message) {
-                errorMessage = error.response.data.message
-              } else {
-                errorMessage = `Server error: ${error.response.status}`
-              }
-            } else if (error.request) {
-              errorMessage = "Network error. Please check your connection."
-            }
-            Swal.fire({ icon: "error", title: "Error", text: errorMessage })
-          }
+      if (error.response && error.response.status === 422) {
+        // Validation error
+        const errors = error.response.data.errors
+        if (errors.email) {
+          Swal.fire({ icon: "error", title: "Email Exists", text: errors.email[0] })
+        } else {
+          Swal.fire({ icon: "error", title: "Validation Error", text: Object.values(errors).flat()[0] })
         }
+      } else {
+        Swal.fire({ icon: "error", title: "Error", text: "Error updating customer." })
+      }
+    }
       }
     },
     async deleteCustomer(customerId) {
