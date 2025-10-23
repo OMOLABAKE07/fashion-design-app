@@ -4,26 +4,20 @@
     <header class="app-header">
       <div class="header-content">
         <h1 class="app-title">Welcome to Efizzy Clothing Studio</h1>
-        <p class="app-subtitle">Manage your customers, measurements, designs, and communications all in one place.</p>
+        <p class="app-subtitle">
+          Manage your customers, measurements, designs, and communications all in one place.
+        </p>
       </div>
       <div class="header-actions gap-3">
         <div class="sync-status">
           <SyncStatus />
         </div>
-        <!-- Removed Quick Stats button as requested -->
       </div>
     </header>
 
-    <!-- Removed Quick Stats Panel as requested -->
-
-    <!-- Mobile Navbar Toggle Button -->
-    <!-- <button @click="toggleMobileNav" class="mobile-nav-toggle">
-      ☰
-    </button> -->
-
     <!-- Main Layout with Sidebar -->
     <div class="main-layout">
-      <!-- Global Navbar (Left Side) -->
+      <!-- Global Navbar -->
       <nav class="global-navbar" :class="{ open: mobileNavOpen }">
         <div class="navbar-header">
           <h3>Navigation</h3>
@@ -57,16 +51,10 @@ import SyncStatus from '@/components/SyncStatus.vue'
 
 export default {
   name: 'App',
-  components: {
-    SyncStatus
-  },
+  components: { SyncStatus },
   data() {
     return {
       mobileNavOpen: false,
-      totalCustomers: 24,
-      pendingMeasurements: 3,
-      unreadMessages: 7,
-      totalDesigns: 15,
       navigationItems: [
         { id: 'dashboard', label: 'Dashboard', icon: '🏠', route: '/' },
         { id: 'customers', label: 'Customers', icon: '👥', route: '/customers' },
@@ -91,13 +79,14 @@ export default {
 <style scoped>
 /* Global container */
 .app-container {
-  /* min-height: 100vh; */
+  min-height: 100vh;
   background: #f8f9fa;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
-/* Header at the top */
+/* Header */
 .app-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -107,34 +96,41 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  position: fixed; /* Fix the entire header */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 1;
+  height: 180px; /* Fixed header height */
+  z-index: 10;
 }
 
-/* Layout under header */
+.header-actions {
+  display: flex;
+}
+
+/* Main layout (fills below header) */
 .main-layout {
   display: flex;
   flex: 1;
-  min-height: calc(100vh - 300px);  /* Adjust based on header height */
+  /* margin-top: 180px; Equal to header height */
+  min-height: calc(100vh - 180px);
+  background: #f8f9fa;
 }
 
-/* Sidebar (Fixed Navbar) */
+/* Sidebar */
 .global-navbar {
   width: 280px;
   background: white;
   border-right: 1px solid #e9ecef;
   display: flex;
   flex-direction: column;
-  box-shadow: 2px 0 4px rgba(0,0,0,0.05);
-  position: fixed; /* Fix the navbar */
-  top: 0; /* Start from the top */
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+  position: fixed;
+  top: 180px; /* Start just below header */
   left: 0;
-  height: 100vh; /* Full height */
-  overflow-y: auto; /* Scroll if content overflows */
+  height: calc(100vh - 180px); /* Fill remaining height */
+  overflow-y: auto;
   z-index: 9;
 }
 
@@ -177,24 +173,21 @@ export default {
   font-size: 1.3rem;
 }
 
-.header-actions{
-  display: flex;
-}
-/* Main content (Scrollable) */
+/* Main content area */
 .main-content {
   flex: 1;
   background: #f8f9fa;
-  /* padding: 2rem; */
-  margin-left: 280px; /* Match navbar width */
-  overflow-y: auto; 
-  /* height: calc(100vh - 200px); Adjust based on header height */
+  margin-left: 280px;
+  padding: 2rem;
+  overflow-y: auto;
+  height: calc(100vh - 180px);
 }
 
 /* Mobile */
 @media (max-width: 768px) {
   .global-navbar {
     position: absolute;
-    top: 0;
+    top: 180px;
     left: -280px;
     transition: left 0.3s;
   }
@@ -205,12 +198,5 @@ export default {
     margin-left: 0;
     width: 100%;
   }
-  /* .mobile-nav-toggle {
-    display: block;
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
-    z-index: 11;
-  } */
 }
 </style>

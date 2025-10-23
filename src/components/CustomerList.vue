@@ -207,8 +207,10 @@ export default {
   padding: 1rem;
   max-width: 1200px;
   /* margin: 0 auto; */
+  /* height: 100% !important; */
   width: 100%;
-  margin-top: 50px;
+  
+  /* margin-top: 50px; */
 }
 
 .header {

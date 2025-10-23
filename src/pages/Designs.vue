@@ -79,7 +79,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  /* margin-bottom: 2rem; */
   padding-bottom: 1rem;
   border-bottom: 2px solid #e9ecef;
 }

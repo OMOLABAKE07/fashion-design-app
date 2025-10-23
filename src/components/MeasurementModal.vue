@@ -69,12 +69,15 @@ export default {
   watch: {
     measurement: {
       handler(newMeasurement) {
-        if (newMeasurement && newMeasurement.measurements) {
+        if (newMeasurement) {
+          // Handle both flat structure and nested structure
+          const measurementsData = newMeasurement.measurements || newMeasurement;
+          
           this.editableMeasurement = {
-            ...newMeasurement.measurements,
-            notes: newMeasurement.notes || '',
-            measurementDate: newMeasurement.measurementDate || ''
-          }
+            ...measurementsData,
+            notes: newMeasurement.notes || measurementsData.notes || '',
+            measurementDate: newMeasurement.measurementDate || measurementsData.measurementDate || ''
+          };
         }
       },
       immediate: true
@@ -150,10 +153,74 @@ handleSave() {
     },
     getFieldsForCategory(category) {
       const fieldDefinitions = {
-        // ... (KEEP ALL YOUR EXISTING FIELD DEFINITIONS - NO CHANGE)
-        bust: [ /* your existing bust fields */ ],
-        shoulder: [ /* your existing shoulder fields */ ],
-        // ... etc for all categories
+        bust: [
+          { key: 'bust', label: 'Bust (inches)', placeholder: '0.00' },
+          { key: 'shoulderToUnderBust', label: 'Shoulder to Under Bust (inches)', placeholder: '0.00' },
+          { key: 'shoulderToUpperBust', label: 'Shoulder to Upper Bust (inches)', placeholder: '0.00' },
+          { key: 'shoulderToNipplePoint', label: 'Shoulder to Nipple Point (inches)', placeholder: '0.00' },
+          { key: 'nippleToNipple', label: 'Nipple to Nipple (inches)', placeholder: '0.00' },
+          { key: 'roundUpperBust', label: 'Round Upper Bust (inches)', placeholder: '0.00' },
+          { key: 'roundUnderBust', label: 'Round Under Bust (inches)', placeholder: '0.00' }
+        ],
+        shoulder: [
+          { key: 'shoulder', label: 'Shoulder (inches)', placeholder: '0.00' }
+        ],
+        length: [
+          { key: 'halfLength', label: 'Half Length (inches)', placeholder: '0.00' },
+          { key: 'blouseLength', label: 'Blouse Length (inches)', placeholder: '0.00' },
+          { key: 'longGownLength', label: 'Long Gown Length (inches)', placeholder: '0.00' },
+          { key: 'shortGownLength', label: 'Short Gown Length (inches)', placeholder: '0.00' },
+          { key: 'threeQuarterGownLength', label: '3/4 Gown Length (inches)', placeholder: '0.00' },
+          { key: 'trouserLength', label: 'Trouser Length (inches)', placeholder: '0.00' }
+        ],
+        sleeve: [
+          { key: 'roundSleeve', label: 'Round Sleeve (inches)', placeholder: '0.00' },
+          { key: 'biceps', label: 'Biceps (inches)', placeholder: '0.00' },
+          { key: 'elbow', label: 'Elbow (inches)', placeholder: '0.00' },
+          { key: 'longSleeve', label: 'Long Sleeve (inches)', placeholder: '0.00' },
+          { key: 'shortSleeve', label: 'Short Sleeve (inches)', placeholder: '0.00' },
+          { key: 'threeQuarterSleeve', label: '3/4 Sleeve (inches)', placeholder: '0.00' }
+        ],
+        skirt: [
+          { key: 'longSkirt', label: 'Long Skirt (inches)', placeholder: '0.00' },
+          { key: 'shortSkirt', label: 'Short Skirt (inches)', placeholder: '0.00' },
+          { key: 'threeQuarterSkirt', label: '3/4 Skirt (inches)', placeholder: '0.00' }
+        ],
+        gown: [
+          { key: 'longGownLength', label: 'Long Gown Length (inches)', placeholder: '0.00' },
+          { key: 'shortGownLength', label: 'Short Gown Length (inches)', placeholder: '0.00' },
+          { key: 'threeQuarterGownLength', label: '3/4 Gown Length (inches)', placeholder: '0.00' }
+        ],
+        trouser: [
+          { key: 'trouserLength', label: 'Trouser Length (inches)', placeholder: '0.00' },
+          { key: 'waist', label: 'Waist (inches)', placeholder: '0.00' },
+          { key: 'band', label: 'Band (inches)', placeholder: '0.00' },
+          { key: 'thigh', label: 'Thigh (inches)', placeholder: '0.00' },
+          { key: 'knee', label: 'Knee (inches)', placeholder: '0.00' },
+          { key: 'inseam', label: 'Inseam (inches)', placeholder: '0.00' },
+          { key: 'outseam', label: 'Outseam (inches)', placeholder: '0.00' },
+          { key: 'ankle', label: 'Ankle (inches)', placeholder: '0.00' },
+          { key: 'crotch', label: 'Crotch (inches)', placeholder: '0.00' },
+          { key: 'calf', label: 'Calf (inches)', placeholder: '0.00' }
+        ],
+        agbada: [
+          { key: 'agbadaLength', label: 'Agbada Length (inches)', placeholder: '0.00' },
+          { key: 'agbadaShoulder', label: 'Agbada Shoulder (inches)', placeholder: '0.00' },
+          { key: 'agbadaChest', label: 'Agbada Chest (inches)', placeholder: '0.00' },
+          { key: 'agbadaSleeve', label: 'Agbada Sleeve (inches)', placeholder: '0.00' }
+        ],
+        top: [
+          { key: 'topLength', label: 'Top Length (inches)', placeholder: '0.00' },
+          { key: 'kaftanLength', label: 'Kaftan Length (inches)', placeholder: '0.00' },
+          { key: 'jalamiaLength', label: 'Jalamia Length (inches)', placeholder: '0.00' },
+          { key: 'shirtLength', label: 'Shirt Length (inches)', placeholder: '0.00' },
+          { key: 'shoulder', label: 'Shoulder (inches)', placeholder: '0.00' },
+          { key: 'neck', label: 'Neck (inches)', placeholder: '0.00' },
+          { key: 'chest', label: 'Chest (inches)', placeholder: '0.00' },
+          { key: 'bustUpperChest', label: 'Bust/Upper Chest (inches)', placeholder: '0.00' },
+          { key: 'stomach', label: 'Stomach (inches)', placeholder: '0.00' },
+          { key: 'capSize', label: 'Cap Size (inches)', placeholder: '0.00' }
+        ]
       }
       return fieldDefinitions[category] || []
     }
