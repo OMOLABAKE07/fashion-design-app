@@ -1,5 +1,4 @@
-// API service for connecting to the backend
-const API_BASE_URL = 'http://localhost:8000/api/v1';  // ✅ FIXED: Laravel port + /v1
+const API_BASE_URL = 'http://localhost:8000/api/v1';
 
 // Generic API call function
 const apiCall = async (endpoint, options = {}) => {
@@ -47,52 +46,6 @@ export const customerAPI = {
   })
 };
 
-// Measurement API functions
-export const measurementAPI = {
-  getAll: () => apiCall('/measurements'),
-  
-  getByCustomerId: (customerId) => apiCall(`/measurements/customer/${customerId}`),
-  
-  getById: (id) => apiCall(`/measurements/${id}`),
-  
-  create: (measurementData) => apiCall('/measurements', {
-    method: 'POST',
-    body: JSON.stringify(measurementData)
-  }),
-  
-  update: (id, measurementData) => apiCall(`/measurements/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(measurementData)
-  }),
-  
-  delete: (id) => apiCall(`/measurements/${id}`, {
-    method: 'DELETE'
-  })
-};
-
-// Design API functions
-export const designAPI = {
-  getAll: () => apiCall('/designs'),
-  
-  getByCustomerId: (customerId) => apiCall(`/designs/customer/${customerId}`),
-  
-  getById: (id) => apiCall(`/designs/${id}`),
-  
-  create: (designData) => apiCall('/designs', {
-    method: 'POST',
-    body: JSON.stringify(designData)
-  }),
-  
-  update: (id, designData) => apiCall(`/designs/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(designData)
-  }),
-  
-  delete: (id) => apiCall(`/designs/${id}`, {
-    method: 'DELETE'
-  })
-};
-
 // Message API functions
 export const messageAPI = {
   getAll: () => apiCall('/messages'),
@@ -118,7 +71,5 @@ export const messageAPI = {
 
 export default {
   customerAPI,
-  measurementAPI,
-  designAPI,
   messageAPI
 };

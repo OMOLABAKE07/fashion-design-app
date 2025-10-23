@@ -1,5 +1,5 @@
 <template>
-  <div class="customer-list mt-5">
+  <div class="customer-list">
     <div class="header">
       <h2>Customer List</h2>
       <div class="header-actions">
@@ -208,6 +208,7 @@ export default {
   max-width: 1200px;
   /* margin: 0 auto; */
   width: 100%;
+  margin-top: 50px;
 }
 
 .header {

@@ -1,5 +1,5 @@
 <template>
-  <div class="customers-page">
+  <div class="customers-page mt-5">
     <div class="page-header">
       <h2>Customer Management</h2>
      
@@ -77,6 +77,7 @@ export default {
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  margin-top: 50px;
 }
 
 .page-header {

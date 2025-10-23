@@ -896,8 +896,9 @@ async saveEditedMeasurement(updatedMeasurement) {
   border-radius: 8px;
   padding: 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
+  /* margin-bottom: 2rem; */
   position: relative;
+  margin-top: 6rem;
 }
 
 .alert {

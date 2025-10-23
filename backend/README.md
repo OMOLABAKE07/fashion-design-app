@@ -7,13 +7,14 @@ This is the backend API for the Fashion Design App, built with Node.js, Express,
 - [Database Schema](#database-schema)
 - [API Endpoints](#api-endpoints)
 - [Installation](#installation)
+- [Database Setup](#database-setup)
 - [Usage](#usage)
 
 ## Tech Stack
 - Node.js
 - Express.js
 - Sequelize ORM
-- SQLite (development) / MySQL/PostgreSQL (production)
+- MySQL (default configuration)
 
 ## Database Schema
 
@@ -68,6 +69,30 @@ The application uses the following tables:
 2. Install dependencies:
    ```
    npm install
+   ```
+
+## Database Setup
+
+1. Make sure you have MySQL installed and running on your system.
+
+2. Create a database for the application:
+   ```sql
+   CREATE DATABASE fashion_design_db;
+   ```
+
+3. Update the `.env` file in the backend directory with your database credentials:
+   ```
+   DB_HOST=localhost
+   DB_USER=your_mysql_username
+   DB_PASSWORD=your_mysql_password
+   DB_NAME=fashion_design_db
+   DB_PORT=3306
+   PORT=3000
+   ```
+
+4. Run the database initialization script:
+   ```
+   npm run init-db
    ```
 
 ## Usage

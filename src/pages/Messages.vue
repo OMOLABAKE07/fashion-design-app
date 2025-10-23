@@ -1,6 +1,6 @@
 <template>
   <div class="messages-page">
-    <MessageCenter @view-customer="handleViewCustomer" />
+    <MessageCenter @email-sent="showSuccess" @email-error="showError" />
   </div>
 </template>
 
@@ -8,23 +8,17 @@
 import MessageCenter from '@/components/MessageCenter.vue'
 
 export default {
-  name: 'Messages',
-  components: {
-    MessageCenter
-  },
+  name: 'Emails',
+  components: { MessageCenter },
   methods: {
-    handleViewCustomer(customer) {
-      console.log('View customer:', customer)
-      // Navigate to customers page or open customer details
-      this.$router.push('/customers')
+    showSuccess(message) {
+      // Show success notification
+      console.log('✅', message)
+    },
+    showError(message) {
+      // Show error notification
+      console.log('❌', message)
     }
   }
 }
 </script>
-
-<style scoped>
-.messages-page {
-  height: 100vh;
-  overflow: hidden;
-}
-</style>

@@ -26,7 +26,7 @@ const Message = sequelize.define('Message', {
     allowNull: false
   },
   status: {
-    type: DataTypes.ENUM('unread', 'read', 'archived'),
+    type: DataTypes.ENUM('unread', 'read', 'archived', 'sent'), // Added 'sent' to match frontend
     defaultValue: 'unread'
   }
 }, {

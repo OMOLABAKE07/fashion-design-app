@@ -14,6 +14,8 @@ class OfflineSyncManager {
     this.init()
   }
 
+
+  
   init() {
     // Listen for online/offline events
     window.addEventListener('online', () => {
@@ -133,24 +135,42 @@ class OfflineSyncManager {
 
   // Simulate API call - replace with actual HTTP requests
   async apiCall(method, url, data = null) {
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500))
-    
-    // Simulate occasional failures for testing
-    if (Math.random() < 0.1) { // 10% failure rate for testing
-      throw new Error('Simulated network error')
-    }
-
-    console.log(`API ${method} ${url}`, data)
-    
     // In a real app, you would use fetch or axios here:
-    // return await fetch(url, {
-    //   method,
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: data ? JSON.stringify(data) : null
-    // })
-
-    return { success: true, id: data?.id || Date.now() }
+    const fullUrl = `http://localhost:8000/api/v1${url}`;
+    
+    const options = {
+      method,
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    };
+    
+    if (data) {
+      options.body = JSON.stringify(data);
+    }
+    
+    try {
+      const response = await fetch(fullUrl, options);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      // Handle Laravel's response format
+      const processedResult = result.data || result;
+      console.log(`API ${method} ${fullUrl} successful:`, processedResult);
+      return processedResult;
+    } catch (error) {
+      console.error(`API ${method} ${fullUrl} failed:`, error);
+      // Return a default structure so the app can continue working
+      return { 
+        success: false, 
+        error: error.message,
+        data: null 
+      };
+    }
   }
 
   // Get API endpoint for entity type
@@ -477,6 +497,20 @@ export { OfflineSyncManager, LocalStorageManager }
 // Helper functions for components to use
 console.log('Initializing syncUtils') // Debug log
 export const syncUtils = {
+ saveMessage(message) {
+    const messages = storageManager.getData('messages')
+    messages.unshift(message)
+    storageManager.data.messages = messages
+    storageManager.saveData()
+    return message
+  },
+
+  saveAllCustomers(customers) {
+    storageManager.data.customers = customers
+    storageManager.saveData()
+    return customers
+  },
+
   // Customer operations
   async saveCustomer(customerData) {
     console.log('Saving customer:', customerData) // Debug log

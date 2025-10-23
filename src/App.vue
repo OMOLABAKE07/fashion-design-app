@@ -91,7 +91,7 @@ export default {
 <style scoped>
 /* Global container */
 .app-container {
-  min-height: 100vh;
+  /* min-height: 100vh; */
   background: #f8f9fa;
   display: flex;
   flex-direction: column;
@@ -119,7 +119,7 @@ export default {
 .main-layout {
   display: flex;
   flex: 1;
-  min-height: calc(100vh - 200px); /* Adjust based on header height */
+  min-height: calc(100vh - 300px);  /* Adjust based on header height */
 }
 
 /* Sidebar (Fixed Navbar) */
