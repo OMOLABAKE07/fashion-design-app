@@ -23,6 +23,7 @@
             placeholder="Search customers..."
             class="search-input"
           />
+          <button v-if="searchQuery" @click="clearSearch" class="btn-clear-search">✕</button>
         </div>
         
         <div class="customer-list">
@@ -207,16 +208,39 @@ export default {
       showAttachmentOptions: false,
       customers: [],
       messages: [], // Only your sent emails
-      isSubmitting: false
+      isSubmitting: false,
+      searchDebounce: null
     }
   },
   computed: {
     filteredCustomers() {
       if (!this.searchQuery) return this.customers
-      return this.customers.filter(customer =>
-        customer.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        customer.email.toLowerCase().includes(this.searchQuery.toLowerCase())
-      )
+      
+      const query = this.searchQuery.toLowerCase().trim()
+      if (!query) return this.customers
+      
+      return this.customers.filter(customer => {
+        // Handle potential null/undefined values
+        const name = (customer.name || customer.firstName || customer.lastName || '').toString()
+        const email = (customer.email || '').toString()
+        const phone = (customer.phone || '').toString()
+        
+        // Case-insensitive search in name, email, and phone
+        return name.toLowerCase().includes(query) || 
+               email.toLowerCase().includes(query) ||
+               phone.toLowerCase().includes(query)
+      })
+    }
+  },
+  watch: {
+    searchQuery: {
+      handler() {
+        // Debounce search to avoid too many API calls
+        clearTimeout(this.searchDebounce)
+        this.searchDebounce = setTimeout(() => {
+          this.loadCustomers()
+        }, 300)
+      }
     }
   },
   async mounted() {
@@ -227,34 +251,47 @@ export default {
   },
   beforeUnmount() {
     window.removeEventListener('storage', this.handleStorageChange)
+    // Clean up debounce timer
+    if (this.searchDebounce) {
+      clearTimeout(this.searchDebounce)
+    }
   },
   methods: {
     // ✅ LOAD CUSTOMERS - WORKS WITH YOUR SEARCH CONTROLLER
-  // ✅ FIXED loadCustomers() - WORKS WITH YOUR API
-async loadCustomers() {
-  try {
-    // 1️⃣ LOCAL FIRST (INSTANT LOAD)
-    let localCustomers = syncUtils.getAllCustomers()
-    if (localCustomers?.length > 0) {
-      this.customers = localCustomers
-      console.log(  this.customers, 88);
-    }
+    // ✅ FIXED loadCustomers() - WORKS WITH YOUR API
+    async loadCustomers() {
+      try {
+        // 1️⃣ LOCAL FIRST (INSTANT LOAD)
+        let localCustomers = syncUtils.getAllCustomers()
+        if (localCustomers?.length > 0) {
+          this.customers = localCustomers
+        }
 
-    // 2️⃣ YOUR BACKEND API
-    const response = await fetch('http://localhost:8000/api/v1/customers')
-    if (response.ok) {
-      const result = await response.json()
-      const dbCustomers = Array.isArray(result.data) ? result.data : []
-      
-      // MERGE LOCAL + DB (NO DUPLICATES)
-      const merged = this.mergeCustomers(localCustomers || [], dbCustomers)
-      this.customers = merged.sort((a, b) => a.name.localeCompare(b.name))
-      syncUtils.saveAllCustomers(this.customers)
-    }
-  } catch (error) {
-    console.warn('⚠️ Using local customers:', error)
-  }
-},
+        // 2️⃣ YOUR BACKEND API with search support
+        const searchParam = this.searchQuery ? `?search=${encodeURIComponent(this.searchQuery)}` : ''
+        const response = await fetch(`http://localhost:8000/api/v1/customers${searchParam}`)
+        if (response.ok) {
+          const result = await response.json()
+          // Handle both array and object responses
+          let dbCustomers = []
+          if (Array.isArray(result)) {
+            dbCustomers = result
+          } else if (Array.isArray(result.data)) {
+            dbCustomers = result.data
+          } else if (typeof result === 'object' && result !== null) {
+            // Handle object responses
+            dbCustomers = Object.values(result).filter(item => typeof item === 'object' && item !== null)
+          }
+          
+          // MERGE LOCAL + DB (NO DUPLICATES)
+          const merged = this.mergeCustomers(localCustomers || [], dbCustomers)
+          this.customers = merged.sort((a, b) => a.name.localeCompare(b.name))
+          syncUtils.saveAllCustomers(this.customers)
+        }
+      } catch (error) {
+        console.warn('⚠️ Using local customers:', error)
+      }
+    },
 
     mergeCustomers(local, db) {
       const merged = [...local]
@@ -457,7 +494,12 @@ async loadCustomers() {
         this.loadCustomers()
         this.loadMessages()
       }
-    }
+    },
+
+    clearSearch() {
+      this.searchQuery = ''
+      this.loadCustomers()
+    },
   }
 }
 </script>
@@ -509,11 +551,12 @@ async loadCustomers() {
 .search-box {
   padding: 1rem;
   border-bottom: 1px solid #e9ecef;
+  position: relative;
 }
 
 .search-input {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.75rem 2.5rem 0.75rem 0.75rem; /* Add right padding for clear button */
   border: 2px solid #e9ecef;
   border-radius: 6px;
   font-size: 1rem;
@@ -522,6 +565,18 @@ async loadCustomers() {
 .search-input:focus {
   outline: none;
   border-color: #3498db;
+}
+
+.btn-clear-search {
+  position: absolute;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #6c757d;
 }
 
 .customer-list {
