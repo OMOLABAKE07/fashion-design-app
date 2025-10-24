@@ -4,6 +4,7 @@ const API_BASE_URL = "http://localhost:8000/api/v1"; // ✅ FIXED: Laravel port 
 // Generic API call function
 const apiCall = async (endpoint, options = {}) => {
   try {
+    console.log(`Making API call to: ${API_BASE_URL}${endpoint}`);
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       headers: {
         "Content-Type": "application/json",
@@ -11,6 +12,9 @@ const apiCall = async (endpoint, options = {}) => {
       },
       ...options,
     });
+
+    console.log(`Response status: ${response.status}`);
+    console.log(`Response headers:`, [...response.headers.entries()]);
 
     if (!response.ok) {
       throw new Error(
@@ -23,6 +27,95 @@ const apiCall = async (endpoint, options = {}) => {
     console.error(`API call error for ${endpoint}:`, error);
     throw error;
   }
+};
+
+// Design API functions - UPDATED FOR LARAVEL BACKEND WITH FILE UPLOADS
+export const designAPI = {
+  getAll: () => apiCall("/designs"),
+
+  getByCustomerId: (customerId) => apiCall(`/designs/customer/${customerId}`),
+
+  getById: (id) => apiCall(`/designs/${id}`),
+
+  create: (designData) => {
+    // For file uploads, we need to use FormData
+    if (designData instanceof FormData) {
+      console.log("Sending FormData to create design");
+      return fetch(`${API_BASE_URL}/designs`, {
+        method: "POST",
+        body: designData,
+        // Don't set Content-Type header, let browser set it with boundary for FormData
+      }).then((response) => {
+        console.log(`FormData response status: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(
+            `API call failed: ${response.status} ${response.statusText}`
+          );
+        }
+        return response.json();
+      });
+    }
+
+    // For regular JSON data
+    console.log("Sending JSON data to create design");
+    return apiCall("/designs", {
+      method: "POST",
+      body: JSON.stringify(designData),
+    });
+  },
+
+  update: (id, designData) => {
+    // For file uploads, we need to use FormData
+    if (designData instanceof FormData) {
+      console.log("Sending FormData to update design");
+      // Add _method field for Laravel to recognize PUT requests with file uploads
+      if (designData instanceof FormData) {
+        designData.append("_method", "PUT");
+      }
+
+      return fetch(`${API_BASE_URL}/designs/${id}`, {
+        method: "POST", // Laravel uses POST with _method for file uploads
+        body: designData,
+        // Don't set Content-Type header, let browser set it with boundary for FormData
+      }).then((response) => {
+        console.log(`FormData response status: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(
+            `API call failed: ${response.status} ${response.statusText}`
+          );
+        }
+        return response.json();
+      });
+    }
+
+    // For regular JSON data
+    console.log("Sending JSON data to update design");
+    return apiCall(`/designs/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(designData),
+    });
+  },
+
+  delete: (id) =>
+    apiCall(`/designs/${id}`, {
+      method: "DELETE",
+    }),
+
+  deletePhoto: (photoId) => {
+    return fetch(`${API_BASE_URL}/designs/photo/${photoId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((response) => {
+      if (!response.ok) {
+        throw new Error(
+          `API call failed: ${response.status} ${response.statusText}`
+        );
+      }
+      return response.json();
+    });
+  },
 };
 
 // Customer API functions
@@ -77,89 +170,6 @@ export const measurementAPI = {
     apiCall(`/measurements/${id}`, {
       method: "DELETE",
     }),
-};
-
-// Design API functions - UPDATED FOR LARAVEL BACKEND WITH FILE UPLOADS
-export const designAPI = {
-  getAll: () => apiCall("/designs"),
-
-  getByCustomerId: (customerId) => apiCall(`/designs/customer/${customerId}`),
-
-  getById: (id) => apiCall(`/designs/${id}`),
-
-  create: (designData) => {
-    // For file uploads, we need to use FormData
-    if (designData instanceof FormData) {
-      return fetch(`${API_BASE_URL}/designs`, {
-        method: "POST",
-        body: designData,
-        // Don't set Content-Type header, let browser set it with boundary for FormData
-      }).then((response) => {
-        if (!response.ok) {
-          throw new Error(
-            `API call failed: ${response.status} ${response.statusText}`
-          );
-        }
-        return response.json();
-      });
-    }
-
-    // For regular JSON data
-    return apiCall("/designs", {
-      method: "POST",
-      body: JSON.stringify(designData),
-    });
-  },
-
-  update: (id, designData) => {
-    // For file uploads, we need to use FormData
-    if (designData instanceof FormData) {
-      // Add _method field for Laravel to recognize PUT requests with file uploads
-      if (designData instanceof FormData) {
-        designData.append("_method", "PUT");
-      }
-
-      return fetch(`${API_BASE_URL}/designs/${id}`, {
-        method: "POST", // Laravel uses POST with _method for file uploads
-        body: designData,
-        // Don't set Content-Type header, let browser set it with boundary for FormData
-      }).then((response) => {
-        if (!response.ok) {
-          throw new Error(
-            `API call failed: ${response.status} ${response.statusText}`
-          );
-        }
-        return response.json();
-      });
-    }
-
-    // For regular JSON data
-    return apiCall(`/designs/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(designData),
-    });
-  },
-
-  delete: (id) =>
-    apiCall(`/designs/${id}`, {
-      method: "DELETE",
-    }),
-
-  deletePhoto: (photoId) => {
-    return fetch(`${API_BASE_URL}/designs/photo/${photoId}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }).then((response) => {
-      if (!response.ok) {
-        throw new Error(
-          `API call failed: ${response.status} ${response.statusText}`
-        );
-      }
-      return response.json();
-    });
-  },
 };
 
 // Message API functions

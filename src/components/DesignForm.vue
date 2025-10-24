@@ -48,9 +48,8 @@
           <div class="form-group">
             <label for="status">Status</label>
             <select id="status" v-model="formData.status" class="form-select">
-              <option value="concept">Concept</option>
-              <option value="in-progress">In Progress</option>
-              <option value="fitting">Fitting</option>
+              <option value="draft">Draft</option>
+              <option value="in_progress">In Progress</option>
               <option value="completed">Completed</option>
               <option value="delivered">Delivered</option>
             </select>
@@ -276,7 +275,7 @@
 </template>
 
 <script>
-import { syncUtils } from '@/utils/sync.js'
+import { designAPI } from '@/services/api.js'
 import Swal from 'sweetalert2'
 
 export default {
@@ -323,22 +322,22 @@ export default {
       handler(newDesign) {
         if (newDesign) {
           this.formData = {
-            designName: newDesign.designName || '',
-            customerId: newDesign.customerId || '',
-            designDate: newDesign.designDate || new Date().toISOString().split('T')[0],
+            designName: newDesign.name || newDesign.designName || '',
+            customerId: newDesign.customer_id || newDesign.customerId || '',
+            designDate: newDesign.design_date || newDesign.designDate || new Date().toISOString().split('T')[0],
             status: newDesign.status || 'concept',
             photos: newDesign.photos || [],
-            fabricType: newDesign.fabricType || '',
+            fabricType: newDesign.fabric_type || newDesign.fabricType || '',
             color: newDesign.color || '',
             style: newDesign.style || '',
             occasion: newDesign.occasion || '',
-            specialInstructions: newDesign.specialInstructions || '',
-            firstFitting: newDesign.firstFitting || '',
-            finalFitting: newDesign.finalFitting || '',
-            completionDate: newDesign.completionDate || '',
-            deliveryDate: newDesign.deliveryDate || '',
-            estimatedPrice: newDesign.estimatedPrice || '',
-            finalPrice: newDesign.finalPrice || '',
+            specialInstructions: newDesign.special_instructions || newDesign.specialInstructions || '',
+            firstFitting: newDesign.first_fitting || newDesign.firstFitting || '',
+            finalFitting: newDesign.final_fitting || newDesign.finalFitting || '',
+            completionDate: newDesign.completion_date || newDesign.completionDate || '',
+            deliveryDate: newDesign.delivery_date || newDesign.deliveryDate || '',
+            estimatedPrice: newDesign.estimated_price || newDesign.estimatedPrice || '',
+            finalPrice: newDesign.final_price || newDesign.finalPrice || '',
             notes: newDesign.notes || ''
           }
         } else {
@@ -352,9 +351,11 @@ export default {
     this.loadCustomers()
   },
   methods: {
-    loadCustomers() {
+    async loadCustomers() {
       try {
-        this.customers = syncUtils.getAllCustomers()
+        const response = await fetch('http://localhost:8000/api/v1/customers')
+        const result = await response.json()
+        this.customers = result.data || result
       } catch (error) {
         console.error('Error loading customers:', error)
         this.customers = []
@@ -374,34 +375,81 @@ export default {
           return
         }
 
-        // Prepare design data
-        const designData = {
-          ...this.formData,
-          id: this.design?.id || null,
-          createdAt: this.design?.createdAt || new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }
+        console.log('Form data before submission:', this.formData);
 
-        // Convert price strings to numbers
-        if (designData.estimatedPrice) {
-          designData.estimatedPrice = parseFloat(designData.estimatedPrice)
-        }
-        if (designData.finalPrice) {
-          designData.finalPrice = parseFloat(designData.finalPrice)
-        }
-
-        // Save using sync utilities
+        let result
         if (this.isEditing) {
-          await syncUtils.updateDesign(this.design.id, designData)
+          // For updates, we need to use FormData to handle file uploads
+          const formData = new FormData()
+          formData.append('name', this.formData.designName)
+          formData.append('customer_id', this.formData.customerId)
+          formData.append('status', this.formData.status)
+          formData.append('design_date', this.formData.designDate)
+          
+          // Add optional fields if they have values
+          if (this.formData.description) formData.append('description', this.formData.description)
+          if (this.formData.fabricType) formData.append('fabric_type', this.formData.fabricType)
+          if (this.formData.color) formData.append('color', this.formData.color)
+          if (this.formData.style) formData.append('style', this.formData.style)
+          if (this.formData.occasion) formData.append('occasion', this.formData.occasion)
+          if (this.formData.specialInstructions) formData.append('special_instructions', this.formData.specialInstructions)
+          if (this.formData.firstFitting) formData.append('first_fitting', this.formData.firstFitting)
+          if (this.formData.finalFitting) formData.append('final_fitting', this.formData.finalFitting)
+          if (this.formData.completionDate) formData.append('completion_date', this.formData.completionDate)
+          if (this.formData.deliveryDate) formData.append('delivery_date', this.formData.deliveryDate)
+          if (this.formData.estimatedPrice) formData.append('estimated_price', this.formData.estimatedPrice)
+          if (this.formData.finalPrice) formData.append('final_price', this.formData.finalPrice)
+          if (this.formData.notes) formData.append('notes', this.formData.notes)
+          
+          // Add new photos
+          this.formData.photos.forEach(photo => {
+            if (photo.file) {
+              formData.append('photos[]', photo.file)
+            }
+          })
+          
+          console.log('Sending FormData for update:', formData);
+          result = await designAPI.update(this.design.id, formData)
         } else {
-          await syncUtils.saveDesign(designData)
+          // For creates, we can use FormData
+          const formData = new FormData()
+          formData.append('name', this.formData.designName)
+          formData.append('customer_id', this.formData.customerId)
+          formData.append('status', this.formData.status)
+          formData.append('design_date', this.formData.designDate)
+          
+          // Add optional fields if they have values
+          if (this.formData.description) formData.append('description', this.formData.description)
+          if (this.formData.fabricType) formData.append('fabric_type', this.formData.fabricType)
+          if (this.formData.color) formData.append('color', this.formData.color)
+          if (this.formData.style) formData.append('style', this.formData.style)
+          if (this.formData.occasion) formData.append('occasion', this.formData.occasion)
+          if (this.formData.specialInstructions) formData.append('special_instructions', this.formData.specialInstructions)
+          if (this.formData.firstFitting) formData.append('first_fitting', this.formData.firstFitting)
+          if (this.formData.finalFitting) formData.append('final_fitting', this.formData.finalFitting)
+          if (this.formData.completionDate) formData.append('completion_date', this.formData.completionDate)
+          if (this.formData.deliveryDate) formData.append('delivery_date', this.formData.deliveryDate)
+          if (this.formData.estimatedPrice) formData.append('estimated_price', this.formData.estimatedPrice)
+          if (this.formData.finalPrice) formData.append('final_price', this.formData.finalPrice)
+          if (this.formData.notes) formData.append('notes', this.formData.notes)
+          
+          this.formData.photos.forEach(photo => {
+            if (photo.file) {
+              formData.append('photos[]', photo.file)
+            }
+          })
+          
+          console.log('Sending FormData for create:', formData);
+          result = await designAPI.create(formData)
         }
+
+        console.log('API response:', result);
 
         // Emit save event with design data
-        this.$emit('save', designData)
+        this.$emit('save', result.data || result)
         
         // Emit a custom event to notify other components
-        window.dispatchEvent(new CustomEvent('design-saved', { detail: designData }))
+        window.dispatchEvent(new CustomEvent('design-saved', { detail: result.data || result }))
         
         // Reset form after successful save
         if (!this.isEditing) {
@@ -449,6 +497,9 @@ export default {
         estimatedPrice: '',
         finalPrice: '',
         notes: ''
+      }
+      if (this.$refs.fileInput) {
+        this.$refs.fileInput.value = ''
       }
     },
     triggerFileUpload() {
