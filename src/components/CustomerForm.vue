@@ -126,13 +126,13 @@ export default {
     return {
       isSubmitting: false,
       formData: {
-      first_name: '',
-      last_name: '',
-      email: '',
-      phone: '',
-      address: '',
-      gender: '',
-      notes: ''
+        first_name: '',
+        last_name: '',
+        email: '',
+        phone: '',
+        address: '',
+        gender: '',
+        notes: ''
       }
     }
   },
@@ -202,13 +202,12 @@ export default {
     },
     resetForm() {
       this.formData = {
-        firstName: '',
-        lastName: '',
+        first_name: '',
+        last_name: '',
         email: '',
         phone: '',
         address: '',
         gender: '',
-        // preferredContact: '',
         notes: ''
       }
     }

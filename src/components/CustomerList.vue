@@ -42,7 +42,7 @@
             <template v-if="filteredCustomers.length > 0">
               <tr v-for="(customer, index) in filteredCustomers" :key="customer.id" class="customer-row">
                 <td>{{ index + 1 }}</td>
-                <td>{{ customer.name }}</td>
+                <td>{{ customer.name || `${customer.first_name} ${customer.last_name}` }}</td>
                 <td>{{ customer.email }}</td>
                 <td>{{ customer.phone }}</td>
                 <td>{{ customer.address }}</td>
@@ -97,9 +97,11 @@ export default {
       if (!this.searchQuery) return this.customers
       const query = this.searchQuery.toLowerCase()
       return this.customers.filter(customer =>
-        customer.name.toLowerCase().includes(query) ||
-        customer.email.toLowerCase().includes(query) ||
-        customer.phone.toLowerCase().includes(query)
+        (customer.name && customer.name.toLowerCase().includes(query)) ||
+        (customer.email && customer.email.toLowerCase().includes(query)) ||
+        (customer.phone && customer.phone.toLowerCase().includes(query)) ||
+        (customer.first_name && customer.first_name.toLowerCase().includes(query)) ||
+        (customer.last_name && customer.last_name.toLowerCase().includes(query))
       )
     }
   },
@@ -112,8 +114,17 @@ export default {
         const response = await axios.get('http://localhost:8000/api/v1/customers')
         this.customers = response.data.map(c => ({
           ...c,
-          createdAt: c.created_at ? new Date(c.created_at) : null,
-          updatedAt: c.updated_at ? new Date(c.updated_at) : null
+          id: c.id,
+          first_name: c.first_name || c.firstName || '',
+          last_name: c.last_name || c.lastName || '',
+          name: c.name || `${c.first_name || c.firstName || ''} ${c.last_name || c.lastName || ''}`.trim(),
+          email: c.email || '',
+          phone: c.phone || '',
+          address: c.address || '',
+          gender: c.gender || '',
+          notes: c.notes || '',
+          createdAt: c.created_at ? new Date(c.created_at) : (c.createdAt ? new Date(c.createdAt) : null),
+          updatedAt: c.updated_at ? new Date(c.updated_at) : (c.updatedAt ? new Date(c.updatedAt) : null)
         }))
       } catch (error) {
         console.error('Error loading customers:', error)
@@ -121,7 +132,11 @@ export default {
       }
     },
     async handleCustomerSave(customerData) {
-      const payload = { ...customerData, name: `${customerData.first_name} ${customerData.last_name}`.trim() }
+      // Ensure name is properly set
+      const payload = { 
+        ...customerData, 
+        name: customerData.name || `${customerData.first_name} ${customerData.last_name}`.trim() 
+      }
 
       if (this.editingCustomer) {
         // Edit customer
@@ -129,34 +144,75 @@ export default {
           const res = await axios.put(`http://localhost:8000/api/v1/customers/${this.editingCustomer.id}`, payload)
           const updatedCustomer = res.data
           const index = this.customers.findIndex(c => c.id === this.editingCustomer.id)
-          if (index > -1) this.customers.splice(index, 1, updatedCustomer)
+          if (index > -1) {
+            // Preserve the processed fields structure
+            this.customers.splice(index, 1, {
+              ...updatedCustomer,
+              id: updatedCustomer.id,
+              first_name: updatedCustomer.first_name || updatedCustomer.firstName || '',
+              last_name: updatedCustomer.last_name || updatedCustomer.lastName || '',
+              name: updatedCustomer.name || `${updatedCustomer.first_name || updatedCustomer.firstName || ''} ${updatedCustomer.last_name || updatedCustomer.lastName || ''}`.trim(),
+              email: updatedCustomer.email || '',
+              phone: updatedCustomer.phone || '',
+              address: updatedCustomer.address || '',
+              gender: updatedCustomer.gender || '',
+              notes: updatedCustomer.notes || '',
+              createdAt: updatedCustomer.created_at ? new Date(updatedCustomer.created_at) : (updatedCustomer.createdAt ? new Date(updatedCustomer.createdAt) : null),
+              updatedAt: updatedCustomer.updated_at ? new Date(updatedCustomer.updated_at) : (updatedCustomer.updatedAt ? new Date(updatedCustomer.updatedAt) : null)
+            })
+          }
           this.showCustomerForm = false
           this.editingCustomer = null
           Swal.fire({ icon: "success", title: "Saved", text: "Customer updated successfully!", timer: 2000, showConfirmButton: false })
         } catch (error) {
-          Swal.fire({ icon: "error", title: "Error", text: "Error updating customer." })
+          if (error.response && error.response.status === 422) {
+            // Validation error
+            const errors = error.response.data.errors
+            if (errors.email) {
+              Swal.fire({ icon: "error", title: "Email Exists", text: errors.email[0] })
+            } else {
+              Swal.fire({ icon: "error", title: "Validation Error", text: Object.values(errors).flat()[0] })
+            }
+          } else {
+            Swal.fire({ icon: "error", title: "Error", text: "Error updating customer." })
+          }
         }
       } else {
         // Add new customer
         try {
           const res = await axios.post('http://localhost:8000/api/v1/customers', payload)
-          this.customers.push(res.data)
+          // Process the new customer data the same way as in loadCustomers
+          const newCustomer = {
+            ...res.data,
+            id: res.data.id,
+            first_name: res.data.first_name || res.data.firstName || '',
+            last_name: res.data.last_name || res.data.lastName || '',
+            name: res.data.name || `${res.data.first_name || res.data.firstName || ''} ${res.data.last_name || res.data.lastName || ''}`.trim(),
+            email: res.data.email || '',
+            phone: res.data.phone || '',
+            address: res.data.address || '',
+            gender: res.data.gender || '',
+            notes: res.data.notes || '',
+            createdAt: res.data.created_at ? new Date(res.data.created_at) : (res.data.createdAt ? new Date(res.data.createdAt) : null),
+            updatedAt: res.data.updated_at ? new Date(res.data.updated_at) : (res.data.updatedAt ? new Date(res.data.updatedAt) : null)
+          }
+          this.customers.push(newCustomer)
           this.showCustomerForm = false
           this.editingCustomer = null
           Swal.fire({ icon: "success", title: "Saved", text: "Customer added successfully!", timer: 2000, showConfirmButton: false })
         } catch (error) {
-      if (error.response && error.response.status === 422) {
-        // Validation error
-        const errors = error.response.data.errors
-        if (errors.email) {
-          Swal.fire({ icon: "error", title: "Email Exists", text: errors.email[0] })
-        } else {
-          Swal.fire({ icon: "error", title: "Validation Error", text: Object.values(errors).flat()[0] })
+          if (error.response && error.response.status === 422) {
+            // Validation error
+            const errors = error.response.data.errors
+            if (errors.email) {
+              Swal.fire({ icon: "error", title: "Email Exists", text: errors.email[0] })
+            } else {
+              Swal.fire({ icon: "error", title: "Validation Error", text: Object.values(errors).flat()[0] })
+            }
+          } else {
+            Swal.fire({ icon: "error", title: "Error", text: "Error adding customer." })
+          }
         }
-      } else {
-        Swal.fire({ icon: "error", title: "Error", text: "Error updating customer." })
-      }
-    }
       }
     },
     async deleteCustomer(customerId) {

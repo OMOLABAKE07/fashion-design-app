@@ -4,20 +4,19 @@
     <header class="app-header">
       <div class="header-content">
         <h1 class="app-title">Welcome to Efizzy Clothing Studio</h1>
-        <p class="app-subtitle">
-          Manage your customers, measurements, designs, and communications all in one place.
-        </p>
+        <p class="app-subtitle">Manage your customers, measurements, designs, and communications all in one place.</p>
       </div>
       <div class="header-actions gap-3">
         <div class="sync-status">
           <SyncStatus />
         </div>
+        <!-- Removed Quick Stats button as requested -->
       </div>
     </header>
 
     <!-- Main Layout with Sidebar -->
     <div class="main-layout">
-      <!-- Global Navbar -->
+      <!-- Global Navbar (Left Side) -->
       <nav class="global-navbar" :class="{ open: mobileNavOpen }">
         <div class="navbar-header">
           <h3>Navigation</h3>
@@ -51,10 +50,16 @@ import SyncStatus from '@/components/SyncStatus.vue'
 
 export default {
   name: 'App',
-  components: { SyncStatus },
+  components: {
+    SyncStatus
+  },
   data() {
     return {
       mobileNavOpen: false,
+      totalCustomers: 24,
+      pendingMeasurements: 3,
+      unreadMessages: 7,
+      totalDesigns: 15,
       navigationItems: [
         { id: 'dashboard', label: 'Dashboard', icon: '🏠', route: '/' },
         { id: 'customers', label: 'Customers', icon: '👥', route: '/customers' },
@@ -79,14 +84,12 @@ export default {
 <style scoped>
 /* Global container */
 .app-container {
-  min-height: 100vh;
   background: #f8f9fa;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
-/* Header */
+/* Header at the top */
 .app-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -96,40 +99,33 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 180px; /* Fixed header height */
-  z-index: 10;
+  z-index: 1;
 }
 
-.header-actions {
-  display: flex;
-}
-
-/* Main layout (fills below header) */
+/* Layout under header */
 .main-layout {
   display: flex;
   flex: 1;
-  /* margin-top: 180px; Equal to header height */
-  min-height: calc(100vh - 180px);
-  background: #f8f9fa;
+  min-height: calc(100vh - 180px); /* Reduced from 300px to remove extra white space */
 }
 
-/* Sidebar */
+/* Sidebar (Fixed Navbar) */
 .global-navbar {
   width: 280px;
   background: white;
   border-right: 1px solid #e9ecef;
   display: flex;
   flex-direction: column;
-  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 2px 0 4px rgba(0,0,0,0.05);
   position: fixed;
-  top: 180px; /* Start just below header */
+  top: 0;
   left: 0;
-  height: calc(100vh - 180px); /* Fill remaining height */
+  height: 100vh;
   overflow-y: auto;
   z-index: 9;
 }
@@ -173,21 +169,25 @@ export default {
   font-size: 1.3rem;
 }
 
-/* Main content area */
+.header-actions {
+  display: flex;
+}
+
+/* Main content */
 .main-content {
   flex: 1;
   background: #f8f9fa;
   margin-left: 280px;
-  padding: 2rem;
   overflow-y: auto;
-  height: calc(100vh - 180px);
+  padding-top: 180px; /* Prevent content from hiding under the fixed header */
+  min-height: calc(100vh - 180px);
 }
 
 /* Mobile */
 @media (max-width: 768px) {
   .global-navbar {
     position: absolute;
-    top: 180px;
+    top: 0;
     left: -280px;
     transition: left 0.3s;
   }
@@ -197,6 +197,7 @@ export default {
   .main-content {
     margin-left: 0;
     width: 100%;
+    padding-top: 180px;
   }
 }
 </style>

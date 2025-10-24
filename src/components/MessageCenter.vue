@@ -75,14 +75,14 @@
                 </p>
               </div>
             </div>
-            <div class="thread-actions">
+            <!-- <div class="thread-actions">
               <button @click="markAsRead" class="btn-secondary btn-small">
                 Mark as Read
               </button>
               <button @click="showCustomerDetails" class="btn-secondary btn-small">
                 View Details
               </button>
-            </div>
+            </div> -->
           </div>
 
           <div class="messages-container" ref="messagesContainer">
@@ -510,11 +510,11 @@ export default {
       else return messageTime.toLocaleDateString()
     },
 
-    markAsRead() {},
+    // markAsRead() {},
 
-    showCustomerDetails() {
-      this.$emit('view-customer', this.selectedCustomer)
-    },
+    // showCustomerDetails() {
+    //   this.$emit('view-customer', this.selectedCustomer)
+    // },
 
     // ✅ YOUR ATTACHMENT BUTTONS - ENHANCED WITH REAL FUNCTIONALITY FOR LARAVEL BACKEND
     async uploadImage() {

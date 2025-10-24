@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard-content my-5">
+  <div class="dashboard-content">
     <!-- Dashboard Overview -->
     <div class="dashboard-overview">
       <div class="overview-header">
@@ -71,7 +71,7 @@ export default {
 .overview-header {
   text-align: center;
   margin-bottom: 3rem;
-  margin-top: 4rem;
+  margin-top: 2rem;
 }
 
 .overview-header h2 {
