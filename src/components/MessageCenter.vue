@@ -93,16 +93,17 @@
             >
               <div class="message-content">
                 <div class="message-text">{{ message.content }}</div>
-                <div v-if="message.attachments?.length" class="message-attachments">
-                  <div
-                    v-for="attachment in message.attachments"
-                    :key="attachment.id"
-                    class="attachment"
-                  >
-                    <img v-if="attachment.type === 'image'" :src="attachment.url" :alt="attachment.name" />
-                    <div v-else class="file-attachment">
-                      <span class="file-icon">📎</span>
-                      <span>{{ attachment.name }}</span>
+                <!-- Display attachment info for Laravel messages -->
+                <div v-if="message.attachment_type && message.attachment_type !== 'none'" class="message-attachments">
+                  <div class="attachment">
+                    <div class="file-attachment">
+                      <span class="file-icon">
+                        {{ message.attachment_type === 'photo' ? '📷' : '📄' }}
+                      </span>
+                      <span>{{ message.attachment_type }} attached</span>
+                      <span v-if="message.attachment_path" class="file-path">
+                        ({{ message.attachment_path }})
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -115,7 +116,7 @@
           </div>
 
           <div class="message-composer">
-            <form @submit.prevent="sendMessage" class="composer-form">
+            <form @submit.prevent="sendMessage" class="composer-form" @click="closeAttachmentOptions">
               <div class="composer-input">
                 <textarea
                   v-model="newMessage"
@@ -127,8 +128,15 @@
                 ></textarea>
                 <div class="composer-actions">
                   <!-- ✅ YOUR ATTACHMENT BUTTON - 100% KEPT -->
-                  <button type="button" @click="showAttachmentOptions = !showAttachmentOptions" class="btn-icon">
+                  <button type="button" @click.stop="showAttachmentOptions = !showAttachmentOptions" class="btn-icon">
                     📎
+                  </button>
+                  <!-- Attachment indicator -->
+                  <span v-if="attachmentType !== 'none'" class="attachment-indicator" title="Attachment selected">
+                    📎
+                  </span>
+                  <button v-if="attachmentType !== 'none'" type="button" @click="clearAttachment" class="btn-icon" title="Remove attachment">
+                    ✕
                   </button>
                   <button type="submit" :disabled="!newMessage.trim() || isSubmitting" class="btn-primary btn-small">
                     {{ isSubmitting ? 'Sending...' : 'Send' }}
@@ -136,8 +144,8 @@
                 </div>
               </div>
               
-              <!-- ✅ YOUR ATTACHMENT OPTIONS - 100% KEPT -->
-              <div v-if="showAttachmentOptions" class="attachment-options">
+              <!-- ✅ YOUR ATTACHMENT OPTIONS - ENHANCED WITH CLICK OUTSIDE CLOSE -->
+              <div v-if="showAttachmentOptions" class="attachment-options" @click.stop>
                 <button type="button" @click="uploadImage" class="btn-secondary btn-small">
                   📷 Photo
                 </button>
@@ -209,7 +217,10 @@ export default {
       customers: [],
       messages: [], // Only your sent emails
       isSubmitting: false,
-      searchDebounce: null
+      searchDebounce: null,
+      // Attachment handling
+      attachmentFile: null,
+      attachmentType: 'none'
     }
   },
   computed: {
@@ -258,7 +269,7 @@ export default {
   },
   methods: {
     // ✅ LOAD CUSTOMERS - WORKS WITH YOUR SEARCH CONTROLLER
-    // ✅ FIXED loadCustomers() - WORKS WITH YOUR API
+    // ✅ FIXED loadCustomers() - - WORKS WITH YOUR API
     async loadCustomers() {
       try {
         // 1️⃣ LOCAL FIRST (INSTANT LOAD)
@@ -310,7 +321,16 @@ export default {
         if (response.ok) {
           const result = await response.json()
           // Handle Laravel's response format
-          this.messages = Array.isArray(result.data) ? result.data : (result.data ? Object.values(result.data) : [])
+          let messages = Array.isArray(result.data) ? result.data : (result.data ? Object.values(result.data) : [])
+          
+          // Process attachment information
+          messages = messages.map(message => ({
+            ...message,
+            attachment_type: message.attachment_type || 'none',
+            attachment_path: message.attachment_path || null
+          }))
+          
+          this.messages = messages
         } else {
           // Handle non-OK responses
           console.error('Failed to load messages:', response.status, response.statusText)
@@ -337,6 +357,9 @@ export default {
 
       this.newMessage = ''
       this.$nextTick(() => this.scrollToBottom())
+      // Clear attachment after sending
+      this.attachmentFile = null
+      this.attachmentType = 'none'
     },
 
     // ✅ SEND NEW EMAIL (modal)
@@ -357,9 +380,12 @@ export default {
       this.showNewMessage = false
       this.newMessageCustomer = ''
       this.newMessageText = ''
+      // Clear attachment after sending
+      this.attachmentFile = null
+      this.attachmentType = 'none'
     },
 
-    // ✅ EMAIL ENGINE
+    // ✅ EMAIL ENGINE - UPDATED FOR LARAVEL BACKEND WITH ATTACHMENTS
     async sendEmailData(messageData, customer) {
       this.isSubmitting = true
       try {
@@ -367,13 +393,25 @@ export default {
         let apiError = null
         
         try {
+          // Create FormData for file upload
+          const formData = new FormData()
+          formData.append('customer_id', messageData.customer_id)
+          formData.append('subject', messageData.subject)
+          formData.append('content', messageData.content)
+          formData.append('status', messageData.status || 'sent')
+          
+          // Add attachment if available
+          if (this.attachmentFile && this.attachmentType !== 'none') {
+            formData.append('attachment_file', this.attachmentFile)
+            formData.append('attachment_type', this.attachmentType)
+          } else {
+            formData.append('attachment_type', 'none')
+          }
+          
           const response = await fetch('http://localhost:8000/api/v1/messages', {
             method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            },
-            body: JSON.stringify(messageData)
+            // Don't set Content-Type header, let browser set it with boundary for FormData
+            body: formData
           })
           
           if (response.ok) {
@@ -381,7 +419,8 @@ export default {
             savedToDb = result.data || result // Handle Laravel's response format
           } else {
             // Handle non-OK responses
-            apiError = `Server error: ${response.status} ${response.statusText}`
+            const errorText = await response.text()
+            apiError = 'Server error: ' + response.status + ' ' + response.statusText + ' - ' + errorText
             console.error('API Error:', apiError)
           }
         } catch (error) {
@@ -395,7 +434,10 @@ export default {
           customer_name: customer.name,
           customer_email: customer.email,
           created_at: new Date().toISOString(),
-          sender: 'admin'
+          sender: 'admin',
+          // Add attachment info if available
+          attachment_type: this.attachmentType,
+          attachment_path: savedToDb?.attachment_path || null
         }
         
         // Save to local storage using syncUtils
@@ -407,7 +449,7 @@ export default {
         Swal.fire({
           icon: savedToDb ? 'success' : 'warning',
           title: savedToDb ? '✅ Message Sent!' : '⏳ Queued',
-          text: savedToDb ? `To ${customer.email}` : `Message queued for later delivery: ${apiError || 'Backend unavailable'}`,
+          text: savedToDb ? ('To ' + customer.email) : ('Message queued for later delivery: ' + (apiError || 'Backend unavailable')),
           timer: savedToDb ? 1500 : null
         })
         
@@ -415,6 +457,10 @@ export default {
         if (savedToDb) {
           await this.loadMessages()
         }
+        
+        // Clear attachment after sending
+        this.attachmentFile = null
+        this.attachmentType = 'none'
       } catch (error) {
         console.error('Error sending message:', error)
         Swal.fire({
@@ -470,17 +516,75 @@ export default {
       this.$emit('view-customer', this.selectedCustomer)
     },
 
-    // ✅ YOUR ATTACHMENT BUTTONS - 100% WORKING
-    uploadImage() {
+    // ✅ YOUR ATTACHMENT BUTTONS - ENHANCED WITH REAL FUNCTIONALITY FOR LARAVEL BACKEND
+    async uploadImage() {
       console.log('📷 Uploading photo to email...')
       this.showAttachmentOptions = false
-      // TODO: Real image upload for email
+      
+      // Create a file input element
+      const fileInput = document.createElement('input')
+      fileInput.type = 'file'
+      fileInput.accept = 'image/*'
+      fileInput.multiple = false // Laravel backend expects single file
+      
+      // Handle file selection
+      fileInput.onchange = (event) => {
+        const files = Array.from(event.target.files)
+        if (files.length > 0) {
+          this.attachmentFile = files[0]
+          this.attachmentType = 'photo'
+          
+          // Show notification
+          Swal.fire({
+            icon: 'success',
+            title: '📎 Photo Selected',
+            text: files[0].name + ' will be attached to your message',
+            timer: 2000,
+            showConfirmButton: false
+          })
+        }
+      }
+      
+      // Trigger file selection
+      fileInput.click()
     },
 
-    uploadFile() {
+    async uploadFile() {
       console.log('📄 Uploading document to email...')
       this.showAttachmentOptions = false
-      // TODO: Real file upload for email
+      
+      // Create a file input element
+      const fileInput = document.createElement('input')
+      fileInput.type = 'file'
+      fileInput.accept = '.pdf,.doc,.docx' // Accept document types
+      fileInput.multiple = false // Laravel backend expects single file
+      
+      // Handle file selection
+      fileInput.onchange = (event) => {
+        const files = Array.from(event.target.files)
+        if (files.length > 0) {
+          this.attachmentFile = files[0]
+          this.attachmentType = 'document'
+          
+          // Show notification
+          Swal.fire({
+            icon: 'success',
+            title: '📎 Document Selected',
+            text: files[0].name + ' will be attached to your message',
+            timer: 2000,
+            showConfirmButton: false
+          })
+        }
+      }
+      
+      // Trigger file selection
+      fileInput.click()
+    },
+
+    // Handle the actual file upload process
+
+    closeAttachmentOptions() {
+      this.showAttachmentOptions = false
     },
 
     scrollToBottom() {
@@ -496,10 +600,15 @@ export default {
       }
     },
 
+    clearAttachment() {
+      this.attachmentFile = null
+      this.attachmentType = 'none'
+    },
+
     clearSearch() {
       this.searchQuery = ''
       this.loadCustomers()
-    },
+    }
   }
 }
 </script>
@@ -723,8 +832,7 @@ export default {
 }
 
 .thread-actions {
-  display: flex;
-  gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .messages-container {
@@ -788,6 +896,13 @@ export default {
   padding: 0.5rem;
   background: rgba(0,0,0,0.1);
   border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.file-path {
+  color: #6c757d;
+  font-size: 0.8rem;
+  font-style: italic;
 }
 
 .message-meta {
@@ -835,6 +950,38 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  position: relative;
+}
+
+.attachment-indicator {
+  position: absolute;
+  top: -8px;
+  right: 40px;
+  background: #3498db;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
+  }
 }
 
 .btn-icon {
@@ -845,6 +992,8 @@ export default {
   padding: 0.5rem;
   border-radius: 6px;
   transition: background 0.3s;
+  position: relative;
+  z-index: 1;
 }
 
 .btn-icon:hover {
@@ -854,6 +1003,18 @@ export default {
 .attachment-options {
   margin-top: 1rem;
   display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.attachment-options button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 0.5rem;
 }
 
