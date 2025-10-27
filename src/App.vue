@@ -6,12 +6,11 @@
         <h1 class="app-title">Welcome to Efizzy Clothing Studio</h1>
         <p class="app-subtitle">Manage your customers, measurements, designs, and communications all in one place.</p>
       </div>
-      <div class="header-actions gap-3">
+      <!-- <div class="header-actions gap-3">
         <div class="sync-status">
           <SyncStatus />
         </div>
-        <!-- Removed Quick Stats button as requested -->
-      </div>
+      </div> -->
     </header>
 
     <!-- Main Layout with Sidebar -->
@@ -20,7 +19,7 @@
       <nav class="global-navbar" :class="{ open: mobileNavOpen }">
         <div class="navbar-header">
           <h3>Navigation</h3>
-          <button @click="closeMobileNav" class="mobile-close">×</button>
+          <!-- <button @click="closeMobileNav" class="mobile-close">×</button> -->
         </div>
         <div class="navbar-nav">
           <router-link
@@ -46,12 +45,12 @@
 </template>
 
 <script>
-import SyncStatus from '@/components/SyncStatus.vue'
+// import SyncStatus from '@/components/SyncStatus.vue'
 
 export default {
   name: 'App',
   components: {
-    SyncStatus
+    // SyncStatus
   },
   data() {
     return {
@@ -133,6 +132,7 @@ export default {
 .navbar-header {
   padding: 1.25rem;
   border-bottom: 1px solid #e9ecef;
+  color: black;
 }
 
 .navbar-nav {

@@ -64,14 +64,14 @@ export default {
 }
 
 .dashboard-overview {
-  margin-bottom: 2rem;
+  /* margin-bottom: 2rem; */
   /* margin-top: 2rem; */
 }
 
 .overview-header {
   text-align: center;
-  margin-bottom: 3rem;
-  margin-top: 2rem;
+  /* margin-bottom: 1rem; */
+  /* margin-top: 2rem; */
 }
 
 .overview-header h2 {
