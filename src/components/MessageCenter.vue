@@ -96,14 +96,17 @@
                 <!-- Display attachment info for Laravel messages -->
                 <div v-if="message.attachment_type && message.attachment_type !== 'none'" class="message-attachments">
                   <div class="attachment">
-                    <div class="file-attachment">
+                    <div v-if="message.attachment_type === 'photo' && message.attachment_path" class="image-attachment">
+                      <img :src="`http://localhost:3000/storage/${message.attachment_path}`" :alt="message.attachment_type + ' attachment'" />
+                    </div>
+                    <div v-else class="file-attachment">
                       <span class="file-icon">
                         {{ message.attachment_type === 'photo' ? '📷' : '📄' }}
                       </span>
                       <span>{{ message.attachment_type }} attached</span>
-                      <span v-if="message.attachment_path" class="file-path">
-                        ({{ message.attachment_path }})
-                      </span>
+                      <a v-if="message.attachment_path" :href="`http://localhost:3000/storage/${message.attachment_path}`" target="_blank" class="file-download">
+                        Download
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -127,8 +130,8 @@
                   @keydown.enter.shift.exact="newMessage += '\n'"
                 ></textarea>
                 <div class="composer-actions">
-                  <!-- ✅ YOUR ATTACHMENT BUTTON - 100% KEPT -->
-                  <button type="button" @click.stop="showAttachmentOptions = !showAttachmentOptions" class="btn-icon">
+                  <!-- Attachment button that directly opens file selection -->
+                  <button type="button" @click.stop="openAttachmentDialog" class="btn-icon">
                     📎
                   </button>
                   <!-- Attachment indicator -->
@@ -144,15 +147,14 @@
                 </div>
               </div>
               
-              <!-- ✅ YOUR ATTACHMENT OPTIONS - ENHANCED WITH CLICK OUTSIDE CLOSE -->
-              <div v-if="showAttachmentOptions" class="attachment-options" @click.stop>
-                <button type="button" @click="uploadImage" class="btn-secondary btn-small">
-                  📷 Photo
-                </button>
-                <button type="button" @click="uploadFile" class="btn-secondary btn-small">
-                  📄 Document
-                </button>
-              </div>
+              <!-- Hidden file input for attachment selection -->
+              <input 
+                ref="fileInput" 
+                type="file" 
+                @change="handleFileSelect" 
+                style="display: none;" 
+                accept="image/*,.pdf,.doc,.docx"
+              />
             </form>
           </div>
         </div>
@@ -213,7 +215,6 @@ export default {
       newMessage: '',
       newMessageCustomer: '',
       newMessageText: '',
-      showAttachmentOptions: false,
       customers: [],
       messages: [], // Only your sent emails
       isSubmitting: false,
@@ -280,7 +281,7 @@ export default {
 
         // 2️⃣ YOUR BACKEND API with search support
         const searchParam = this.searchQuery ? `?search=${encodeURIComponent(this.searchQuery)}` : ''
-        const response = await fetch(`http://localhost:8000/api/v1/customers${searchParam}`)
+        const response = await fetch(`http://localhost:3000/api/customers${searchParam}`)
         if (response.ok) {
           const result = await response.json()
           // Handle both array and object responses
@@ -317,7 +318,7 @@ export default {
     // ✅ LOAD YOUR SENT EMAILS
     async loadMessages() {
       try {
-        const response = await fetch('http://localhost:8000/api/v1/messages')
+        const response = await fetch('http://localhost:3000/api/messages')
         if (response.ok) {
           const result = await response.json()
           // Handle Laravel's response format
@@ -408,7 +409,7 @@ export default {
             formData.append('attachment_type', 'none')
           }
           
-          const response = await fetch('http://localhost:8000/api/v1/messages', {
+          const response = await fetch('http://localhost:3000/api/messages', {
             method: 'POST',
             // Don't set Content-Type header, let browser set it with boundary for FormData
             body: formData
@@ -510,81 +511,39 @@ export default {
       else return messageTime.toLocaleDateString()
     },
 
-    // markAsRead() {},
+    // Direct attachment handling methods
+    openAttachmentDialog() {
+      // Trigger file input click
+      this.$refs.fileInput.click()
+    },
 
-    // showCustomerDetails() {
-    //   this.$emit('view-customer', this.selectedCustomer)
-    // },
-
-    // ✅ YOUR ATTACHMENT BUTTONS - ENHANCED WITH REAL FUNCTIONALITY FOR LARAVEL BACKEND
-    async uploadImage() {
-      console.log('📷 Uploading photo to email...')
-      this.showAttachmentOptions = false
-      
-      // Create a file input element
-      const fileInput = document.createElement('input')
-      fileInput.type = 'file'
-      fileInput.accept = 'image/*'
-      fileInput.multiple = false // Laravel backend expects single file
-      
-      // Handle file selection
-      fileInput.onchange = (event) => {
-        const files = Array.from(event.target.files)
-        if (files.length > 0) {
-          this.attachmentFile = files[0]
+    handleFileSelect(event) {
+      const files = Array.from(event.target.files)
+      if (files.length > 0) {
+        const file = files[0]
+        
+        // Determine attachment type based on file type
+        if (file.type.startsWith('image/')) {
           this.attachmentType = 'photo'
-          
-          // Show notification
-          Swal.fire({
-            icon: 'success',
-            title: '📎 Photo Selected',
-            text: files[0].name + ' will be attached to your message',
-            timer: 2000,
-            showConfirmButton: false
-          })
-        }
-      }
-      
-      // Trigger file selection
-      fileInput.click()
-    },
-
-    async uploadFile() {
-      console.log('📄 Uploading document to email...')
-      this.showAttachmentOptions = false
-      
-      // Create a file input element
-      const fileInput = document.createElement('input')
-      fileInput.type = 'file'
-      fileInput.accept = '.pdf,.doc,.docx' // Accept document types
-      fileInput.multiple = false // Laravel backend expects single file
-      
-      // Handle file selection
-      fileInput.onchange = (event) => {
-        const files = Array.from(event.target.files)
-        if (files.length > 0) {
-          this.attachmentFile = files[0]
+        } else {
           this.attachmentType = 'document'
-          
-          // Show notification
-          Swal.fire({
-            icon: 'success',
-            title: '📎 Document Selected',
-            text: files[0].name + ' will be attached to your message',
-            timer: 2000,
-            showConfirmButton: false
-          })
         }
+        
+        this.attachmentFile = file
+        
+        // Show notification
+        Swal.fire({
+          icon: 'success',
+          title: '📎 Attachment Selected',
+          text: file.name + ' will be attached to your message',
+          timer: 2000,
+          showConfirmButton: false
+        })
       }
-      
-      // Trigger file selection
-      fileInput.click()
     },
-
-    // Handle the actual file upload process
 
     closeAttachmentOptions() {
-      this.showAttachmentOptions = false
+      // No longer needed since we removed the attachment options dropdown
     },
 
     scrollToBottom() {
@@ -886,7 +845,9 @@ export default {
 
 .attachment img {
   max-width: 200px;
+  max-height: 200px;
   border-radius: 6px;
+  object-fit: cover;
 }
 
 .file-attachment {
@@ -899,10 +860,25 @@ export default {
   font-size: 0.9rem;
 }
 
-.file-path {
-  color: #6c757d;
-  font-size: 0.8rem;
-  font-style: italic;
+.file-download {
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.file-download:hover {
+  text-decoration: underline;
+}
+
+.image-attachment {
+  margin-top: 0.5rem;
+}
+
+.image-attachment img {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 6px;
+  object-fit: cover;
 }
 
 .message-meta {
