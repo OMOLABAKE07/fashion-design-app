@@ -16,13 +16,24 @@ const apiCall = async (endpoint, options = {}) => {
     console.log(`Response status: ${response.status}`);
     console.log(`Response headers:`, [...response.headers.entries()]);
 
+    // Handle 204 No Content responses
+    if (response.status === 204) {
+      return { message: 'Success' };
+    }
+
     if (!response.ok) {
       throw new Error(
         `API call failed: ${response.status} ${response.statusText}`
       );
     }
 
-    return await response.json();
+    // Handle responses with no content
+    const text = await response.text();
+    if (!text) {
+      return { message: 'Success' };
+    }
+
+    return JSON.parse(text);
   } catch (error) {
     console.error(`API call error for ${endpoint}:`, error);
     throw error;
@@ -45,14 +56,15 @@ export const designAPI = {
         method: "POST",
         body: designData,
         // Don't set Content-Type header, let browser set it with boundary for FormData
-      }).then((response) => {
+      }).then(async (response) => {
         console.log(`FormData response status: ${response.status}`);
         if (!response.ok) {
           throw new Error(
             `API call failed: ${response.status} ${response.statusText}`
           );
         }
-        return response.json();
+        const text = await response.text();
+        return text ? JSON.parse(text) : { message: 'Success' };
       });
     }
 
@@ -77,14 +89,15 @@ export const designAPI = {
         method: "POST", // Laravel uses POST with _method for file uploads
         body: designData,
         // Don't set Content-Type header, let browser set it with boundary for FormData
-      }).then((response) => {
+      }).then(async (response) => {
         console.log(`FormData response status: ${response.status}`);
         if (!response.ok) {
           throw new Error(
             `API call failed: ${response.status} ${response.statusText}`
           );
         }
-        return response.json();
+        const text = await response.text();
+        return text ? JSON.parse(text) : { message: 'Success' };
       });
     }
 
@@ -107,13 +120,14 @@ export const designAPI = {
       headers: {
         "Content-Type": "application/json",
       },
-    }).then((response) => {
+    }).then(async (response) => {
       if (!response.ok) {
         throw new Error(
           `API call failed: ${response.status} ${response.statusText}`
         );
       }
-      return response.json();
+      const text = await response.text();
+      return text ? JSON.parse(text) : { message: 'Success' };
     });
   },
 };
@@ -202,5 +216,4 @@ export default {
   customerAPI,
   measurementAPI,
   designAPI,
-  messageAPI,
-};
+  messageAPI};

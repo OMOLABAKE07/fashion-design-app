@@ -122,7 +122,8 @@ const deleteDesign = async (req, res) => {
       return res.status(404).json({ error: 'Design not found' });
     }
     
-    res.status(204).send();
+    // Return a success message instead of 204 No Content
+    res.json({ message: 'Design deleted successfully' });
   } catch (error) {
     console.error('Error deleting design:', error);
     res.status(500).json({ error: 'Failed to delete design' });

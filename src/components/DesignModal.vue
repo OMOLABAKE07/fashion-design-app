@@ -303,9 +303,9 @@
           <div class="detail-section" v-if="(editableDesign.photos && editableDesign.photos.length > 0) || editableDesign.photo_url">
             <h4>Design Photos</h4>
             <div class="photos-gallery">
-              <!-- Main photo -->
+              <!-- Filter out duplicates: show photo_url if it's not already in photos array -->
               <img 
-                v-if="editableDesign.photo_url"
+                v-if="editableDesign.photo_url && !isPhotoInArray(editableDesign.photo_url)"
                 :src="editableDesign.photo_url" 
                 :alt="editableDesign.designName"
                 class="gallery-photo"
@@ -452,7 +452,8 @@ export default {
     design: {
       handler(newDesign) {
         if (newDesign) {
-          this.setEditableDesign(newDesign)
+          // Create a deep copy to prevent reference issues
+          this.setEditableDesign(JSON.parse(JSON.stringify(newDesign)))
         }
       },
       immediate: true
@@ -471,6 +472,14 @@ export default {
       const partPayment = parseFloat(this.editableDesign.partPayment) || 0
       const balance = finalPrice - partPayment
       this.editableDesign.balanceToPay = balance > 0 ? balance.toFixed(2) : '0.00'
+    },
+    // Helper method to check if photo_url is already in photos array
+    isPhotoInArray(photoUrl) {
+      if (!this.editableDesign.photos || !photoUrl) return false;
+      return this.editableDesign.photos.some(photo => 
+        (photo.url && photo.url === photoUrl) || 
+        (photo.preview && photo.preview === photoUrl)
+      );
     },
     setEditableDesign(design) {
       this.editableDesign = {
@@ -493,7 +502,7 @@ export default {
         partPayment: design.part_payment || design.partPayment || '',
         balanceToPay: design.balance_to_pay || design.balanceToPay || '',
         notes: design.notes || '',
-        photos: design.photos || [],
+        photos: design.photos ? [...design.photos] : [],
         photo_url: design.photo_url || ''
       }
     },
@@ -628,7 +637,11 @@ export default {
             if (!this.editableDesign.photos) {
               this.editableDesign.photos = []
             }
-            this.editableDesign.photos.push(photo)
+            // Avoid duplication by checking if photo already exists
+            const exists = this.editableDesign.photos.some(p => p.name === photo.name && p.size === photo.size)
+            if (!exists) {
+              this.editableDesign.photos.push(photo)
+            }
           }
           reader.readAsDataURL(file)
         }
