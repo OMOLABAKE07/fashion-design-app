@@ -25,7 +25,6 @@
               {{ customer.name }}
             </option>
           </select>
-          <!-- Always visible Create Design button -->
           <button @click="createNewDesign" class="btn-primary filter-create-btn">
             Create Design
           </button>
@@ -48,11 +47,11 @@
         class="design-card"
         @click="selectDesign(design)"
       >
-        <!-- Design Photo -->
+        <!-- ✅ Design Photo -->
         <div class="design-photo">
           <img 
             v-if="design.photo_url" 
-            :src="design.photo_url" 
+            :src="getImageUrl(design.photo_url)" 
             :alt="design.name"
             class="photo"
           />
@@ -106,7 +105,7 @@
       </div>
     </div>
 
-    <!-- Design Detail Modal -->
+    <!-- Design Detail Modals -->
     <DesignModal 
       :is-visible="showViewModal" 
       :design="selectedDesign" 
@@ -132,9 +131,7 @@ import DesignModal from './DesignModal.vue'
 
 export default {
   name: 'DesignList',
-  components: {
-    DesignModal
-  },
+  components: { DesignModal },
   emits: ['design-selected', 'design-edit', 'create-new-design'],
   data() {
     return {
@@ -153,7 +150,6 @@ export default {
     filteredDesigns() {
       let filtered = this.designs
 
-      // Search filter
       if (this.searchQuery) {
         const query = this.searchQuery.toLowerCase()
         filtered = filtered.filter(design =>
@@ -163,12 +159,10 @@ export default {
         )
       }
 
-      // Status filter
       if (this.statusFilter) {
         filtered = filtered.filter(design => design.status === this.statusFilter)
       }
 
-      // Customer filter
       if (this.customerFilter) {
         filtered = filtered.filter(design => design.customer_id === parseInt(this.customerFilter))
       }
@@ -179,12 +173,9 @@ export default {
   mounted() {
     this.loadDesigns()
     this.loadCustomers()
-    
-    // Listen for design-saved event to refresh the list
     window.addEventListener('design-saved', this.handleDesignSaved)
   },
   beforeUnmount() {
-    // Clean up event listener
     window.removeEventListener('design-saved', this.handleDesignSaved)
   },
   methods: {
@@ -192,9 +183,9 @@ export default {
       try {
         const response = await designAPI.getAll()
         this.designs = response.data || response
+        console.log('Loaded designs:', this.designs)
       } catch (error) {
         console.error('Error loading designs:', error)
-        this.designs = []
         Swal.fire({
           icon: 'error',
           title: 'Error',
@@ -209,47 +200,34 @@ export default {
         this.customers = result.data || result
       } catch (error) {
         console.error('Error loading customers:', error)
-        this.customers = []
       }
     },
+    getImageUrl(path) {
+      // ✅ Ensure proper image URL formatting
+      if (!path) return ''
+      if (path.startsWith('http')) return path
+      return `http://localhost:8000/storage/${path.replace(/^\/?storage\/?/, '')}`
+    },
     selectDesign(design) {
-      // Ensure the design object has the correct structure for the modal
-      this.selectedDesign = {
-        ...design,
-        photos: design.photos || []
-      }
+      this.selectedDesign = { ...design, photos: design.photos || [] }
       this.showViewModal = true
       this.$emit('design-selected', design)
     },
     editDesign(design) {
-      // Ensure the design object has the correct structure for the modal
-      this.designToEdit = {
-        ...design,
-        photos: design.photos || []
-      }
+      this.designToEdit = { ...design, photos: design.photos || [] }
       this.showEditModal = true
     },
     viewDesign(design) {
-      // Ensure the design object has the correct structure for the modal
-      this.selectedDesign = {
-        ...design,
-        photos: design.photos || []
-      }
+      this.selectedDesign = { ...design, photos: design.photos || [] }
       this.showViewModal = true
       this.$emit('design-selected', design)
     },
     async saveEditedDesign(updatedDesign) {
       try {
-        // Update the design in the local list
         const index = this.designs.findIndex(d => d.id === updatedDesign.id)
-        if (index !== -1) {
-          this.designs[index] = { ...this.designs[index], ...updatedDesign }
-        }
-        
-        // Close the modal
+        if (index !== -1) this.designs[index] = { ...this.designs[index], ...updatedDesign }
+
         this.showEditModal = false
-        
-        // Show success message
         Swal.fire({
           icon: 'success',
           title: 'Saved',
@@ -280,7 +258,6 @@ export default {
           try {
             await designAPI.delete(designId)
             this.loadDesigns()
-            
             Swal.fire({
               title: 'Deleted!',
               text: 'The design has been deleted successfully.',
@@ -305,10 +282,10 @@ export default {
     },
     formatStatus(status) {
       const statusMap = {
-        'draft': 'Draft',
-        'in_progress': 'In Progress',
-        'completed': 'Completed',
-        'delivered': 'Delivered'
+        draft: 'Draft',
+        in_progress: 'In Progress',
+        completed: 'Completed',
+        delivered: 'Delivered'
       }
       return statusMap[status] || status
     },
@@ -321,16 +298,15 @@ export default {
       }).format(new Date(dateString))
     },
     createNewDesign() {
-      // Emit an event to notify the parent component to show the design form
       this.$emit('create-new-design')
     },
-    handleDesignSaved(event) {
-      // Refresh the designs list when a design is saved
+    handleDesignSaved() {
       this.loadDesigns()
     }
   }
 }
 </script>
+
 
 <style scoped>
 .design-list {

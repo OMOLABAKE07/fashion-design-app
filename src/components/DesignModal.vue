@@ -456,12 +456,22 @@ export default {
         }
       },
       immediate: true
-    }
+    },
+
+     'editableDesign.finalPrice': 'calculateBalance',
+    'editableDesign.partPayment': 'calculateBalance'
   },
   mounted() {
     this.loadCustomers()
   },
   methods: {
+
+     calculateBalance() {
+      const finalPrice = parseFloat(this.editableDesign.finalPrice) || 0
+      const partPayment = parseFloat(this.editableDesign.partPayment) || 0
+      const balance = finalPrice - partPayment
+      this.editableDesign.balanceToPay = balance > 0 ? balance.toFixed(2) : '0.00'
+    },
     setEditableDesign(design) {
       this.editableDesign = {
         id: design.id,

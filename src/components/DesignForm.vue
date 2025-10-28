@@ -68,9 +68,7 @@
             <div v-for="(photo, index) in formData.photos" :key="index" class="photo-item">
               <img :src="photo.preview" :alt="photo.name" class="photo-preview" />
               <div class="photo-overlay">
-                <button type="button" @click="removePhoto(index)" class="btn-remove">
-                  ×
-                </button>
+                <button type="button" @click="removePhoto(index)" class="btn-remove">×</button>
                 <div class="photo-info">
                   <span class="photo-name">{{ photo.name }}</span>
                   <span class="photo-size">{{ formatFileSize(photo.size) }}</span>
@@ -155,7 +153,6 @@
       <!-- Pricing Information -->
       <div class="form-section">
         <h4>Pricing & Notes</h4>
-        <!-- All pricing fields in one row -->
         <div class="form-row d-flex">
           <div class="form-group">
             <label for="estimatedPrice">Estimated Price</label>
@@ -169,24 +166,24 @@
             <label for="finalPrice">Final Price</label>
             <div class="price-input">
               <span class="currency">$</span>
-              <input type="number" id="finalPrice" v-model="formData.finalPrice" class="form-input" placeholder="0.00"
-                step="0.01" min="0" />
+              <input type="number" id="finalPrice" v-model="formData.finalPrice" class="form-input"
+                placeholder="0.00" step="0.01" min="0" />
             </div>
           </div>
           <div class="form-group">
             <label for="partPayment">Part Payment</label>
             <div class="price-input">
               <span class="currency">$</span>
-              <input type="number" id="partPayment" v-model="formData.partPayment" class="form-input" placeholder="0.00"
-                step="0.01" min="0" />
+              <input type="number" id="partPayment" v-model="formData.partPayment" class="form-input"
+                placeholder="0.00" step="0.01" min="0" />
             </div>
           </div>
           <div class="form-group">
             <label for="balance">Balance</label>
             <div class="price-input">
               <span class="currency">$</span>
-              <input type="number" id="balance" v-model="formData.balance" class="form-input" placeholder="0.00"
-                step="0.01" min="0" />
+              <input type="number" id="balance" v-model="formData.balance" class="form-input"
+                placeholder="0.00" step="0.01" min="0" readonly />
             </div>
           </div>
         </div>
@@ -230,7 +227,7 @@ export default {
         designName: '',
         customerId: '',
         designDate: new Date().toISOString().split('T')[0],
-        status: 'concept',
+        status: 'draft',
         photos: [],
         fabricType: '',
         color: '',
@@ -260,24 +257,24 @@ export default {
       handler(newDesign) {
         if (newDesign) {
           this.formData = {
-            designName: newDesign.name || newDesign.designName || '',
-            customerId: newDesign.customer_id || newDesign.customerId || '',
-            designDate: newDesign.design_date || newDesign.designDate || new Date().toISOString().split('T')[0],
-            status: newDesign.status || 'concept',
+            designName: newDesign.name || '',
+            customerId: newDesign.customer_id || '',
+            designDate: newDesign.design_date || new Date().toISOString().split('T')[0],
+            status: newDesign.status || 'draft',
             photos: newDesign.photos || [],
-            fabricType: newDesign.fabric_type || newDesign.fabricType || '',
+            fabricType: newDesign.fabric_type || '',
             color: newDesign.color || '',
             style: newDesign.style || '',
             occasion: newDesign.occasion || '',
-            specialInstructions: newDesign.special_instructions || newDesign.specialInstructions || '',
-            firstFitting: newDesign.first_fitting || newDesign.firstFitting || '',
-            finalFitting: newDesign.final_fitting || newDesign.finalFitting || '',
-            completionDate: newDesign.completion_date || newDesign.completionDate || '',
-            deliveryDate: newDesign.delivery_date || newDesign.deliveryDate || '',
-            estimatedPrice: newDesign.estimated_price || newDesign.estimatedPrice || '',
-            finalPrice: newDesign.final_price || newDesign.finalPrice || '',
-            partPayment: newDesign.part_payment || newDesign.partPayment || '',
-            balance: newDesign.balance || newDesign.balance || '',
+            specialInstructions: newDesign.special_instructions || '',
+            firstFitting: newDesign.first_fitting || '',
+            finalFitting: newDesign.final_fitting || '',
+            completionDate: newDesign.completion_date || '',
+            deliveryDate: newDesign.delivery_date || '',
+            estimatedPrice: newDesign.estimated_price || '',
+            finalPrice: newDesign.final_price || '',
+            partPayment: newDesign.part_payment || '',
+            balance: newDesign.balance || '',
             notes: newDesign.notes || ''
           }
         } else {
@@ -285,12 +282,23 @@ export default {
         }
       },
       immediate: true
-    }
+    },
+
+    // 💰 Auto-calculate balance whenever price fields change
+    'formData.finalPrice': 'calculateBalance',
+    'formData.partPayment': 'calculateBalance'
   },
   mounted() {
     this.loadCustomers()
   },
   methods: {
+    calculateBalance() {
+      const finalPrice = parseFloat(this.formData.finalPrice) || 0
+      const partPayment = parseFloat(this.formData.partPayment) || 0
+      const balance = finalPrice - partPayment
+      this.formData.balance = balance > 0 ? balance.toFixed(2) : '0.00'
+    },
+
     async loadCustomers() {
       try {
         const response = await fetch('http://localhost:8000/api/v1/customers')
@@ -301,11 +309,11 @@ export default {
         this.customers = []
       }
     },
+
     async handleSubmit() {
       this.isSubmitting = true
 
       try {
-        // Validate required fields
         if (!this.formData.designName || !this.formData.customerId || !this.formData.designDate) {
           Swal.fire({
             icon: 'warning',
@@ -315,92 +323,37 @@ export default {
           return
         }
 
-        console.log('Form data before submission:', this.formData);
-
         let result
-        if (this.isEditing) {
-          // For updates, we need to use FormData to handle file uploads
-          const formData = new FormData()
-          formData.append('name', this.formData.designName)
-          formData.append('customer_id', this.formData.customerId)
-          formData.append('status', this.formData.status)
-          formData.append('design_date', this.formData.designDate)
+        const formData = new FormData()
+        formData.append('name', this.formData.designName)
+        formData.append('customer_id', this.formData.customerId)
+        formData.append('status', this.formData.status)
+        formData.append('design_date', this.formData.designDate)
 
-          // Add optional fields if they have values
-          if (this.formData.description) formData.append('description', this.formData.description)
-          if (this.formData.fabricType) formData.append('fabric_type', this.formData.fabricType)
-          if (this.formData.color) formData.append('color', this.formData.color)
-          if (this.formData.style) formData.append('style', this.formData.style)
-          if (this.formData.occasion) formData.append('occasion', this.formData.occasion)
-          if (this.formData.specialInstructions) formData.append('special_instructions', this.formData.specialInstructions)
-          if (this.formData.firstFitting) formData.append('first_fitting', this.formData.firstFitting)
-          if (this.formData.finalFitting) formData.append('final_fitting', this.formData.finalFitting)
-          if (this.formData.completionDate) formData.append('completion_date', this.formData.completionDate)
-          if (this.formData.deliveryDate) formData.append('delivery_date', this.formData.deliveryDate)
-          if (this.formData.estimatedPrice) formData.append('estimated_price', this.formData.estimatedPrice)
-          if (this.formData.finalPrice) formData.append('final_price', this.formData.finalPrice)
-          if (this.formData.partPayment) formData.append('part_payment', this.formData.partPayment)
-          if (this.formData.balance) formData.append('balance', this.formData.balance)
-          if (this.formData.notes) formData.append('notes', this.formData.notes)
+        // Add optional fields if they exist
+        const fields = [
+          'description', 'fabricType', 'color', 'style', 'occasion', 'specialInstructions',
+          'firstFitting', 'finalFitting', 'completionDate', 'deliveryDate',
+          'estimatedPrice', 'finalPrice', 'partPayment', 'balance', 'notes'
+        ]
+        fields.forEach(field => {
+          const key = field.replace(/[A-Z]/g, m => '_' + m.toLowerCase())
+          if (this.formData[field]) formData.append(key, this.formData[field])
+        })
 
-          // Add new photos
-          this.formData.photos.forEach(photo => {
-            if (photo.file) {
-              formData.append('photos[]', photo.file)
-            }
-          })
+        this.formData.photos.forEach(photo => {
+          if (photo.file) formData.append('photos[]', photo.file)
+        })
 
-          console.log('Sending FormData for update:', formData);
-          result = await designAPI.update(this.design.id, formData)
-        } else {
-          // For creates, we can use FormData
-          const formData = new FormData()
-          formData.append('name', this.formData.designName)
-          formData.append('customer_id', this.formData.customerId)
-          formData.append('status', this.formData.status)
-          formData.append('design_date', this.formData.designDate)
+        result = this.isEditing
+          ? await designAPI.update(this.design.id, formData)
+          : await designAPI.create(formData)
 
-          // Add optional fields if they have values
-          if (this.formData.description) formData.append('description', this.formData.description)
-          if (this.formData.fabricType) formData.append('fabric_type', this.formData.fabricType)
-          if (this.formData.color) formData.append('color', this.formData.color)
-          if (this.formData.style) formData.append('style', this.formData.style)
-          if (this.formData.occasion) formData.append('occasion', this.formData.occasion)
-          if (this.formData.specialInstructions) formData.append('special_instructions', this.formData.specialInstructions)
-          if (this.formData.firstFitting) formData.append('first_fitting', this.formData.firstFitting)
-          if (this.formData.finalFitting) formData.append('final_fitting', this.formData.finalFitting)
-          if (this.formData.completionDate) formData.append('completion_date', this.formData.completionDate)
-          if (this.formData.deliveryDate) formData.append('delivery_date', this.formData.deliveryDate)
-          if (this.formData.estimatedPrice) formData.append('estimated_price', this.formData.estimatedPrice)
-          if (this.formData.finalPrice) formData.append('final_price', this.formData.finalPrice)
-          if (this.formData.partPayment) formData.append('part_payment', this.formData.partPayment)
-          if (this.formData.balance) formData.append('balance', this.formData.balance)
-          if (this.formData.notes) formData.append('notes', this.formData.notes)
-
-          this.formData.photos.forEach(photo => {
-            if (photo.file) {
-              formData.append('photos[]', photo.file)
-            }
-          })
-
-          console.log('Sending FormData for create:', formData);
-          result = await designAPI.create(formData)
-        }
-
-        console.log('API response:', result);
-
-        // Emit save event with design data
         this.$emit('save', result.data || result)
-
-        // Emit a custom event to notify other components
         window.dispatchEvent(new CustomEvent('design-saved', { detail: result.data || result }))
 
-        // Reset form after successful save
-        if (!this.isEditing) {
-          this.resetForm()
-        }
+        if (!this.isEditing) this.resetForm()
 
-        // Show success message
         Swal.fire({
           icon: 'success',
           title: 'Success',
@@ -419,15 +372,17 @@ export default {
         this.isSubmitting = false
       }
     },
+
     handleCancel() {
       this.$emit('cancel')
     },
+
     resetForm() {
       this.formData = {
         designName: '',
         customerId: '',
         designDate: new Date().toISOString().split('T')[0],
-        status: 'concept',
+        status: 'draft',
         photos: [],
         fabricType: '',
         color: '',
@@ -444,21 +399,23 @@ export default {
         balance: '',
         notes: ''
       }
-      if (this.$refs.fileInput) {
-        this.$refs.fileInput.value = ''
-      }
+      if (this.$refs.fileInput) this.$refs.fileInput.value = ''
     },
+
     triggerFileUpload() {
       this.$refs.fileInput.click()
     },
+
     handleFileSelect(event) {
       const files = Array.from(event.target.files)
       this.processFiles(files)
     },
+
     handleDrop(event) {
       const files = Array.from(event.dataTransfer.files)
       this.processFiles(files)
     },
+
     processFiles(files) {
       files.forEach(file => {
         if (file.type.startsWith('image/')) {
@@ -468,7 +425,7 @@ export default {
               name: file.name,
               size: file.size,
               type: file.type,
-              file: file,
+              file,
               preview: e.target.result
             }
             this.formData.photos.push(photo)
@@ -477,9 +434,11 @@ export default {
         }
       })
     },
+
     removePhoto(index) {
       this.formData.photos.splice(index, 1)
     },
+
     formatFileSize(bytes) {
       if (bytes === 0) return '0 Bytes'
       const k = 1024
@@ -490,6 +449,7 @@ export default {
   }
 }
 </script>
+
 
 <style scoped>
 .design-form {
