@@ -248,7 +248,41 @@
               />
             </div>
           </div>
+ <div class="form-group">
+            <label for="partPayment">Part Payment</label>
+            <div class="price-input">
+              <span class="currency">$</span>
+              <input
+                type="number"
+                id="partPayment"
+                v-model="formData.partPayment"
+                class="form-input"
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+              />
+            </div>
+          </div>
+    <div class="form-group">
+            <label for="balance">Balance</label>
+            <div class="price-input">
+              <span class="currency">$</span>
+              <input
+                type="number"
+                id="balance"
+                v-model="formData.balance"
+                class="form-input"
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+              />
+            </div>
+          </div>
+
         </div>
+
+        <!-- New Payment Fields -->
+     
 
         <div class="form-group">
           <label for="notes">Additional Notes</label>
@@ -307,6 +341,8 @@ export default {
         deliveryDate: '',
         estimatedPrice: '',
         finalPrice: '',
+        partPayment: '',
+        balance: '',
         notes: ''
       },
       customers: []
@@ -338,6 +374,8 @@ export default {
             deliveryDate: newDesign.delivery_date || newDesign.deliveryDate || '',
             estimatedPrice: newDesign.estimated_price || newDesign.estimatedPrice || '',
             finalPrice: newDesign.final_price || newDesign.finalPrice || '',
+            partPayment: newDesign.part_payment || newDesign.partPayment || '',
+            balance: newDesign.balance || newDesign.balance|| '',
             notes: newDesign.notes || ''
           }
         } else {
@@ -399,6 +437,8 @@ export default {
           if (this.formData.deliveryDate) formData.append('delivery_date', this.formData.deliveryDate)
           if (this.formData.estimatedPrice) formData.append('estimated_price', this.formData.estimatedPrice)
           if (this.formData.finalPrice) formData.append('final_price', this.formData.finalPrice)
+          if (this.formData.partPayment) formData.append('part_payment', this.formData.partPayment)
+          if (this.formData.balance) formData.append('balance', this.formData.balance)
           if (this.formData.notes) formData.append('notes', this.formData.notes)
           
           // Add new photos
@@ -431,6 +471,8 @@ export default {
           if (this.formData.deliveryDate) formData.append('delivery_date', this.formData.deliveryDate)
           if (this.formData.estimatedPrice) formData.append('estimated_price', this.formData.estimatedPrice)
           if (this.formData.finalPrice) formData.append('final_price', this.formData.finalPrice)
+          if (this.formData.partPayment) formData.append('part_payment', this.formData.partPayment)
+          if (this.formData.balance) formData.append('balance', this.formData.balance)
           if (this.formData.notes) formData.append('notes', this.formData.notes)
           
           this.formData.photos.forEach(photo => {
@@ -496,6 +538,8 @@ export default {
         deliveryDate: '',
         estimatedPrice: '',
         finalPrice: '',
+        partPayment: '',
+        balance: '',
         notes: ''
       }
       if (this.$refs.fileInput) {

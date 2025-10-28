@@ -250,6 +250,40 @@
               </div>
             </div>
 
+            <!-- New Payment Fields -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="partPayment">Part Payment</label>
+                <div class="price-input">
+                  <span class="currency">$</span>
+                  <input
+                    type="number"
+                    id="partPayment"
+                    v-model="editableDesign.partPayment"
+                    class="form-input"
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                  />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="balanceToPay">Balance to Pay</label>
+                <div class="price-input">
+                  <span class="currency">$</span>
+                  <input
+                    type="number"
+                    id="balanceToPay"
+                    v-model="editableDesign.balanceToPay"
+                    class="form-input"
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                  />
+                </div>
+              </div>
+            </div>
+
             <div class="form-group">
               <label for="notes">Additional Notes</label>
               <textarea
@@ -366,6 +400,14 @@
               <span class="field-value">${{ editableDesign.finalPrice || '0.00' }}</span>
             </div>
             <div class="view-field">
+              <span class="field-label">Part Payment:</span>
+              <span class="field-value">${{ editableDesign.partPayment || '0.00' }}</span>
+            </div>
+            <div class="view-field">
+              <span class="field-label">Balance to Pay:</span>
+              <span class="field-value">${{ editableDesign.balanceToPay || '0.00' }}</span>
+            </div>
+            <div class="view-field">
               <span class="field-label">Additional Notes:</span>
               <span class="field-value">{{ editableDesign.notes || '-' }}</span>
             </div>
@@ -438,6 +480,8 @@ export default {
         deliveryDate: design.delivery_date || design.deliveryDate || '',
         estimatedPrice: design.estimated_price || design.estimatedPrice || '',
         finalPrice: design.final_price || design.finalPrice || '',
+        partPayment: design.part_payment || design.partPayment || '',
+        balanceToPay: design.balance_to_pay || design.balanceToPay || '',
         notes: design.notes || '',
         photos: design.photos || [],
         photo_url: design.photo_url || ''
@@ -481,6 +525,8 @@ export default {
             if (this.editableDesign.deliveryDate) formData.append('delivery_date', this.editableDesign.deliveryDate)
             if (this.editableDesign.estimatedPrice) formData.append('estimated_price', this.editableDesign.estimatedPrice)
             if (this.editableDesign.finalPrice) formData.append('final_price', this.editableDesign.finalPrice)
+            if (this.editableDesign.partPayment) formData.append('part_payment', this.editableDesign.partPayment)
+            if (this.editableDesign.balanceToPay) formData.append('balance_to_pay', this.editableDesign.balanceToPay)
             if (this.editableDesign.notes) formData.append('notes', this.editableDesign.notes)
             
             // Add new photos
