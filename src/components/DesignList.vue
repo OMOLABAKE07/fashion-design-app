@@ -107,85 +107,34 @@
     </div>
 
     <!-- Design Detail Modal -->
-    <div v-if="selectedDesign" class="modal-overlay" @click="selectedDesign = null">
-      <div class="modal design-detail-modal" @click.stop>
-        <div class="modal-header">
-          <h3>{{ selectedDesign.name }}</h3>
-          <button @click="selectedDesign = null" class="btn-close">×</button>
-        </div>
-        <div class="modal-body">
-          <div class="detail-grid">
-            <div class="detail-photos">
-              <h4>Design Photos</h4>
-              <div v-if="selectedDesign.photo_url" class="photos-gallery">
-                <img 
-                  :src="selectedDesign.photo_url" 
-                  :alt="selectedDesign.name"
-                  class="gallery-photo"
-                />
-              </div>
-              <div v-else-if="selectedDesign.photos && selectedDesign.photos.length > 0" class="photos-gallery">
-                <img 
-                  v-for="(photo, index) in selectedDesign.photos" 
-                  :key="photo.id"
-                  :src="photo.url" 
-                  :alt="`${selectedDesign.name} - Photo ${index + 1}`"
-                  class="gallery-photo"
-                />
-              </div>
-              <div v-else class="no-photos">
-                <p>No photos uploaded for this design.</p>
-              </div>
-            </div>
-            
-            <div class="detail-info">
-              <h4>Design Information</h4>
-              <div class="info-grid">
-                <div class="info-item">
-                  <span class="label">Customer:</span>
-                  <span>{{ getCustomerName(selectedDesign.customer_id) }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">Status:</span>
-                  <span class="status-badge" :class="selectedDesign.status">
-                    {{ formatStatus(selectedDesign.status) }}
-                  </span>
-                </div>
-                <div class="info-item" v-if="selectedDesign.description">
-                  <span class="label">Description:</span>
-                  <span>{{ selectedDesign.description }}</span>
-                </div>
-                <div class="info-item" v-if="selectedDesign.created_at">
-                  <span class="label">Created:</span>
-                  <span>{{ formatDate(selectedDesign.created_at) }}</span>
-                </div>
-                <div class="info-item" v-if="selectedDesign.updated_at">
-                  <span class="label">Last Updated:</span>
-                  <span>{{ formatDate(selectedDesign.updated_at) }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button @click="editDesign(selectedDesign)" class="btn-primary">
-            Edit Design
-          </button>
-          <button @click="selectedDesign = null" class="btn-secondary">
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
+    <DesignModal 
+      :is-visible="showViewModal" 
+      :design="selectedDesign" 
+      mode="view"
+      @close="showViewModal = false"
+      @edit="editDesign"
+    />
+    
+    <DesignModal 
+      :is-visible="showEditModal" 
+      :design="designToEdit" 
+      mode="edit"
+      @close="showEditModal = false"
+      @save="saveEditedDesign"
+    />
   </div>
 </template>
 
 <script>
 import { designAPI } from '@/services/api.js'
 import Swal from 'sweetalert2'
+import DesignModal from './DesignModal.vue'
 
 export default {
   name: 'DesignList',
+  components: {
+    DesignModal
+  },
   emits: ['design-selected', 'design-edit', 'create-new-design'],
   data() {
     return {
@@ -193,6 +142,9 @@ export default {
       statusFilter: '',
       customerFilter: '',
       selectedDesign: null,
+      designToEdit: null,
+      showViewModal: false,
+      showEditModal: false,
       customers: [],
       designs: []
     }
@@ -227,6 +179,13 @@ export default {
   mounted() {
     this.loadDesigns()
     this.loadCustomers()
+    
+    // Listen for design-saved event to refresh the list
+    window.addEventListener('design-saved', this.handleDesignSaved)
+  },
+  beforeUnmount() {
+    // Clean up event listener
+    window.removeEventListener('design-saved', this.handleDesignSaved)
   },
   methods: {
     async loadDesigns() {
@@ -254,15 +213,58 @@ export default {
       }
     },
     selectDesign(design) {
-      this.selectedDesign = design
+      // Ensure the design object has the correct structure for the modal
+      this.selectedDesign = {
+        ...design,
+        photos: design.photos || []
+      }
+      this.showViewModal = true
       this.$emit('design-selected', design)
     },
     editDesign(design) {
-      this.selectedDesign = null
-      this.$emit('design-edit', design)
+      // Ensure the design object has the correct structure for the modal
+      this.designToEdit = {
+        ...design,
+        photos: design.photos || []
+      }
+      this.showEditModal = true
     },
     viewDesign(design) {
-      this.selectDesign(design)
+      // Ensure the design object has the correct structure for the modal
+      this.selectedDesign = {
+        ...design,
+        photos: design.photos || []
+      }
+      this.showViewModal = true
+      this.$emit('design-selected', design)
+    },
+    async saveEditedDesign(updatedDesign) {
+      try {
+        // Update the design in the local list
+        const index = this.designs.findIndex(d => d.id === updatedDesign.id)
+        if (index !== -1) {
+          this.designs[index] = { ...this.designs[index], ...updatedDesign }
+        }
+        
+        // Close the modal
+        this.showEditModal = false
+        
+        // Show success message
+        Swal.fire({
+          icon: 'success',
+          title: 'Saved',
+          text: 'Design updated successfully!',
+          timer: 2000,
+          showConfirmButton: false
+        })
+      } catch (error) {
+        console.error('Error saving edited design:', error)
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to update design. Please try again.'
+        })
+      }
     },
     async deleteDesign(designId) {
       Swal.fire({
@@ -321,6 +323,10 @@ export default {
     createNewDesign() {
       // Emit an event to notify the parent component to show the design form
       this.$emit('create-new-design')
+    },
+    handleDesignSaved(event) {
+      // Refresh the designs list when a design is saved
+      this.loadDesigns()
     }
   }
 }
@@ -638,138 +644,6 @@ export default {
   font-size: 0.8rem;
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.design-detail-modal {
-  background: white;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 1000px;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid #e9ecef;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-header h3 {
-  margin: 0;
-  color: #2c3e50;
-}
-
-.btn-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #6c757d;
-}
-
-.modal-body {
-  padding: 1.5rem;
-}
-
-.detail-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-}
-
-.detail-photos h4,
-.detail-info h4 {
-  color: #2c3e50;
-  margin: 0 0 1rem 0;
-  font-size: 1.2rem;
-}
-
-.photos-gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1rem;
-}
-
-.gallery-photo {
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.no-photos {
-  text-align: center;
-  padding: 2rem;
-  color: #6c757d;
-  background: #f8f9fa;
-  border-radius: 6px;
-}
-
-.info-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 2rem;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f1f3f4;
-}
-
-.info-item .label {
-  font-weight: 600;
-  color: #495057;
-}
-
-.instructions,
-.notes {
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 6px;
-}
-
-.instructions h5,
-.notes h5 {
-  margin: 0 0 0.5rem 0;
-  color: #2c3e50;
-  font-size: 1rem;
-}
-
-.instructions p,
-.notes p {
-  margin: 0;
-  color: #6c757d;
-  line-height: 1.6;
-}
-
-.modal-footer {
-  padding: 1.5rem;
-  border-top: 1px solid #e9ecef;
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-}
-
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
@@ -789,10 +663,6 @@ export default {
   }
   
   .designs-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .detail-grid {
     grid-template-columns: 1fr;
   }
   
