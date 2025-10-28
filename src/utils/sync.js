@@ -555,6 +555,14 @@ export const syncUtils = {
     return updatedMeasurement
   },
 
+  async deleteMeasurement(id) {
+    const deleted = storageManager.deleteItem('measurements', id)
+    if (deleted) {
+      syncManager.queueForSync({ id }, 'delete', 'measurement')
+    }
+    return deleted
+  },
+
   // Design operations
   async saveDesign(designData) {
     const savedDesign = storageManager.addItem('designs', designData)

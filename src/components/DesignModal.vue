@@ -38,10 +38,11 @@
                   v-for="(photo, index) in editableDesign.photos"
                   :key="index"
                   class="photo-item"
+                  @click="openImageModal(photo.preview || photo.url)"
                 >
                   <img :src="photo.preview || photo.url" :alt="photo.name" class="photo-preview" />
                   <div class="photo-overlay">
-                    <button type="button" @click="removePhoto(index)" class="btn-remove">
+                    <button type="button" @click.stop="removePhoto(index)" class="btn-remove">
                       ×
                     </button>
                     <div class="photo-info">
@@ -309,6 +310,7 @@
                 :src="editableDesign.photo_url" 
                 :alt="editableDesign.designName"
                 class="gallery-photo"
+                @click="openImageModal(editableDesign.photo_url)"
               />
               <!-- Additional photos -->
               <img 
@@ -317,6 +319,7 @@
                 :src="photo.url || photo.preview" 
                 :alt="`${editableDesign.designName} - Photo ${index + 1}`"
                 class="gallery-photo"
+                @click="openImageModal(photo.url || photo.preview)"
               />
             </div>
           </div>
@@ -428,6 +431,14 @@
       </div>
     </div>
   </div>
+
+  <!-- Image Zoom Modal -->
+  <div v-if="showImageModal" class="image-modal-overlay" @click="closeImageModal">
+    <div class="image-modal-content" @click.stop>
+      <button class="image-modal-close" @click="closeImageModal">&times;</button>
+      <img :src="currentImageSrc" class="zoomed-image" />
+    </div>
+  </div>
 </template>
 
 <script>
@@ -445,7 +456,9 @@ export default {
   data() {
     return {
       editableDesign: {},
-      customers: []
+      customers: [],
+      showImageModal: false,
+      currentImageSrc: ''
     }
   },
   watch: {
@@ -511,6 +524,15 @@ export default {
     },
     switchToEditMode() {
       this.$emit('edit', this.design)
+    },
+    // Image zoom methods
+    openImageModal(imageSrc) {
+      this.currentImageSrc = imageSrc;
+      this.showImageModal = true;
+    },
+    closeImageModal() {
+      this.showImageModal = false;
+      this.currentImageSrc = '';
     },
     async handleSave() {
       Swal.fire({
@@ -944,6 +966,7 @@ export default {
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  cursor: pointer;
 }
 
 .photo-preview {
@@ -1017,6 +1040,51 @@ export default {
   object-fit: cover;
   border-radius: 6px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.gallery-photo:hover {
+  transform: scale(1.05);
+}
+
+/* Image Zoom Modal Styles */
+.image-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.image-modal-content {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+}
+
+.image-modal-close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  z-index: 2001;
+}
+
+.zoomed-image {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 8px;
 }
 
 @media (max-width: 768px) {
