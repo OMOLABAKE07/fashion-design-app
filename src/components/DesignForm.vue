@@ -14,14 +14,8 @@
         <div class="form-row">
           <div class="form-group">
             <label for="designName">Design Name *</label>
-            <input
-              type="text"
-              id="designName"
-              v-model="formData.designName"
-              required
-              class="form-input"
-              placeholder="Enter design name"
-            />
+            <input type="text" id="designName" v-model="formData.designName" required class="form-input"
+              placeholder="Enter design name" />
           </div>
           <div class="form-group">
             <label for="customer">Customer *</label>
@@ -37,13 +31,7 @@
         <div class="form-row">
           <div class="form-group">
             <label for="designDate">Design Date *</label>
-            <input
-              type="date"
-              id="designDate"
-              v-model="formData.designDate"
-              required
-              class="form-input"
-            />
+            <input type="date" id="designDate" v-model="formData.designDate" required class="form-input" />
           </div>
           <div class="form-group">
             <label for="status">Status</label>
@@ -62,14 +50,8 @@
         <h4>Design Photos</h4>
         <div class="photo-upload-area">
           <div class="upload-zone" @click="triggerFileUpload" @dragover.prevent @drop.prevent="handleDrop">
-            <input
-              ref="fileInput"
-              type="file"
-              multiple
-              accept="image/*"
-              @change="handleFileSelect"
-              style="display: none"
-            />
+            <input ref="fileInput" type="file" multiple accept="image/*" @change="handleFileSelect"
+              style="display: none" />
             <div class="upload-content">
               <div class="upload-icon">📸</div>
               <h5>Upload Design Photos</h5>
@@ -83,11 +65,7 @@
         <div v-if="formData.photos.length > 0" class="photos-preview">
           <h5>Uploaded Photos ({{ formData.photos.length }})</h5>
           <div class="photos-grid">
-            <div
-              v-for="(photo, index) in formData.photos"
-              :key="index"
-              class="photo-item"
-            >
+            <div v-for="(photo, index) in formData.photos" :key="index" class="photo-item">
               <img :src="photo.preview" :alt="photo.name" class="photo-preview" />
               <div class="photo-overlay">
                 <button type="button" @click="removePhoto(index)" class="btn-remove">
@@ -109,23 +87,13 @@
         <div class="form-row">
           <div class="form-group">
             <label for="fabricType">Fabric Type</label>
-            <input
-              type="text"
-              id="fabricType"
-              v-model="formData.fabricType"
-              class="form-input"
-              placeholder="e.g., Silk, Cotton, Wool"
-            />
+            <input type="text" id="fabricType" v-model="formData.fabricType" class="form-input"
+              placeholder="e.g., Silk, Cotton, Wool" />
           </div>
           <div class="form-group">
             <label for="color">Primary Color</label>
-            <input
-              type="text"
-              id="color"
-              v-model="formData.color"
-              class="form-input"
-              placeholder="e.g., Navy Blue, Burgundy"
-            />
+            <input type="text" id="color" v-model="formData.color" class="form-input"
+              placeholder="e.g., Navy Blue, Burgundy" />
           </div>
         </div>
 
@@ -146,25 +114,15 @@
           </div>
           <div class="form-group">
             <label for="occasion">Occasion</label>
-            <input
-              type="text"
-              id="occasion"
-              v-model="formData.occasion"
-              class="form-input"
-              placeholder="e.g., Wedding, Business, Casual"
-            />
+            <input type="text" id="occasion" v-model="formData.occasion" class="form-input"
+              placeholder="e.g., Wedding, Business, Casual" />
           </div>
         </div>
 
         <div class="form-group">
           <label for="specialInstructions">Special Instructions</label>
-          <textarea
-            id="specialInstructions"
-            v-model="formData.specialInstructions"
-            class="form-textarea"
-            rows="4"
-            placeholder="Any specific requirements, modifications, or special notes..."
-          ></textarea>
+          <textarea id="specialInstructions" v-model="formData.specialInstructions" class="form-textarea" rows="4"
+            placeholder="Any specific requirements, modifications, or special notes..."></textarea>
         </div>
       </div>
 
@@ -174,42 +132,22 @@
         <div class="form-row">
           <div class="form-group">
             <label for="firstFitting">First Fitting Date</label>
-            <input
-              type="date"
-              id="firstFitting"
-              v-model="formData.firstFitting"
-              class="form-input"
-            />
+            <input type="date" id="firstFitting" v-model="formData.firstFitting" class="form-input" />
           </div>
           <div class="form-group">
             <label for="finalFitting">Final Fitting Date</label>
-            <input
-              type="date"
-              id="finalFitting"
-              v-model="formData.finalFitting"
-              class="form-input"
-            />
+            <input type="date" id="finalFitting" v-model="formData.finalFitting" class="form-input" />
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label for="completionDate">Expected Completion Date</label>
-            <input
-              type="date"
-              id="completionDate"
-              v-model="formData.completionDate"
-              class="form-input"
-            />
+            <input type="date" id="completionDate" v-model="formData.completionDate" class="form-input" />
           </div>
           <div class="form-group">
             <label for="deliveryDate">Delivery Date</label>
-            <input
-              type="date"
-              id="deliveryDate"
-              v-model="formData.deliveryDate"
-              class="form-input"
-            />
+            <input type="date" id="deliveryDate" v-model="formData.deliveryDate" class="form-input" />
           </div>
         </div>
       </div>
@@ -217,82 +155,46 @@
       <!-- Pricing Information -->
       <div class="form-section">
         <h4>Pricing & Notes</h4>
-        <div class="form-row">
+        <!-- All pricing fields in one row -->
+        <div class="form-row d-flex">
           <div class="form-group">
             <label for="estimatedPrice">Estimated Price</label>
             <div class="price-input">
               <span class="currency">$</span>
-              <input
-                type="number"
-                id="estimatedPrice"
-                v-model="formData.estimatedPrice"
-                class="form-input"
-                placeholder="0.00"
-                step="0.01"
-                min="0"
-              />
+              <input type="number" id="estimatedPrice" v-model="formData.estimatedPrice" class="form-input"
+                placeholder="0.00" step="0.01" min="0" />
             </div>
           </div>
           <div class="form-group">
             <label for="finalPrice">Final Price</label>
             <div class="price-input">
               <span class="currency">$</span>
-              <input
-                type="number"
-                id="finalPrice"
-                v-model="formData.finalPrice"
-                class="form-input"
-                placeholder="0.00"
-                step="0.01"
-                min="0"
-              />
+              <input type="number" id="finalPrice" v-model="formData.finalPrice" class="form-input" placeholder="0.00"
+                step="0.01" min="0" />
             </div>
           </div>
- <div class="form-group">
+          <div class="form-group">
             <label for="partPayment">Part Payment</label>
             <div class="price-input">
               <span class="currency">$</span>
-              <input
-                type="number"
-                id="partPayment"
-                v-model="formData.partPayment"
-                class="form-input"
-                placeholder="0.00"
-                step="0.01"
-                min="0"
-              />
+              <input type="number" id="partPayment" v-model="formData.partPayment" class="form-input" placeholder="0.00"
+                step="0.01" min="0" />
             </div>
           </div>
-    <div class="form-group">
+          <div class="form-group">
             <label for="balance">Balance</label>
             <div class="price-input">
               <span class="currency">$</span>
-              <input
-                type="number"
-                id="balance"
-                v-model="formData.balance"
-                class="form-input"
-                placeholder="0.00"
-                step="0.01"
-                min="0"
-              />
+              <input type="number" id="balance" v-model="formData.balance" class="form-input" placeholder="0.00"
+                step="0.01" min="0" />
             </div>
           </div>
-
         </div>
-
-        <!-- New Payment Fields -->
-     
 
         <div class="form-group">
           <label for="notes">Additional Notes</label>
-          <textarea
-            id="notes"
-            v-model="formData.notes"
-            class="form-textarea"
-            rows="3"
-            placeholder="Any additional notes about this design project..."
-          ></textarea>
+          <textarea id="notes" v-model="formData.notes" class="form-textarea" rows="3"
+            placeholder="Any additional notes about this design project..."></textarea>
         </div>
       </div>
 
@@ -375,7 +277,7 @@ export default {
             estimatedPrice: newDesign.estimated_price || newDesign.estimatedPrice || '',
             finalPrice: newDesign.final_price || newDesign.finalPrice || '',
             partPayment: newDesign.part_payment || newDesign.partPayment || '',
-            balance: newDesign.balance || newDesign.balance|| '',
+            balance: newDesign.balance || newDesign.balance || '',
             notes: newDesign.notes || ''
           }
         } else {
@@ -401,7 +303,7 @@ export default {
     },
     async handleSubmit() {
       this.isSubmitting = true
-      
+
       try {
         // Validate required fields
         if (!this.formData.designName || !this.formData.customerId || !this.formData.designDate) {
@@ -423,7 +325,7 @@ export default {
           formData.append('customer_id', this.formData.customerId)
           formData.append('status', this.formData.status)
           formData.append('design_date', this.formData.designDate)
-          
+
           // Add optional fields if they have values
           if (this.formData.description) formData.append('description', this.formData.description)
           if (this.formData.fabricType) formData.append('fabric_type', this.formData.fabricType)
@@ -440,14 +342,14 @@ export default {
           if (this.formData.partPayment) formData.append('part_payment', this.formData.partPayment)
           if (this.formData.balance) formData.append('balance', this.formData.balance)
           if (this.formData.notes) formData.append('notes', this.formData.notes)
-          
+
           // Add new photos
           this.formData.photos.forEach(photo => {
             if (photo.file) {
               formData.append('photos[]', photo.file)
             }
           })
-          
+
           console.log('Sending FormData for update:', formData);
           result = await designAPI.update(this.design.id, formData)
         } else {
@@ -457,7 +359,7 @@ export default {
           formData.append('customer_id', this.formData.customerId)
           formData.append('status', this.formData.status)
           formData.append('design_date', this.formData.designDate)
-          
+
           // Add optional fields if they have values
           if (this.formData.description) formData.append('description', this.formData.description)
           if (this.formData.fabricType) formData.append('fabric_type', this.formData.fabricType)
@@ -474,13 +376,13 @@ export default {
           if (this.formData.partPayment) formData.append('part_payment', this.formData.partPayment)
           if (this.formData.balance) formData.append('balance', this.formData.balance)
           if (this.formData.notes) formData.append('notes', this.formData.notes)
-          
+
           this.formData.photos.forEach(photo => {
             if (photo.file) {
               formData.append('photos[]', photo.file)
             }
           })
-          
+
           console.log('Sending FormData for create:', formData);
           result = await designAPI.create(formData)
         }
@@ -489,15 +391,15 @@ export default {
 
         // Emit save event with design data
         this.$emit('save', result.data || result)
-        
+
         // Emit a custom event to notify other components
         window.dispatchEvent(new CustomEvent('design-saved', { detail: result.data || result }))
-        
+
         // Reset form after successful save
         if (!this.isEditing) {
           this.resetForm()
         }
-        
+
         // Show success message
         Swal.fire({
           icon: 'success',
@@ -594,7 +496,7 @@ export default {
   background: white;
   border-radius: 8px;
   padding: 2rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
 }
 
@@ -751,7 +653,7 @@ export default {
   position: relative;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .photo-preview {
@@ -766,7 +668,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -859,15 +761,15 @@ export default {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .design-form {
     padding: 1.5rem;
   }
-  
+
   .form-actions {
     flex-direction: column;
   }
-  
+
   .photos-grid {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
