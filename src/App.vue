@@ -1,26 +1,34 @@
 <template>
   <div id="app" class="app-container">
-    <!-- Global Header -->
+    <!-- Header -->
     <header class="app-header">
       <div class="header-content">
         <h1 class="app-title">Welcome to Efizzy Clothing Studio</h1>
         <p class="app-subtitle">Manage your customers, measurements, designs, and communications all in one place.</p>
       </div>
-      <!-- <div class="header-actions gap-3">
-        <div class="sync-status">
-          <SyncStatus />
-        </div>
-      </div> -->
+      <!-- Hamburger button for mobile -->
+      <button
+        class="hamburger hamburger--elastic"
+        :class="{ 'is-active': isSidebarOpen }"
+        @click="toggleSidebar"
+      >
+        <span class="hamburger-box">
+          <span class="hamburger-inner"></span>
+        </span>
+      </button>
     </header>
 
-    <!-- Main Layout with Sidebar -->
+    <!-- Main layout -->
     <div class="main-layout">
-      <!-- Global Navbar (Left Side) -->
-      <nav class="global-navbar" :class="{ open: mobileNavOpen }">
+      <!-- Sidebar -->
+      <nav
+        class="global-navbar"
+        :class="{ open: isSidebarOpen }"
+      >
         <div class="navbar-header">
           <h3>Navigation</h3>
-          <!-- <button @click="closeMobileNav" class="mobile-close">×</button> -->
         </div>
+
         <div class="navbar-nav">
           <router-link
             v-for="navItem in navigationItems"
@@ -28,7 +36,7 @@
             :to="navItem.route"
             class="navbar-link"
             active-class="active"
-            @click="closeMobileNav"
+            @click="closeSidebar"
           >
             <span class="nav-icon">{{ navItem.icon }}</span>
             <span class="nav-label">{{ navItem.label }}</span>
@@ -36,51 +44,151 @@
         </div>
       </nav>
 
-      <!-- Main Content Area -->
+      <!-- Main Content -->
       <main class="main-content">
         <router-view />
       </main>
     </div>
   </div>
 </template>
-
 <script>
-// import SyncStatus from '@/components/SyncStatus.vue'
-
 export default {
   name: 'App',
-  components: {
-    // SyncStatus
-  },
   data() {
     return {
-      mobileNavOpen: false,
-      totalCustomers: 24,
-      pendingMeasurements: 3,
-      unreadMessages: 7,
-      totalDesigns: 15,
+      isSidebarOpen: false,
       navigationItems: [
         { id: 'dashboard', label: 'Dashboard', icon: '🏠', route: '/' },
         { id: 'customers', label: 'Customers', icon: '👥', route: '/customers' },
         { id: 'measurements', label: 'Measurements', icon: '📏', route: '/measurements' },
         { id: 'messages', label: 'Messages', icon: '💬', route: '/messages' },
         { id: 'designs', label: 'Designs', icon: '📸', route: '/designs' },
-        { id: 'settings', label: 'Settings', icon: '⚙️', route: '/settings' }
       ]
     }
   },
   methods: {
-    toggleMobileNav() {
-      this.mobileNavOpen = !this.mobileNavOpen
+    toggleSidebar() {
+      this.isSidebarOpen = !this.isSidebarOpen
     },
-    closeMobileNav() {
-      this.mobileNavOpen = false
+    closeSidebar() {
+      // Close sidebar after clicking a link on mobile
+      if (window.innerWidth <= 768) {
+        this.isSidebarOpen = false
+      }
     }
+  },
+  mounted() {
+    // Auto-close sidebar on resize if screen > 768px
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768) {
+        this.isSidebarOpen = true
+      }
+    })
   }
 }
 </script>
 
+
 <style scoped>
+
+/* Hamburger (from https://jonsuh.com/hamburgers/) */
+.hamburger {
+  display: none;
+  cursor: pointer;
+  padding: 1rem;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 999;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.hamburger-box {
+  width: 25px;
+  height: 19px;
+  display: inline-block;
+  position: relative;
+}
+
+.hamburger-inner {
+  display: block;
+  top: 50%;
+  margin-top: -1px;
+}
+
+.hamburger-inner, .hamburger-inner::before, .hamburger-inner::after {
+  width: 25px;
+  height: 2px;
+  background-color: white;
+  border-radius: 1px;
+  position: absolute;
+  transition-property: transform;
+  transition-duration: 0.15s;
+  transition-timing-function: ease;
+}
+
+.hamburger-inner::before, .hamburger-inner::after {
+  content: "";
+  display: block;
+}
+
+.hamburger-inner::before {
+  top: -8px;
+}
+
+.hamburger-inner::after {
+  bottom: -8px;
+}
+
+.hamburger--elastic.is-active .hamburger-inner {
+  transform: translate3d(0, 0, 0) rotate(45deg);
+  transition-delay: 0.1s;
+  transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+.hamburger--elastic.is-active .hamburger-inner::before {
+  top: 0;
+  opacity: 0;
+  transition: top 0.1s ease-out, opacity 0.1s 0.1s ease-out;
+}
+
+.hamburger--elastic.is-active .hamburger-inner::after {
+  bottom: 0;
+  transform: rotate(-90deg);
+  transition: bottom 0.1s ease-out, transform 0.1s 0.1s ease-out;
+}
+
+/* Sidebar transitions */
+.global-navbar {
+  transition: left 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+  }
+
+  .global-navbar {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    height: 100vh;
+    z-index: 99;
+    width: 280px;
+    background: white;
+  }
+
+  .global-navbar.open {
+    left: 0;
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+}
+
 /* Global container */
 .app-container {
   background: #f8f9fa;
