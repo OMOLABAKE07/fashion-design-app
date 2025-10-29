@@ -47,7 +47,7 @@ export default {
         })
 
         if (newCustomer) {
-          console.log('Customer saved successfully:', newCustomer)
+          // console.log('Customer saved successfully:', newCustomer)
           // Emit event or update local state if needed
           this.$emit('customer-added', newCustomer)
         } else {
@@ -60,13 +60,13 @@ export default {
       this.showCustomerForm = false
     },
     handleCustomerSelected(customer) {
-      console.log('Customer selected:', customer)
+      // console.log('Customer selected:', customer)
       // Store selected customer in localStorage and navigate to measurements
       localStorage.setItem('selectedCustomer', JSON.stringify(customer))
       this.$router.push('/measurements')
     },
     handleCustomerEdit(customer) {
-      console.log('Edit customer:', customer)
+      // console.log('Edit customer:', customer)
     }
   }
 }

@@ -3,7 +3,7 @@
 
 class OfflineSyncManager {
   constructor() {
-    console.log('Initializing OfflineSyncManager') // Debug log
+    // console.log('Initializing OfflineSyncManager') // Debug log
     this.isOnline = navigator.onLine
     this.syncQueue = []
     this.syncInProgress = false
@@ -20,13 +20,13 @@ class OfflineSyncManager {
     // Listen for online/offline events
     window.addEventListener('online', () => {
       this.isOnline = true
-      console.log('Network connection restored')
+      // console.log('Network connection restored')
       this.performSync()
     })
 
     window.addEventListener('offline', () => {
       this.isOnline = false
-      console.log('Network connection lost - switching to offline mode')
+      // console.log('Network connection lost - switching to offline mode')
     })
 
     // Load existing sync queue from localStorage
@@ -52,7 +52,7 @@ class OfflineSyncManager {
     this.syncQueue.push(syncItem)
     this.saveSyncQueue()
     
-    console.log(`Queued ${operation} operation for ${entityType}:`, data)
+    // console.log(`Queued ${operation} operation for ${entityType}:`, data)
     
     // Try immediate sync if online
     if (this.isOnline && !this.syncInProgress) {
@@ -73,7 +73,7 @@ class OfflineSyncManager {
     }
 
     this.syncInProgress = true
-    console.log(`Starting sync for ${this.syncQueue.length} items`)
+    // console.log(`Starting sync for ${this.syncQueue.length} items`)
 
     const itemsToSync = [...this.syncQueue]
     const results = {
@@ -87,7 +87,7 @@ class OfflineSyncManager {
         results.successful.push(item)
         this.removeFromQueue(item.id)
       } catch (error) {
-        console.error(`Sync failed for item ${item.id}:`, error)
+        // console.error(`Sync failed for item ${item.id}:`, error)
         item.attempts++
         item.lastAttempt = new Date().toISOString()
         item.status = item.attempts >= this.retryAttempts ? 'failed' : 'retry'
@@ -102,7 +102,7 @@ class OfflineSyncManager {
     this.saveSyncQueue()
     this.syncInProgress = false
 
-    console.log(`Sync completed: ${results.successful.length} successful, ${results.failed.length} failed`)
+    // console.log(`Sync completed: ${results.successful.length} successful, ${results.failed.length} failed`)
     
     // Emit sync completion event
     this.emitSyncEvent('sync-completed', {
@@ -160,10 +160,10 @@ class OfflineSyncManager {
       const result = await response.json();
       // Handle Laravel's response format
       const processedResult = result.data || result;
-      console.log(`API ${method} ${fullUrl} successful:`, processedResult);
+      // console.log(`API ${method} ${fullUrl} successful:`, processedResult);
       return processedResult;
     } catch (error) {
-      console.error(`API ${method} ${fullUrl} failed:`, error);
+      // console.error(`API ${method} ${fullUrl} failed:`, error);
       // Return a default structure so the app can continue working
       return { 
         success: false, 
@@ -210,14 +210,14 @@ class OfflineSyncManager {
   saveSyncQueue() {
     // Check if we're in a browser environment where localStorage is available
     if (typeof localStorage === 'undefined') {
-      console.warn('localStorage is not available in this environment')
+      // console.warn('localStorage is not available in this environment')
       return
     }
     
     try {
       localStorage.setItem('fashion_app_sync_queue', JSON.stringify(this.syncQueue))
     } catch (error) {
-      console.error('Failed to save sync queue:', error)
+      // console.error('Failed to save sync queue:', error)
     }
   }
 
@@ -225,7 +225,7 @@ class OfflineSyncManager {
   loadSyncQueue() {
     // Check if we're in a browser environment where localStorage is available
     if (typeof localStorage === 'undefined') {
-      console.warn('localStorage is not available in this environment')
+      // console.warn('localStorage is not available in this environment')
       this.syncQueue = []
       return
     }
@@ -234,10 +234,10 @@ class OfflineSyncManager {
       const saved = localStorage.getItem('fashion_app_sync_queue')
       if (saved) {
         this.syncQueue = JSON.parse(saved)
-        console.log(`Loaded ${this.syncQueue.length} items from sync queue`)
+        // console.log(`Loaded ${this.syncQueue.length} items from sync queue`)
       }
     } catch (error) {
-      console.error('Failed to load sync queue:', error)
+      // console.error('Failed to load sync queue:', error)
       this.syncQueue = []
     }
   }
@@ -252,7 +252,7 @@ class OfflineSyncManager {
   clearSyncQueue() {
     this.syncQueue = []
     this.saveSyncQueue()
-    console.log('Sync queue cleared')
+    // console.log('Sync queue cleared')
   }
 
   // Get sync status
@@ -292,16 +292,16 @@ class OfflineSyncManager {
 class LocalStorageManager {
   constructor() {
     this.storageKey = 'fashion_app_data'
-    console.log('Initializing LocalStorageManager') // Debug log
+    // console.log('Initializing LocalStorageManager') // Debug log
     this.data = this.loadData()
-    console.log('LocalStorageManager initialized with data:', this.data) // Debug log
+    // console.log('LocalStorageManager initialized with data:', this.data) // Debug log
   }
 
   // Load data from localStorage
   loadData() {
     // Check if we're in a browser environment where localStorage is available
     if (typeof localStorage === 'undefined') {
-      console.warn('localStorage is not available in this environment')
+      // console.warn('localStorage is not available in this environment')
       return {
         customers: [],
         measurements: [],
@@ -333,7 +333,7 @@ class LocalStorageManager {
         }
       }
     } catch (error) {
-      console.error('Failed to load data from localStorage:', error)
+      // console.error('Failed to load data from localStorage:', error)
       return {
         customers: [],
         measurements: [],
@@ -348,7 +348,7 @@ class LocalStorageManager {
   saveData() {
     // Check if we're in a browser environment where localStorage is available
     if (typeof localStorage === 'undefined') {
-      console.warn('localStorage is not available in this environment')
+      // console.warn('localStorage is not available in this environment')
       return
     }
     
@@ -356,7 +356,7 @@ class LocalStorageManager {
       this.data.lastUpdated = new Date().toISOString()
       localStorage.setItem(this.storageKey, JSON.stringify(this.data))
     } catch (error) {
-      console.error('Failed to save data to localStorage:', error)
+      // console.error('Failed to save data to localStorage:', error)
     }
   }
 
@@ -486,16 +486,16 @@ class LocalStorageManager {
 }
 
 // Export singleton instances
-console.log('Creating syncManager instance') // Debug log
+// console.log('Creating syncManager instance') // Debug log
 export const syncManager = new OfflineSyncManager()
-console.log('Creating storageManager instance') // Debug log
+// console.log('Creating storageManager instance') // Debug log
 export const storageManager = new LocalStorageManager()
 
 // Export classes for testing or custom instances
 export { OfflineSyncManager, LocalStorageManager }
 
 // Helper functions for components to use
-console.log('Initializing syncUtils') // Debug log
+// console.log('Initializing syncUtils') // Debug log
 export const syncUtils = {
  saveMessage(message) {
     const messages = storageManager.getData('messages')
@@ -513,17 +513,17 @@ export const syncUtils = {
 
   // Customer operations
   async saveCustomer(customerData) {
-    console.log('Saving customer:', customerData) // Debug log
+    // console.log('Saving customer:', customerData) // Debug log
     const savedCustomer = storageManager.addItem('customers', customerData)
-    console.log('Saved customer result:', savedCustomer) // Debug log
+    // console.log('Saved customer result:', savedCustomer) // Debug log
     syncManager.queueForSync(savedCustomer, 'create', 'customer')
     return savedCustomer
   },
 
   async updateCustomer(id, customerData) {
-    console.log('Updating customer:', id, customerData) // Debug log
+    // console.log('Updating customer:', id, customerData) // Debug log
     const updatedCustomer = storageManager.updateItem('customers', id, customerData)
-    console.log('Updated customer result:', updatedCustomer) // Debug log
+    // console.log('Updated customer result:', updatedCustomer) // Debug log
     if (updatedCustomer) {
       syncManager.queueForSync(updatedCustomer, 'update', 'customer')
     }
@@ -531,9 +531,9 @@ export const syncUtils = {
   },
 
   async deleteCustomer(id) {
-    console.log('Deleting customer:', id) // Debug log
+    // console.log('Deleting customer:', id) // Debug log
     const deleted = storageManager.deleteItem('customers', id)
-    console.log('Delete customer result:', deleted) // Debug log
+    // console.log('Delete customer result:', deleted) // Debug log
     if (deleted) {
       syncManager.queueForSync({ id }, 'delete', 'customer')
     }
@@ -589,7 +589,7 @@ export const syncUtils = {
   // Get all data
   getAllCustomers() {
     const customers = storageManager.getData('customers')
-    console.log('getAllCustomers result:', customers) // Debug log
+    // console.log('getAllCustomers result:', customers) // Debug log
     return customers
   },
 

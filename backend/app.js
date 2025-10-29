@@ -46,32 +46,32 @@ app.use((req, res) => {
 // Initialize database and start server
 const initializeApp = async () => {
   try {
-    console.log('Attempting to connect to database...');
+    // console.log('Attempting to connect to database...');
     await sequelize.authenticate();
-    console.log('Database connection has been established successfully.');
+    // console.log('Database connection has been established successfully.');
     
     // Sync models
     await sequelize.sync({ alter: true });
-    console.log('All models were synchronized successfully.');
+    // console.log('All models were synchronized successfully.');
     
     // Start server
     const server = app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-      console.log(`Health check endpoint: http://localhost:${PORT}/api/health`);
+      // console.log(`Server is running on port ${PORT}`);
+      // console.log(`Health check endpoint: http://localhost:${PORT}/api/health`);
     });
     
     // Handle graceful shutdown
     process.on('SIGINT', async () => {
-      console.log('Shutting down gracefully...');
+      // console.log('Shutting down gracefully...');
       await sequelize.close();
       server.close(() => {
-        console.log('Server closed');
+        // console.log('Server closed');
         process.exit(0);
       });
     });
   } catch (error) {
     console.error('Unable to start the application:', error);
-    console.log('Please check your database configuration and ensure your database server is running.');
+    // console.log('Please check your database configuration and ensure your database server is running.');
     process.exit(1);
   }
 };

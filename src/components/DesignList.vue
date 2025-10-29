@@ -183,9 +183,9 @@ export default {
       try {
         const response = await designAPI.getAll()
         this.designs = response.data || response
-        console.log('Loaded designs:', this.designs)
+        // console.log('Loaded designs:', this.designs)
       } catch (error) {
-        console.error('Error loading designs:', error)
+        // console.error('Error loading designs:', error)
         Swal.fire({
           icon: 'error',
           title: 'Error',
@@ -199,7 +199,7 @@ export default {
         const result = await response.json()
         this.customers = result.data || result
       } catch (error) {
-        console.error('Error loading customers:', error)
+        // console.error('Error loading customers:', error)
       }
     },
     getImageUrl(path) {
@@ -236,7 +236,7 @@ export default {
           showConfirmButton: false
         })
       } catch (error) {
-        console.error('Error saving edited design:', error)
+        // console.error('Error saving edited design:', error)
         Swal.fire({
           icon: 'error',
           title: 'Error',
@@ -266,7 +266,7 @@ export default {
               showConfirmButton: false
             })
           } catch (error) {
-            console.error('Error deleting design:', error)
+            // console.error('Error deleting design:', error)
             Swal.fire({
               title: 'Error',
               text: 'Failed to delete the design. Please try again.',

@@ -11,7 +11,7 @@ const sequelize = new Sequelize({
 async function testConnection() {
   try {
     await sequelize.authenticate();
-    console.log('SQLite connection successful!');
+    // console.log('SQLite connection successful!');
     
     // Test creating a simple table
     const User = sequelize.define('User', {
@@ -22,15 +22,15 @@ async function testConnection() {
     });
     
     await User.sync({ alter: true });
-    console.log('Table creation successful!');
+    // console.log('Table creation successful!');
     
     await sequelize.close();
-    console.log('Database test completed successfully!');
+    // console.log('Database test completed successfully!');
   } catch (error) {
     console.error('SQLite test failed:', error.message);
     
     // Try MySQL if SQLite fails
-    console.log('Trying MySQL connection...');
+    // console.log('Trying MySQL connection...');
     const mysqlSequelize = new Sequelize(
       'fashion_design_db',
       'root',
@@ -48,11 +48,11 @@ async function testConnection() {
     
     try {
       await mysqlSequelize.authenticate();
-      console.log('MySQL connection successful!');
+      // console.log('MySQL connection successful!');
       await mysqlSequelize.close();
     } catch (mysqlError) {
       console.error('MySQL test failed:', mysqlError.message);
-      console.log('Please make sure you have a database server running.');
+      // console.log('Please make sure you have a database server running.');
     }
   }
 }

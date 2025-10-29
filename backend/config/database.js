@@ -27,9 +27,9 @@ try {
     }
   );
   
-  console.log('Attempting MySQL connection...');
+  // console.log('Attempting MySQL connection...');
 } catch (mysqlError) {
-  console.log('MySQL configuration failed, falling back to SQLite...');
+  // console.log('MySQL configuration failed, falling back to SQLite...');
   // Fallback to SQLite
   sequelize = new Sequelize({
     dialect: 'sqlite',

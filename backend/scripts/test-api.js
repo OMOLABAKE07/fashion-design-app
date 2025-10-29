@@ -10,8 +10,8 @@ const testAPI = async () => {
     // Test health check endpoint
     console.log('1. Testing health check endpoint...');
     const healthResponse = await axios.get(`${API_BASE_URL}/health`);
-    console.log('Health check response:', healthResponse.data);
-    console.log('✅ Health check passed\n');
+    // console.log('Health check response:', healthResponse.data);
+    // console.log('✅ Health check passed\n');
 
     // Test customers endpoint
     console.log('2. Testing customers endpoint...');

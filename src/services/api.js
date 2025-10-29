@@ -4,7 +4,7 @@ const API_BASE_URL = "http://localhost:8000/api/v1"; // ✅ FIXED: Laravel port 
 // Generic API call function
 const apiCall = async (endpoint, options = {}) => {
   try {
-    console.log(`Making API call to: ${API_BASE_URL}${endpoint}`);
+    // console.log(`Making API call to: ${API_BASE_URL}${endpoint}`);
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       headers: {
         "Content-Type": "application/json",
@@ -13,8 +13,8 @@ const apiCall = async (endpoint, options = {}) => {
       ...options,
     });
 
-    console.log(`Response status: ${response.status}`);
-    console.log(`Response headers:`, [...response.headers.entries()]);
+    // console.log(`Response status: ${response.status}`);
+    // console.log(`Response headers:`, [...response.headers.entries()]);
 
     // Handle 204 No Content responses
     if (response.status === 204) {
@@ -35,7 +35,7 @@ const apiCall = async (endpoint, options = {}) => {
 
     return JSON.parse(text);
   } catch (error) {
-    console.error(`API call error for ${endpoint}:`, error);
+    // console.error(`API call error for ${endpoint}:`, error);
     throw error;
   }
 };
@@ -51,13 +51,13 @@ export const designAPI = {
   create: (designData) => {
     // For file uploads, we need to use FormData
     if (designData instanceof FormData) {
-      console.log("Sending FormData to create design");
+      // console.log("Sending FormData to create design");
       return fetch(`${API_BASE_URL}/designs`, {
         method: "POST",
         body: designData,
         // Don't set Content-Type header, let browser set it with boundary for FormData
       }).then(async (response) => {
-        console.log(`FormData response status: ${response.status}`);
+        // console.log(`FormData response status: ${response.status}`);
         if (!response.ok) {
           throw new Error(
             `API call failed: ${response.status} ${response.statusText}`
@@ -69,7 +69,7 @@ export const designAPI = {
     }
 
     // For regular JSON data
-    console.log("Sending JSON data to create design");
+    // console.log("Sending JSON data to create design");
     return apiCall("/designs", {
       method: "POST",
       body: JSON.stringify(designData),
@@ -79,7 +79,7 @@ export const designAPI = {
   update: (id, designData) => {
     // For file uploads, we need to use FormData
     if (designData instanceof FormData) {
-      console.log("Sending FormData to update design");
+      // console.log("Sending FormData to update design");
       // Add _method field for Laravel to recognize PUT requests with file uploads
       if (designData instanceof FormData) {
         designData.append("_method", "PUT");
@@ -90,7 +90,7 @@ export const designAPI = {
         body: designData,
         // Don't set Content-Type header, let browser set it with boundary for FormData
       }).then(async (response) => {
-        console.log(`FormData response status: ${response.status}`);
+        // console.log(`FormData response status: ${response.status}`);
         if (!response.ok) {
           throw new Error(
             `API call failed: ${response.status} ${response.statusText}`
@@ -102,7 +102,7 @@ export const designAPI = {
     }
 
     // For regular JSON data
-    console.log("Sending JSON data to update design");
+    // console.log("Sending JSON data to update design");
     return apiCall(`/designs/${id}`, {
       method: "PUT",
       body: JSON.stringify(designData),

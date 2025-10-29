@@ -62,11 +62,11 @@ export default {
       localStorage.setItem('selectedCustomer', JSON.stringify(customer))
     },
     handleMeasurementSave(measurementData) {
-      console.log('Measurement saved:', measurementData)
+      // console.log('Measurement saved:', measurementData)
       this.editingMeasurement = null
     },
     handleMeasurementDelete(measurementId) {
-      console.log('Delete measurement:', measurementId)
+      // console.log('Delete measurement:', measurementId)
     }
   }
 }

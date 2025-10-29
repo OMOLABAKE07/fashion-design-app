@@ -566,7 +566,7 @@ saveMeasurementHistory(updatedMeasurement) {
         this.measurementHistory = []
 
         if (!this.customer?.id) {
-          console.log('❌ No customer selected')
+          // console.log('❌ No customer selected')
           return
         }
 
@@ -575,15 +575,15 @@ saveMeasurementHistory(updatedMeasurement) {
         // ✅ STEP 1: Try BACKEND FIRST
         if (forceRefresh || this.measurementHistory.length === 0) {
           try {
-            console.log('📡 Fetching from backend...')
+            // console.log('📡 Fetching from backend...')
             const response = await fetch(`http://localhost:8000/api/v1/measurements/customer/${this.customer.id}`)
             
             if (response.ok) {
               const result = await response.json()
-              console.log('✅ Backend response:', result)
+              // console.log('✅ Backend response:', result)
               
               measurements = result.success && Array.isArray(result.data) ? result.data : (result.data || [])
-              console.log('📦 Backend measurements loaded:', measurements.length)
+              // console.log('📦 Backend measurements loaded:', measurements.length)
             }
           } catch (apiError) {
             console.warn('❌ Backend unavailable, using local:', apiError)
@@ -660,7 +660,7 @@ saveMeasurementHistory(updatedMeasurement) {
           return dateB - dateA
         })
 
-        console.log('✅ History loaded:', this.measurementHistory.length, 'records')
+        // console.log('✅ History loaded:', this.measurementHistory.length, 'records')
         
       } catch (error) {
         console.error('❌ Error loading history:', error)
@@ -708,7 +708,7 @@ saveMeasurementHistory(updatedMeasurement) {
 
           if (response.ok) {
             savedToDb = await response.json()
-            console.log("✅ Saved to DATABASE:", savedToDb)
+            // console.log("✅ Saved to DATABASE:", savedToDb)
           }
         } catch (apiError) {
           console.warn("⚠️ Backend failed:", apiError)
