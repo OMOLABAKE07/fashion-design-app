@@ -134,5 +134,9 @@ export default {
     align-items: flex-start;
     gap: 1rem;
   }
+  
+  .page-header h2 {
+    font-size: 1.4rem;
+  }
 }
 </style>

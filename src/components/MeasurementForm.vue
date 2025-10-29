@@ -53,7 +53,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text">Select Category</span>
           </div>
-          <select v-model="selectedCategory" class="form-control custom-select" @change="onCategorySelect">
+          <select v-model="selectedCategory" class="form-control custom-select col-12" @change="onCategorySelect">
             <option value="">-- choose --</option>
             <option value="male">Male Measurements</option>
             <option value="female">Female Measurements</option>
@@ -1039,8 +1039,8 @@ async saveEditedMeasurement(updatedMeasurement) {
 }
 
 .form-header h3 {
+  margin: 0;
   color: #2c3e50;
-  margin: 0 0 0.5rem 0;
   font-size: 1.5rem;
 }
 
@@ -1572,6 +1572,16 @@ async saveEditedMeasurement(updatedMeasurement) {
 }
 
 @media (max-width: 768px) {
+  .form-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+    
+  .form-header h3 {
+    font-size: 1.2rem;
+  }
+    
   .measurement-grid {
     grid-template-columns: 1fr;
   }

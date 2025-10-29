@@ -3,7 +3,7 @@
     <div class="header">
       <h2>Customer List</h2>
       <div class="header-actions">
-        <div class="search-box">
+        <div class="search-wrapper">
           <input type="text" v-model="searchQuery" placeholder="Search customers..." class="search-input" />
         </div>
         <button @click="showCustomerForm = !showCustomerForm" class="btn-primary">
@@ -22,8 +22,8 @@
     </div>
 
     <div v-else class="customers-grid">
-      <div class="card-border mb-3 border-primary mt-4">
-        <table class="table table-sm table-striped table-bordered table-hover table-responsive-sm">
+      <div class="card-border mb-3 border-primary mt-4 table-container">
+        <table class="table table-sm table-striped table-bordered table-hover">
           <thead>
             <tr>
               <th>#</th>
@@ -54,7 +54,7 @@
                 </td>
                 <td>{{ formatDate(customer.createdAt) }}</td>
                 <td>
-                  <div class="d-flex gap-2 justify-content-center">
+                  <div class="d-flex gap-2 justify-content-center action-buttons">
                     <button @click.stop="editCustomer(customer)" class="btn btn-sm btn-success">Edit</button>
                     <button @click.stop="deleteCustomer(customer.id)" class="btn btn-sm btn-danger">Delete</button>
                   </div>
@@ -285,10 +285,11 @@ export default {
   display: flex;
   align-items: center;
   gap: 1rem;
+  width: 100%;
 }
 
-.search-box {
-  position: relative;
+.search-wrapper {
+  flex: 1;
 }
 
 .search-input {
@@ -297,14 +298,8 @@ export default {
   border-radius: 6px;
   font-size: 1rem;
   background: white;
-  min-width: 250px;
+  width: 100%;
   transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 .btn-primary {
@@ -317,108 +312,8 @@ export default {
   font-weight: 500;
   transition: background 0.3s;
   white-space: nowrap;
-}
-
-.btn-primary:hover {
-  background: #2980b9;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 4rem 2rem;
-  color: #7f8c8d;
-}
-
-.customer-card {
-  background: white;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 1.5rem;
-  cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.customer-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.customer-info h3 {
-  margin: 0 0 0.5rem 0;
-  color: #2c3e50;
-  font-size: 1.25rem;
-}
-
-.customer-info .email,
-.customer-info .phone {
-  margin: 0.25rem 0;
-  color: #6c757d;
-}
-
-.customer-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #f1f3f4;
-}
-
-.status {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.status.active {
-  background: #d4edda;
-  color: #155724;
-}
-
-.status.pending {
-  background: #fff3cd;
-  color: #856404;
-}
-
-.date-added {
-  font-size: 0.875rem;
-  color: #6c757d;
-}
-
-.customer-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-
-.btn-secondary,
-.btn-danger {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  transition: all 0.3s;
-}
-
-.btn-secondary {
-  background: #198754;
-  color: white;
-}
-
-.btn-secondary:hover {
-  background: #246534;
-}
-
-.btn-danger {
-  background: #dc3545;
-  color: white;
-}
-
-.btn-danger:hover {
-  background: #c82333;
+  flex: 1;
+  min-width: fit-content;
 }
 
 @media (max-width: 768px) {
@@ -429,69 +324,49 @@ export default {
   }
 
   .header-actions {
-    justify-content: space-between;
+    flex-direction: row;
   }
 
   .search-input {
     min-width: auto;
-    flex: 1;
   }
-}
-
-.table {
-  background: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.table th {
-  background: #3498db;
-  color: white;
-  text-align: center;
-  vertical-align: middle;
-}
-
-.table td {
-  vertical-align: middle;
-}
-
-.customer-row {
-  cursor: pointer;
-}
-
-.customer-row:hover {
-  background-color: #f8f9fa;
-}
-
-/* 
-.comment.active {
-    background-color: #d4edda;
-    color: #155724;
-    border-radius: 8px;
-    padding: 0.25rem 0.5rem;
-} */
-
-.comment.pending {
-  background-color: #fff3cd;
-  color: #856404;
-  border-radius: 8px;
-  padding: 0.25rem 0.5rem;
-}
-
-@media (max-width: 768px) {
-  .header {
+  
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  .table {
+    min-width: 800px;
+  }
+  
+  .action-buttons {
     flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
+    gap: 0.25rem !important;
   }
+  
+  .btn-sm {
+    width: 100%;
+    margin-bottom: 0.25rem;
+  }
+}
 
+@media (max-width: 576px) {
+  .header h2 {
+    font-size: 1.5rem;
+  }
+  
   .header-actions {
-    justify-content: space-between;
+    flex-direction: row;
   }
-
+  
+  .btn-primary {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+  
   .search-input {
-    min-width: auto;
-    flex: 1;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
   }
 }
 </style>

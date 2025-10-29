@@ -4,9 +4,9 @@
     <div class="message-header">
       <h2>Message Center</h2>
       <div class="header-actions">
-        <button @click="showNewMessage = true" class="btn-primary">
+        <!-- <button @click="showNewMessage = true" class="btn-primary">
           New Message
-        </button>
+        </button> -->
         <div class="sync-status">
           <SyncStatus />
         </div>
