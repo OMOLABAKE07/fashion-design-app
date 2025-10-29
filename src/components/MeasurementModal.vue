@@ -513,8 +513,8 @@ handleSave() {
     margin: 20px;
   }
 
-  .modal-footer {
+  /* .modal-footer {
     flex-direction: column;
-  }
+  } */
 }
 </style>
