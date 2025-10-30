@@ -145,3 +145,37 @@ The application will be available at:
 - `POST /api/messages` - Create a new message
 - `PUT /api/messages/:id` - Update message
 - `DELETE /api/messages/:id` - Delete message
+
+
+## Deployment to Render
+
+### Prerequisites
+1. A [Render](https://render.com/) account
+2. Your repository hosted on GitHub, GitLab, or Bitbucket
+
+### Deploy Steps
+1. Fork this repository to your GitHub account (if not already done)
+2. Log in to your Render account
+3. Click "New +" and select "Static Site"
+4. Connect your GitHub/GitLab/Bitbucket account
+5. Select this repository
+6. Configure the settings:
+   - Name: fashion-design-app (or your preferred name)
+   - Branch: main (or your preferred branch)
+   - Build Command: `npm run build`
+   - Publish Directory: `dist`
+7. Click "Create Static Site"
+8. Wait for the build to complete
+9. Your site will be available at the provided URL
+
+### Environment Variables
+If you need to set environment variables for your deployment, you can configure them in the Render dashboard under your service settings.
+
+### Automatic Deploys
+Render will automatically rebuild and deploy your site whenever you push changes to your configured branch.
+
+### Manual Deployment
+To manually trigger a deployment:
+1. Go to your service dashboard on Render
+2. Click "Manual Deploy"
+3. Select "Clear cache & deploy"
