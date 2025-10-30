@@ -4,9 +4,9 @@
     <div class="message-header">
       <h2>Message Center</h2>
       <div class="header-actions">
-        <button @click="showNewMessage = true" class="btn-primary">
+        <!-- <button @click="showNewMessage = true" class="btn-primary">
           New Message
-        </button>
+        </button> -->
         <div class="sync-status">
           <SyncStatus />
         </div>
@@ -15,7 +15,7 @@
 
     <div class="message-layout">
       <!-- Customer List Sidebar -->
-      <div class="customer-sidebar">
+      <div class="customer-sidebar" :class="{ 'mobile-hidden': selectedCustomer && isMobile }">
         <div class="search-box">
           <input
             type="text"
@@ -54,7 +54,7 @@
       </div>
 
       <!-- Message Thread -->
-      <div class="message-thread">
+      <div class="message-thread" :class="{ 'mobile-full': selectedCustomer && isMobile }">
         <div v-if="!selectedCustomer" class="no-selection">
           <div class="no-selection-content">
             <h3>Select a customer to start messaging</h3>
@@ -75,14 +75,17 @@
                 </p>
               </div>
             </div>
-            <div class="thread-actions">
+            <button @click="selectedCustomer = null" class="btn-secondary btn-small mobile-back-btn">
+              Back to Customers
+            </button>
+            <!-- <div class="thread-actions">
               <button @click="markAsRead" class="btn-secondary btn-small">
                 Mark as Read
               </button>
               <button @click="showCustomerDetails" class="btn-secondary btn-small">
                 View Details
               </button>
-            </div>
+            </div> -->
           </div>
 
           <div class="messages-container" ref="messagesContainer">
@@ -93,16 +96,20 @@
             >
               <div class="message-content">
                 <div class="message-text">{{ message.content }}</div>
-                <div v-if="message.attachments?.length" class="message-attachments">
-                  <div
-                    v-for="attachment in message.attachments"
-                    :key="attachment.id"
-                    class="attachment"
-                  >
-                    <img v-if="attachment.type === 'image'" :src="attachment.url" :alt="attachment.name" />
+                <!-- Display attachment info for Laravel messages -->
+                <div v-if="message.attachment_type && message.attachment_type !== 'none'" class="message-attachments">
+                  <div class="attachment">
+                    <div v-if="message.attachment_type === 'photo' && message.attachment_path" class="image-attachment">
+                      <img :src="`http://localhost:3000/storage/${message.attachment_path}`" :alt="message.attachment_type + ' attachment'" />
+                    </div>
                     <div v-else class="file-attachment">
-                      <span class="file-icon">📎</span>
-                      <span>{{ attachment.name }}</span>
+                      <span class="file-icon">
+                        {{ message.attachment_type === 'photo' ? '📷' : '📄' }}
+                      </span>
+                      <span>{{ message.attachment_type }} attached</span>
+                      <a v-if="message.attachment_path" :href="`http://localhost:3000/storage/${message.attachment_path}`" target="_blank" class="file-download">
+                        Download
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -115,7 +122,7 @@
           </div>
 
           <div class="message-composer">
-            <form @submit.prevent="sendMessage" class="composer-form">
+            <form @submit.prevent="sendMessage" class="composer-form" @click="closeAttachmentOptions">
               <div class="composer-input">
                 <textarea
                   v-model="newMessage"
@@ -126,9 +133,16 @@
                   @keydown.enter.shift.exact="newMessage += '\n'"
                 ></textarea>
                 <div class="composer-actions">
-                  <!-- ✅ YOUR ATTACHMENT BUTTON - 100% KEPT -->
-                  <button type="button" @click="showAttachmentOptions = !showAttachmentOptions" class="btn-icon">
+                  <!-- Attachment button that directly opens file selection -->
+                  <button type="button" @click.stop="openAttachmentDialog" class="btn-icon">
                     📎
+                  </button>
+                  <!-- Attachment indicator -->
+                  <span v-if="attachmentType !== 'none'" class="attachment-indicator" title="Attachment selected">
+                    📎
+                  </span>
+                  <button v-if="attachmentType !== 'none'" type="button" @click="clearAttachment" class="btn-icon" title="Remove attachment">
+                    ✕
                   </button>
                   <button type="submit" :disabled="!newMessage.trim() || isSubmitting" class="btn-primary btn-small">
                     {{ isSubmitting ? 'Sending...' : 'Send' }}
@@ -136,15 +150,14 @@
                 </div>
               </div>
               
-              <!-- ✅ YOUR ATTACHMENT OPTIONS - 100% KEPT -->
-              <div v-if="showAttachmentOptions" class="attachment-options">
-                <button type="button" @click="uploadImage" class="btn-secondary btn-small">
-                  📷 Photo
-                </button>
-                <button type="button" @click="uploadFile" class="btn-secondary btn-small">
-                  📄 Document
-                </button>
-              </div>
+              <!-- Hidden file input for attachment selection -->
+              <input 
+                ref="fileInput" 
+                type="file" 
+                @change="handleFileSelect" 
+                style="display: none;" 
+                accept="image/*,.pdf,.doc,.docx"
+              />
             </form>
           </div>
         </div>
@@ -205,11 +218,14 @@ export default {
       newMessage: '',
       newMessageCustomer: '',
       newMessageText: '',
-      showAttachmentOptions: false,
       customers: [],
       messages: [], // Only your sent emails
       isSubmitting: false,
-      searchDebounce: null
+      searchDebounce: null,
+      // Attachment handling
+      attachmentFile: null,
+      attachmentType: 'none',
+      isMobile: false
     }
   },
   computed: {
@@ -248,17 +264,23 @@ export default {
     await this.loadMessages()
     window.addEventListener('storage', this.handleStorageChange)
     this.$nextTick(() => this.scrollToBottom())
+    this.checkMobile()
+    window.addEventListener('resize', this.checkMobile)
   },
   beforeUnmount() {
     window.removeEventListener('storage', this.handleStorageChange)
+    window.removeEventListener('resize', this.checkMobile)
     // Clean up debounce timer
     if (this.searchDebounce) {
       clearTimeout(this.searchDebounce)
     }
   },
   methods: {
+    checkMobile() {
+      this.isMobile = window.innerWidth <= 768
+    },
     // ✅ LOAD CUSTOMERS - WORKS WITH YOUR SEARCH CONTROLLER
-    // ✅ FIXED loadCustomers() - WORKS WITH YOUR API
+    // ✅ FIXED loadCustomers() - - WORKS WITH YOUR API
     async loadCustomers() {
       try {
         // 1️⃣ LOCAL FIRST (INSTANT LOAD)
@@ -310,7 +332,16 @@ export default {
         if (response.ok) {
           const result = await response.json()
           // Handle Laravel's response format
-          this.messages = Array.isArray(result.data) ? result.data : (result.data ? Object.values(result.data) : [])
+          let messages = Array.isArray(result.data) ? result.data : (result.data ? Object.values(result.data) : [])
+          
+          // Process attachment information
+          messages = messages.map(message => ({
+            ...message,
+            attachment_type: message.attachment_type || 'none',
+            attachment_path: message.attachment_path || null
+          }))
+          
+          this.messages = messages
         } else {
           // Handle non-OK responses
           console.error('Failed to load messages:', response.status, response.statusText)
@@ -337,6 +368,9 @@ export default {
 
       this.newMessage = ''
       this.$nextTick(() => this.scrollToBottom())
+      // Clear attachment after sending
+      this.attachmentFile = null
+      this.attachmentType = 'none'
     },
 
     // ✅ SEND NEW EMAIL (modal)
@@ -357,9 +391,12 @@ export default {
       this.showNewMessage = false
       this.newMessageCustomer = ''
       this.newMessageText = ''
+      // Clear attachment after sending
+      this.attachmentFile = null
+      this.attachmentType = 'none'
     },
 
-    // ✅ EMAIL ENGINE
+    // ✅ EMAIL ENGINE - UPDATED FOR LARAVEL BACKEND WITH ATTACHMENTS
     async sendEmailData(messageData, customer) {
       this.isSubmitting = true
       try {
@@ -367,13 +404,25 @@ export default {
         let apiError = null
         
         try {
+          // Create FormData for file upload
+          const formData = new FormData()
+          formData.append('customer_id', messageData.customer_id)
+          formData.append('subject', messageData.subject)
+          formData.append('content', messageData.content)
+          formData.append('status', messageData.status || 'sent')
+          
+          // Add attachment if available
+          if (this.attachmentFile && this.attachmentType !== 'none') {
+            formData.append('attachment_file', this.attachmentFile)
+            formData.append('attachment_type', this.attachmentType)
+          } else {
+            formData.append('attachment_type', 'none')
+          }
+          
           const response = await fetch('http://localhost:8000/api/v1/messages', {
             method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            },
-            body: JSON.stringify(messageData)
+            // Don't set Content-Type header, let browser set it with boundary for FormData
+            body: formData
           })
           
           if (response.ok) {
@@ -381,7 +430,8 @@ export default {
             savedToDb = result.data || result // Handle Laravel's response format
           } else {
             // Handle non-OK responses
-            apiError = `Server error: ${response.status} ${response.statusText}`
+            const errorText = await response.text()
+            apiError = 'Server error: ' + response.status + ' ' + response.statusText + ' - ' + errorText
             console.error('API Error:', apiError)
           }
         } catch (error) {
@@ -395,7 +445,10 @@ export default {
           customer_name: customer.name,
           customer_email: customer.email,
           created_at: new Date().toISOString(),
-          sender: 'admin'
+          sender: 'admin',
+          // Add attachment info if available
+          attachment_type: this.attachmentType,
+          attachment_path: savedToDb?.attachment_path || null
         }
         
         // Save to local storage using syncUtils
@@ -407,7 +460,7 @@ export default {
         Swal.fire({
           icon: savedToDb ? 'success' : 'warning',
           title: savedToDb ? '✅ Message Sent!' : '⏳ Queued',
-          text: savedToDb ? `To ${customer.email}` : `Message queued for later delivery: ${apiError || 'Backend unavailable'}`,
+          text: savedToDb ? ('To ' + customer.email) : ('Message queued for later delivery: ' + (apiError || 'Backend unavailable')),
           timer: savedToDb ? 1500 : null
         })
         
@@ -415,6 +468,10 @@ export default {
         if (savedToDb) {
           await this.loadMessages()
         }
+        
+        // Clear attachment after sending
+        this.attachmentFile = null
+        this.attachmentType = 'none'
       } catch (error) {
         console.error('Error sending message:', error)
         Swal.fire({
@@ -464,23 +521,39 @@ export default {
       else return messageTime.toLocaleDateString()
     },
 
-    markAsRead() {},
-
-    showCustomerDetails() {
-      this.$emit('view-customer', this.selectedCustomer)
+    // Direct attachment handling methods
+    openAttachmentDialog() {
+      // Trigger file input click
+      this.$refs.fileInput.click()
     },
 
-    // ✅ YOUR ATTACHMENT BUTTONS - 100% WORKING
-    uploadImage() {
-      console.log('📷 Uploading photo to email...')
-      this.showAttachmentOptions = false
-      // TODO: Real image upload for email
+    handleFileSelect(event) {
+      const files = Array.from(event.target.files)
+      if (files.length > 0) {
+        const file = files[0]
+        
+        // Determine attachment type based on file type
+        if (file.type.startsWith('image/')) {
+          this.attachmentType = 'photo'
+        } else {
+          this.attachmentType = 'document'
+        }
+        
+        this.attachmentFile = file
+        
+        // Show notification
+        Swal.fire({
+          icon: 'success',
+          title: '📎 Attachment Selected',
+          text: file.name + ' will be attached to your message',
+          timer: 2000,
+          showConfirmButton: false
+        })
+      }
     },
 
-    uploadFile() {
-      console.log('📄 Uploading document to email...')
-      this.showAttachmentOptions = false
-      // TODO: Real file upload for email
+    closeAttachmentOptions() {
+      // No longer needed since we removed the attachment options dropdown
     },
 
     scrollToBottom() {
@@ -496,10 +569,15 @@ export default {
       }
     },
 
+    clearAttachment() {
+      this.attachmentFile = null
+      this.attachmentType = 'none'
+    },
+
     clearSearch() {
       this.searchQuery = ''
       this.loadCustomers()
-    },
+    }
   }
 }
 </script>
@@ -723,8 +801,7 @@ export default {
 }
 
 .thread-actions {
-  display: flex;
-  gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .messages-container {
@@ -778,7 +855,9 @@ export default {
 
 .attachment img {
   max-width: 200px;
+  max-height: 200px;
   border-radius: 6px;
+  object-fit: cover;
 }
 
 .file-attachment {
@@ -788,6 +867,28 @@ export default {
   padding: 0.5rem;
   background: rgba(0,0,0,0.1);
   border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.file-download {
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.file-download:hover {
+  text-decoration: underline;
+}
+
+.image-attachment {
+  margin-top: 0.5rem;
+}
+
+.image-attachment img {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 6px;
+  object-fit: cover;
 }
 
 .message-meta {
@@ -835,6 +936,38 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  position: relative;
+}
+
+.attachment-indicator {
+  position: absolute;
+  top: -8px;
+  right: 40px;
+  background: #3498db;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
+  }
 }
 
 .btn-icon {
@@ -845,6 +978,8 @@ export default {
   padding: 0.5rem;
   border-radius: 6px;
   transition: background 0.3s;
+  position: relative;
+  z-index: 1;
 }
 
 .btn-icon:hover {
@@ -854,6 +989,18 @@ export default {
 .attachment-options {
   margin-top: 1rem;
   display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.attachment-options button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 0.5rem;
 }
 
@@ -977,17 +1124,45 @@ export default {
   font-size: 0.875rem;
 }
 
+/* Mobile-specific styles */
+.mobile-back-btn {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .customer-sidebar {
+    width: 100%;
+    position: absolute;
+    z-index: 10;
+    height: calc(100vh - 180px);
+    transition: transform 0.3s ease;
+  }
+  
+  .customer-sidebar.mobile-hidden {
+    transform: translateX(-100%);
+  }
+  
+  .message-thread {
+    width: 100%;
+  }
+  
+  .message-thread.mobile-full {
+    position: absolute;
+    z-index: 11;
+    height: calc(100vh - 180px);
     width: 100%;
   }
   
   .message-layout {
     flex-direction: column;
+    position: relative;
   }
   
   .thread-header {
     padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
   }
   
   .messages-container {
@@ -1005,6 +1180,61 @@ export default {
   
   .thread-actions {
     margin-top: 0.5rem;
+  }
+  
+  .message {
+    max-width: 85%;
+  }
+  
+  .mobile-back-btn {
+    display: block;
+    margin-top: 1rem;
+  }
+  
+  .composer-input {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .composer-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+  }
+  
+  .attachment-indicator {
+    top: -10px;
+    right: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .message-header {
+    padding: 1rem;
+  }
+  
+  .message {
+    max-width: 95%;
+  }
+  
+  .message-content {
+    padding: 0.75rem;
+  }
+  
+  .customer-item {
+    padding: 0.75rem;
+  }
+  
+  .customer-avatar {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+  
+  .customer-avatar.large {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
   }
 }
 </style>

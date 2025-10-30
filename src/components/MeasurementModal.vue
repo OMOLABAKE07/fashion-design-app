@@ -2,9 +2,7 @@
   <div v-if="isVisible" class="modal-overlay" @click="closeModal">
     <div class="modal-content" @click.stop>
       <div class="modal-header">
-        <!-- <h3>Edit Measurement</h3> -->
-         <h3>{{ mode === 'view' ? 'View Measurement' : 'Edit Measurement' }}</h3>
-
+        <h3>{{ mode === 'view' ? 'View Measurement' : 'Edit Measurement' }}</h3>
         <button class="close-button" @click="closeModal">&times;</button>
       </div>
 
@@ -24,9 +22,19 @@
                 <h4>{{ getCategoryName(category) }}</h4>
                 <div class="category-fields">
                   <div v-for="field in getFieldsForCategory(category)" :key="field.key" class="form-group">
-                    <label :for="field.key">{{ field.label }}</label>
-                    <input :id="field.key" type="number" v-model="editableMeasurement[field.key]" step="0.25" min="0"
-                      class="form-input" :placeholder="field.placeholder" :readonly="mode === 'view'" />
+                    <template v-if="mode === 'view'">
+                      <!-- View Mode: Show label and value -->
+                      <div class="view-field">
+                        <span class="field-label">{{ field.label }}:</span>
+                        <span class="field-value">{{ editableMeasurement[field.key] || '-' }}</span>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <!-- Edit Mode: Show form input -->
+                      <label :for="field.key">{{ field.label }}</label>
+                      <input :id="field.key" type="number" v-model="editableMeasurement[field.key]" step="0.25" min="0"
+                        class="form-input" :placeholder="field.placeholder" />
+                    </template>
                   </div>
                 </div>
               </div>
@@ -35,9 +43,17 @@
 
           <!-- Notes -->
           <div class="form-group">
-            <label for="notes">Notes</label>
-            <textarea id="notes" v-model="editableMeasurement.notes" class="form-textarea" rows="3"
-              placeholder="Any special notes about these measurements..." :readonly="mode === 'view'"></textarea>
+            <template v-if="mode === 'view'">
+              <div class="view-field">
+                <span class="field-label">Notes:</span>
+                <span class="field-value">{{ editableMeasurement.notes || '-' }}</span>
+              </div>
+            </template>
+            <template v-else>
+              <label for="notes">Notes</label>
+              <textarea id="notes" v-model="editableMeasurement.notes" class="form-textarea" rows="3"
+                placeholder="Any special notes about these measurements..."></textarea>
+            </template>
           </div>
         </form>
       </div>
@@ -69,15 +85,12 @@ export default {
   watch: {
     measurement: {
       handler(newMeasurement) {
-        if (newMeasurement) {
-          // Handle both flat structure and nested structure
-          const measurementsData = newMeasurement.measurements || newMeasurement;
-          
+        if (newMeasurement && newMeasurement.measurements) {
           this.editableMeasurement = {
-            ...measurementsData,
-            notes: newMeasurement.notes || measurementsData.notes || '',
-            measurementDate: newMeasurement.measurementDate || measurementsData.measurementDate || ''
-          };
+            ...newMeasurement.measurements,
+            notes: newMeasurement.notes || '',
+            measurementDate: newMeasurement.measurementDate || ''
+          }
         }
       },
       immediate: true
@@ -139,10 +152,16 @@ handleSave() {
     },
     getCategoryName(category) {
       const categoryNames = {
-        'agbada': 'Agbada Measurements', 'top': 'Top Measurements',
-        'sleeve': 'Sleeve Measurements', 'trouser': 'Trouser Measurements',
-        'bust': 'Bust Measurements', 'shoulder': 'Shoulder Measurements',
-        'length': 'Length Measurements', 'skirt': 'Skirt Measurements',
+        'male': 'Male Measurements',
+        'female': 'Female Measurements',
+        'agbada': 'Agbada Measurements', 
+        'top': 'Top Measurements',
+        'sleeve': 'Sleeve Measurements', 
+        'trouser': 'Trouser Measurements',
+        'bust': 'Bust Measurements', 
+        'shoulder': 'Shoulder Measurements',
+        'length': 'Length Measurements', 
+        'skirt': 'Skirt Measurements',
         'gown': 'Gown Measurements'
       }
       return categoryNames[category] || category
@@ -153,10 +172,98 @@ handleSave() {
     },
     getFieldsForCategory(category) {
       const fieldDefinitions = {
+        male: [
+          // Top Measurements
+          { key: 'agbadaLength', label: 'Agbada Length (inches)', placeholder: '0.00' },
+          { key: 'topLength', label: 'Top Length (inches)', placeholder: '0.00' },
+          { key: 'kaftanLength', label: 'Kaftan Length (inches)', placeholder: '0.00' },
+          { key: 'jalamiaLength', label: 'Jalamia Length (inches)', placeholder: '0.00' },
+          { key: 'shirtLength', label: 'Shirt Length (inches)', placeholder: '0.00' },
+          { key: 'shoulder', label: 'Shoulder (inches)', placeholder: '0.00' },
+          { key: 'neck', label: 'Neck (inches)', placeholder: '0.00' },
+          
+          // Sleeve Measurements
+          { key: 'longSleeve', label: 'Long Sleeve (inches)', placeholder: '0.00' },
+          { key: 'shortSleeve', label: 'Short Sleeve (inches)', placeholder: '0.00' },
+          { key: 'threeQuarterSleeve', label: '3/4 Sleeve (inches)', placeholder: '0.00' },
+          { key: 'roundSleeve', label: 'Round Sleeve (inches)', placeholder: '0.00' },
+          { key: 'biceps', label: 'Biceps (inches)', placeholder: '0.00' },
+          { key: 'elbow', label: 'Elbow (inches)', placeholder: '0.00' },
+          { key: 'wrist', label: 'Wrist (inches)', placeholder: '0.00' },
+          
+          // Chest Measurements
+          { key: 'chest', label: 'Chest (inches)', placeholder: '0.00' },
+          { key: 'bustUpperChest', label: 'Bust/Upper Chest (inches)', placeholder: '0.00' },
+          { key: 'stomach', label: 'Stomach (inches)', placeholder: '0.00' },
+          { key: 'capSize', label: 'Cap Size (inches)', placeholder: '0.00' },
+          
+          // Trouser Measurements
+          { key: 'trouserLength', label: 'Trouser Length (inches)', placeholder: '0.00' },
+          { key: 'waist', label: 'Waist (inches)', placeholder: '0.00' },
+          { key: 'hip', label: 'Hip (inches)', placeholder: '0.00' },
+          { key: 'thigh', label: 'Thigh (inches)', placeholder: '0.00' },
+          { key: 'knee', label: 'Knee (inches)', placeholder: '0.00' },
+          { key: 'inseam', label: 'Inseam (inches)', placeholder: '0.00' },
+          { key: 'outseam', label: 'Outseam (inches)', placeholder: '0.00' },
+          { key: 'ankle', label: 'Ankle (inches)', placeholder: '0.00' },
+          { key: 'crotch', label: 'Crotch (inches)', placeholder: '0.00' },
+          { key: 'calf', label: 'Calf (inches)', placeholder: '0.00' }
+        ],
+        female: [
+          // Bust Measurements
+          { key: 'shoulder', label: 'Shoulder (inches)', placeholder: '0.00' },
+          { key: 'bust', label: 'Bust (inches)', placeholder: '0.00' },
+          { key: 'shoulderToUpperBust', label: 'Shoulder to Upper Bust (inches)', placeholder: '0.00' },
+          { key: 'shoulderToUnderBust', label: 'Shoulder to Under Bust (inches)', placeholder: '0.00' },
+          { key: 'shoulderToNipplePoint', label: 'Shoulder to Nipple Point (inches)', placeholder: '0.00' },
+          { key: 'nippleToNipple', label: 'Nipple to Nipple (inches)', placeholder: '0.00' },
+          { key: 'roundUpperBust', label: 'Round Upper Bust (inches)', placeholder: '0.00' },
+          { key: 'roundUnderBust', label: 'Round Under Bust (inches)', placeholder: '0.00' },
+          
+          // Length Measurements
+          { key: 'halfLength', label: 'Half Length (inches)', placeholder: '0.00' },
+          { key: 'blouseLength', label: 'Blouse Length (inches)', placeholder: '0.00' },
+          
+          // Sleeve Measurements
+          { key: 'roundSleeve', label: 'Round Sleeve (inches)', placeholder: '0.00' },
+          { key: 'biceps', label: 'Biceps (inches)', placeholder: '0.00' },
+          { key: 'elbow', label: 'Elbow (inches)', placeholder: '0.00' },
+          { key: 'longSleeve', label: 'Long Sleeve (inches)', placeholder: '0.00' },
+          { key: 'shortSleeve', label: 'Short Sleeve (inches)', placeholder: '0.00' },
+          { key: 'threeQuarterSleeve', label: '3/4 Sleeve (inches)', placeholder: '0.00' },
+          
+          // Skirt Measurements
+          { key: 'longSkirt', label: 'Long Skirt (inches)', placeholder: '0.00' },
+          { key: 'shortSkirt', label: 'Short Skirt (inches)', placeholder: '0.00' },
+          { key: 'threeQuarterSkirt', label: '3/4 Skirt (inches)', placeholder: '0.00' },
+          
+          // Waist/Hip Measurements
+          { key: 'waist', label: 'Waist (inches)', placeholder: '0.00' },
+          { key: 'hips', label: 'Hips (inches)', placeholder: '0.00' },
+          { key: 'waistToHipLine', label: 'Waist to Hip Line (inches)', placeholder: '0.00' },
+          { key: 'waistToHip', label: 'Waist to Hip (inches)', placeholder: '0.00' },
+          
+          // Gown Measurements
+          { key: 'longGownLength', label: 'Long Gown Length (inches)', placeholder: '0.00' },
+          { key: 'shortGownLength', label: 'Short Gown Length (inches)', placeholder: '0.00' },
+          { key: 'threeQuarterGownLength', label: '3/4 Gown Length (inches)', placeholder: '0.00' },
+          
+          // Trouser Measurements
+          { key: 'trouserLength', label: 'Trouser Length (inches)', placeholder: '0.00' },
+          { key: 'band', label: 'Band (inches)', placeholder: '0.00' },
+          { key: 'thigh', label: 'Thigh (inches)', placeholder: '0.00' },
+          { key: 'knee', label: 'Knee (inches)', placeholder: '0.00' },
+          { key: 'inseam', label: 'Inseam (inches)', placeholder: '0.00' },
+          { key: 'outseam', label: 'Outseam (inches)', placeholder: '0.00' },
+          { key: 'ankle', label: 'Ankle (inches)', placeholder: '0.00' },
+          { key: 'crotch', label: 'Crotch (inches)', placeholder: '0.00' },
+          { key: 'calf', label: 'Calf (inches)', placeholder: '0.00' }
+        ],
         bust: [
           { key: 'bust', label: 'Bust (inches)', placeholder: '0.00' },
-          { key: 'shoulderToUnderBust', label: 'Shoulder to Under Bust (inches)', placeholder: '0.00' },
+          { key: 'shoulder', label: 'Shoulder (inches)', placeholder: '0.00' },
           { key: 'shoulderToUpperBust', label: 'Shoulder to Upper Bust (inches)', placeholder: '0.00' },
+          { key: 'shoulderToUnderBust', label: 'Shoulder to Under Bust (inches)', placeholder: '0.00' },
           { key: 'shoulderToNipplePoint', label: 'Shoulder to Nipple Point (inches)', placeholder: '0.00' },
           { key: 'nippleToNipple', label: 'Nipple to Nipple (inches)', placeholder: '0.00' },
           { key: 'roundUpperBust', label: 'Round Upper Bust (inches)', placeholder: '0.00' },
@@ -167,11 +274,7 @@ handleSave() {
         ],
         length: [
           { key: 'halfLength', label: 'Half Length (inches)', placeholder: '0.00' },
-          { key: 'blouseLength', label: 'Blouse Length (inches)', placeholder: '0.00' },
-          { key: 'longGownLength', label: 'Long Gown Length (inches)', placeholder: '0.00' },
-          { key: 'shortGownLength', label: 'Short Gown Length (inches)', placeholder: '0.00' },
-          { key: 'threeQuarterGownLength', label: '3/4 Gown Length (inches)', placeholder: '0.00' },
-          { key: 'trouserLength', label: 'Trouser Length (inches)', placeholder: '0.00' }
+          { key: 'blouseLength', label: 'Blouse Length (inches)', placeholder: '0.00' }
         ],
         sleeve: [
           { key: 'roundSleeve', label: 'Round Sleeve (inches)', placeholder: '0.00' },
@@ -193,7 +296,6 @@ handleSave() {
         ],
         trouser: [
           { key: 'trouserLength', label: 'Trouser Length (inches)', placeholder: '0.00' },
-          { key: 'waist', label: 'Waist (inches)', placeholder: '0.00' },
           { key: 'band', label: 'Band (inches)', placeholder: '0.00' },
           { key: 'thigh', label: 'Thigh (inches)', placeholder: '0.00' },
           { key: 'knee', label: 'Knee (inches)', placeholder: '0.00' },
@@ -204,22 +306,10 @@ handleSave() {
           { key: 'calf', label: 'Calf (inches)', placeholder: '0.00' }
         ],
         agbada: [
-          { key: 'agbadaLength', label: 'Agbada Length (inches)', placeholder: '0.00' },
-          { key: 'agbadaShoulder', label: 'Agbada Shoulder (inches)', placeholder: '0.00' },
-          { key: 'agbadaChest', label: 'Agbada Chest (inches)', placeholder: '0.00' },
-          { key: 'agbadaSleeve', label: 'Agbada Sleeve (inches)', placeholder: '0.00' }
+          { key: 'agbadaLength', label: 'Agbada Length (inches)', placeholder: '0.00' }
         ],
         top: [
-          { key: 'topLength', label: 'Top Length (inches)', placeholder: '0.00' },
-          { key: 'kaftanLength', label: 'Kaftan Length (inches)', placeholder: '0.00' },
-          { key: 'jalamiaLength', label: 'Jalamia Length (inches)', placeholder: '0.00' },
-          { key: 'shirtLength', label: 'Shirt Length (inches)', placeholder: '0.00' },
-          { key: 'shoulder', label: 'Shoulder (inches)', placeholder: '0.00' },
-          { key: 'neck', label: 'Neck (inches)', placeholder: '0.00' },
-          { key: 'chest', label: 'Chest (inches)', placeholder: '0.00' },
-          { key: 'bustUpperChest', label: 'Bust/Upper Chest (inches)', placeholder: '0.00' },
-          { key: 'stomach', label: 'Stomach (inches)', placeholder: '0.00' },
-          { key: 'capSize', label: 'Cap Size (inches)', placeholder: '0.00' }
+          { key: 'topLength', label: 'Top Length (inches)', placeholder: '0.00' }
         ]
       }
       return fieldDefinitions[category] || []
@@ -397,6 +487,22 @@ handleSave() {
   background: #5a6268;
 }
 
+.view-field {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.field-label {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.field-value {
+  color: #495057;
+}
+
 @media (max-width: 768px) {
   .category-fields {
     grid-template-columns: 1fr;
@@ -407,8 +513,8 @@ handleSave() {
     margin: 20px;
   }
 
-  .modal-footer {
+  /* .modal-footer {
     flex-direction: column;
-  }
+  } */
 }
 </style>

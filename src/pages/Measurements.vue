@@ -62,11 +62,11 @@ export default {
       localStorage.setItem('selectedCustomer', JSON.stringify(customer))
     },
     handleMeasurementSave(measurementData) {
-      console.log('Measurement saved:', measurementData)
+      // console.log('Measurement saved:', measurementData)
       this.editingMeasurement = null
     },
     handleMeasurementDelete(measurementId) {
-      console.log('Delete measurement:', measurementId)
+      // console.log('Delete measurement:', measurementId)
     }
   }
 }
@@ -133,6 +133,10 @@ export default {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
+  }
+  
+  .page-header h2 {
+    font-size: 1.4rem;
   }
 }
 </style>

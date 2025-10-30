@@ -28,6 +28,16 @@ const Design = sequelize.define('Design', {
   status: {
     type: DataTypes.ENUM('draft', 'in_progress', 'completed', 'delivered'),
     defaultValue: 'draft'
+  },
+  part_payment: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true,
+    field: 'part_payment'
+  },
+  balance_to_pay: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true,
+    field: 'balance_to_pay'
   }
 }, {
   tableName: 'designs',

@@ -1,5 +1,5 @@
 <template>
-  <div class="customers-page mt-5">
+  <div class="customers-page">
     <div class="page-header">
       <h2>Customer Management</h2>
      
@@ -47,7 +47,7 @@ export default {
         })
 
         if (newCustomer) {
-          console.log('Customer saved successfully:', newCustomer)
+          // console.log('Customer saved successfully:', newCustomer)
           // Emit event or update local state if needed
           this.$emit('customer-added', newCustomer)
         } else {
@@ -60,13 +60,13 @@ export default {
       this.showCustomerForm = false
     },
     handleCustomerSelected(customer) {
-      console.log('Customer selected:', customer)
+      // console.log('Customer selected:', customer)
       // Store selected customer in localStorage and navigate to measurements
       localStorage.setItem('selectedCustomer', JSON.stringify(customer))
       this.$router.push('/measurements')
     },
     handleCustomerEdit(customer) {
-      console.log('Edit customer:', customer)
+      // console.log('Edit customer:', customer)
     }
   }
 }
@@ -77,7 +77,7 @@ export default {
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
-  margin-top: 50px;
+  /* margin-top: 50px; */
 }
 
 .page-header {

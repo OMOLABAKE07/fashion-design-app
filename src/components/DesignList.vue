@@ -14,9 +14,8 @@
         <div class="filter-controls">
           <select v-model="statusFilter" class="filter-select">
             <option value="">All Statuses</option>
-            <option value="concept">Concept</option>
-            <option value="in-progress">In Progress</option>
-            <option value="fitting">Fitting</option>
+            <option value="draft">Draft</option>
+            <option value="in_progress">In Progress</option>
             <option value="completed">Completed</option>
             <option value="delivered">Delivered</option>
           </select>
@@ -26,7 +25,6 @@
               {{ customer.name }}
             </option>
           </select>
-          <!-- Always visible Create Design button -->
           <button @click="createNewDesign" class="btn-primary filter-create-btn">
             Create Design
           </button>
@@ -49,12 +47,12 @@
         class="design-card"
         @click="selectDesign(design)"
       >
-        <!-- Design Photo -->
+        <!-- ✅ Design Photo -->
         <div class="design-photo">
           <img 
-            v-if="design.photos && design.photos.length > 0" 
-            :src="design.photos[0].preview || design.photos[0].url" 
-            :alt="design.designName"
+            v-if="design.photo_url" 
+            :src="getImageUrl(design.photo_url)" 
+            :alt="design.name"
             class="photo"
           />
           <div v-else class="no-photo">
@@ -68,7 +66,7 @@
         <!-- Design Info -->
         <div class="design-info">
           <div class="design-header">
-            <h3>{{ design.designName }}</h3>
+            <h3>{{ design.name }}</h3>
             <span class="status-badge" :class="design.status">
               {{ formatStatus(design.status) }}
             </span>
@@ -76,29 +74,17 @@
           
           <div class="design-details">
             <p class="customer-name">
-              <span class="label">Customer:</span> {{ getCustomerName(design.customerId) }}
+              <span class="label">Customer:</span> {{ getCustomerName(design.customer_id) }}
             </p>
-            <p class="design-style" v-if="design.style">
-              <span class="label">Style:</span> {{ design.style }}
-            </p>
-            <p class="fabric-info" v-if="design.fabricType || design.color">
-              <span class="label">Material:</span> 
-              {{ [design.fabricType, design.color].filter(Boolean).join(', ') }}
+            <p class="design-style" v-if="design.description">
+              <span class="label">Description:</span> {{ design.description }}
             </p>
           </div>
 
           <div class="design-meta">
             <div class="dates">
-              <span class="date" v-if="design.designDate">
-                <span class="label">Created:</span> {{ formatDate(design.designDate) }}
-              </span>
-              <span class="date" v-if="design.completionDate">
-                <span class="label">Due:</span> {{ formatDate(design.completionDate) }}
-              </span>
-            </div>
-            <div class="pricing" v-if="design.finalPrice || design.estimatedPrice">
-              <span class="price">
-                {{ formatPrice(design.finalPrice || design.estimatedPrice) }}
+              <span class="date" v-if="design.created_at">
+                <span class="label">Created:</span> {{ formatDate(design.created_at) }}
               </span>
             </div>
           </div>
@@ -119,117 +105,33 @@
       </div>
     </div>
 
-    <!-- Design Detail Modal -->
-    <div v-if="selectedDesign" class="modal-overlay" @click="selectedDesign = null">
-      <div class="modal design-detail-modal" @click.stop>
-        <div class="modal-header">
-          <h3>{{ selectedDesign.designName }}</h3>
-          <button @click="selectedDesign = null" class="btn-close">×</button>
-        </div>
-        <div class="modal-body">
-          <div class="detail-grid">
-            <div class="detail-photos">
-              <h4>Design Photos</h4>
-              <div v-if="selectedDesign.photos && selectedDesign.photos.length > 0" class="photos-gallery">
-                <img 
-                  v-for="(photo, index) in selectedDesign.photos" 
-                  :key="index"
-                  :src="photo.preview || photo.url" 
-                  :alt="`${selectedDesign.designName} - Photo ${index + 1}`"
-                  class="gallery-photo"
-                />
-              </div>
-              <div v-else class="no-photos">
-                <p>No photos uploaded for this design.</p>
-              </div>
-            </div>
-            
-            <div class="detail-info">
-              <h4>Design Information</h4>
-              <div class="info-grid">
-                <div class="info-item">
-                  <span class="label">Customer:</span>
-                  <span>{{ getCustomerName(selectedDesign.customerId) }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">Status:</span>
-                  <span class="status-badge" :class="selectedDesign.status">
-                    {{ formatStatus(selectedDesign.status) }}
-                  </span>
-                </div>
-                <div class="info-item" v-if="selectedDesign.style">
-                  <span class="label">Style:</span>
-                  <span>{{ selectedDesign.style }}</span>
-                </div>
-                <div class="info-item" v-if="selectedDesign.fabricType">
-                  <span class="label">Fabric:</span>
-                  <span>{{ selectedDesign.fabricType }}</span>
-                </div>
-                <div class="info-item" v-if="selectedDesign.color">
-                  <span class="label">Color:</span>
-                  <span>{{ selectedDesign.color }}</span>
-                </div>
-                <div class="info-item" v-if="selectedDesign.occasion">
-                  <span class="label">Occasion:</span>
-                  <span>{{ selectedDesign.occasion }}</span>
-                </div>
-                <div class="info-item" v-if="selectedDesign.designDate">
-                  <span class="label">Created:</span>
-                  <span>{{ formatDate(selectedDesign.designDate) }}</span>
-                </div>
-                <div class="info-item" v-if="selectedDesign.completionDate">
-                  <span class="label">Due Date:</span>
-                  <span>{{ formatDate(selectedDesign.completionDate) }}</span>
-                </div>
-                <div class="info-item" v-if="selectedDesign.finalPrice">
-                  <span class="label">Final Price:</span>
-                  <span class="price">{{ formatPrice(selectedDesign.finalPrice) }}</span>
-                </div>
-                <div class="info-item" v-if="selectedDesign.firstFitting">
-                  <span class="label">First Fitting:</span>
-                  <span>{{ formatDate(selectedDesign.firstFitting) }}</span>
-                </div>
-                <div class="info-item" v-if="selectedDesign.finalFitting">
-                  <span class="label">Final Fitting:</span>
-                  <span>{{ formatDate(selectedDesign.finalFitting) }}</span>
-                </div>
-                <div class="info-item" v-if="selectedDesign.deliveryDate">
-                  <span class="label">Delivery Date:</span>
-                  <span>{{ formatDate(selectedDesign.deliveryDate) }}</span>
-                </div>
-              </div>
-              
-              <div v-if="selectedDesign.specialInstructions" class="instructions">
-                <h5>Special Instructions</h5>
-                <p>{{ selectedDesign.specialInstructions }}</p>
-              </div>
-              
-              <div v-if="selectedDesign.notes" class="notes">
-                <h5>Notes</h5>
-                <p>{{ selectedDesign.notes }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button @click="editDesign(selectedDesign)" class="btn-primary">
-            Edit Design
-          </button>
-          <button @click="selectedDesign = null" class="btn-secondary">
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
+    <!-- Design Detail Modals -->
+    <DesignModal 
+      :is-visible="showViewModal" 
+      :design="selectedDesign" 
+      mode="view"
+      @close="showViewModal = false"
+      @edit="editDesign"
+    />
+    
+    <DesignModal 
+      :is-visible="showEditModal" 
+      :design="designToEdit" 
+      mode="edit"
+      @close="showEditModal = false"
+      @save="saveEditedDesign"
+    />
   </div>
 </template>
 
 <script>
-import { syncUtils } from '@/utils/sync.js'
+import { designAPI } from '@/services/api.js'
 import Swal from 'sweetalert2'
+import DesignModal from './DesignModal.vue'
 
 export default {
   name: 'DesignList',
+  components: { DesignModal },
   emits: ['design-selected', 'design-edit', 'create-new-design'],
   data() {
     return {
@@ -237,6 +139,9 @@ export default {
       statusFilter: '',
       customerFilter: '',
       selectedDesign: null,
+      designToEdit: null,
+      showViewModal: false,
+      showEditModal: false,
       customers: [],
       designs: []
     }
@@ -245,75 +150,99 @@ export default {
     filteredDesigns() {
       let filtered = this.designs
 
-      // Search filter
       if (this.searchQuery) {
         const query = this.searchQuery.toLowerCase()
         filtered = filtered.filter(design =>
-          design.designName.toLowerCase().includes(query) ||
-          this.getCustomerName(design.customerId).toLowerCase().includes(query) ||
-          (design.style && design.style.toLowerCase().includes(query)) ||
-          (design.fabricType && design.fabricType.toLowerCase().includes(query)) ||
-          (design.occasion && design.occasion.toLowerCase().includes(query)) ||
-          (design.color && design.color.toLowerCase().includes(query))
+          (design.name && design.name.toLowerCase().includes(query)) ||
+          this.getCustomerName(design.customer_id).toLowerCase().includes(query) ||
+          (design.description && design.description.toLowerCase().includes(query))
         )
       }
 
-      // Status filter
       if (this.statusFilter) {
         filtered = filtered.filter(design => design.status === this.statusFilter)
       }
 
-      // Customer filter
       if (this.customerFilter) {
-        filtered = filtered.filter(design => design.customerId === parseInt(this.customerFilter))
+        filtered = filtered.filter(design => design.customer_id === parseInt(this.customerFilter))
       }
 
-      return filtered.sort((a, b) => new Date(b.designDate) - new Date(a.designDate))
+      return filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
     }
   },
   mounted() {
     this.loadDesigns()
     this.loadCustomers()
-    // Listen for design saved events
     window.addEventListener('design-saved', this.handleDesignSaved)
   },
-  beforeDestroy() {
-    // Clean up event listener
+  beforeUnmount() {
     window.removeEventListener('design-saved', this.handleDesignSaved)
   },
   methods: {
-    loadDesigns() {
+    async loadDesigns() {
       try {
-        // Create a new array reference to ensure reactivity
-        const newDesigns = [...syncUtils.getAllDesigns()]
-        this.designs = newDesigns
+        const response = await designAPI.getAll()
+        this.designs = response.data || response
+        // console.log('Loaded designs:', this.designs)
       } catch (error) {
-        console.error('Error loading designs:', error)
-        this.designs = []
+        // console.error('Error loading designs:', error)
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to load designs. Please try again.'
+        })
       }
     },
-    handleDesignSaved(event) {
-      // Refresh the designs list when a design is saved
-      this.loadDesigns()
-    },
-    loadCustomers() {
+    async loadCustomers() {
       try {
-        this.customers = syncUtils.getAllCustomers()
+        const response = await fetch('http://localhost:8000/api/v1/customers')
+        const result = await response.json()
+        this.customers = result.data || result
       } catch (error) {
-        console.error('Error loading customers:', error)
-        this.customers = []
+        // console.error('Error loading customers:', error)
       }
+    },
+    getImageUrl(path) {
+      // ✅ Ensure proper image URL formatting
+      if (!path) return ''
+      if (path.startsWith('http')) return path
+      return `http://localhost:8000/storage/${path.replace(/^\/?storage\/?/, '')}`
     },
     selectDesign(design) {
-      this.selectedDesign = design
+      this.selectedDesign = { ...design, photos: design.photos || [] }
+      this.showViewModal = true
       this.$emit('design-selected', design)
     },
     editDesign(design) {
-      this.selectedDesign = null
-      this.$emit('design-edit', design)
+      this.designToEdit = { ...design, photos: design.photos || [] }
+      this.showEditModal = true
     },
     viewDesign(design) {
-      this.selectDesign(design)
+      this.selectedDesign = { ...design, photos: design.photos || [] }
+      this.showViewModal = true
+      this.$emit('design-selected', design)
+    },
+    async saveEditedDesign(updatedDesign) {
+      try {
+        const index = this.designs.findIndex(d => d.id === updatedDesign.id)
+        if (index !== -1) this.designs[index] = { ...this.designs[index], ...updatedDesign }
+
+        this.showEditModal = false
+        Swal.fire({
+          icon: 'success',
+          title: 'Saved',
+          text: 'Design updated successfully!',
+          timer: 2000,
+          showConfirmButton: false
+        })
+      } catch (error) {
+        // console.error('Error saving edited design:', error)
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to update design. Please try again.'
+        })
+      }
     },
     async deleteDesign(designId) {
       Swal.fire({
@@ -327,9 +256,8 @@ export default {
       }).then(async (result) => {
         if (result.isConfirmed) {
           try {
-            await syncUtils.deleteDesign(designId)
+            await designAPI.delete(designId)
             this.loadDesigns()
-            
             Swal.fire({
               title: 'Deleted!',
               text: 'The design has been deleted successfully.',
@@ -338,12 +266,12 @@ export default {
               showConfirmButton: false
             })
           } catch (error) {
-            console.error('Error deleting design:', error)
+            // console.error('Error deleting design:', error)
             Swal.fire({
               title: 'Error',
               text: 'Failed to delete the design. Please try again.',
               icon: 'error'
-              })
+            })
           }
         }
       })
@@ -353,29 +281,32 @@ export default {
       return customer ? customer.name : 'Unknown Customer'
     },
     formatStatus(status) {
-      return status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')
+      const statusMap = {
+        draft: 'Draft',
+        in_progress: 'In Progress',
+        completed: 'Completed',
+        delivered: 'Delivered'
+      }
+      return statusMap[status] || status
     },
     formatDate(dateString) {
+      if (!dateString) return 'N/A'
       return new Intl.DateTimeFormat('en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric'
       }).format(new Date(dateString))
     },
-    formatPrice(price) {
-      if (!price) return 'N/A'
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD'
-      }).format(price)
-    },
     createNewDesign() {
-      // Emit an event to notify the parent component to show the design form
-      this.$emit('create-new-design');
+      this.$emit('create-new-design')
+    },
+    handleDesignSaved() {
+      this.loadDesigns()
     }
   }
 }
 </script>
+
 
 <style scoped>
 .design-list {
@@ -689,138 +620,6 @@ export default {
   font-size: 0.8rem;
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.design-detail-modal {
-  background: white;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 1000px;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid #e9ecef;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-header h3 {
-  margin: 0;
-  color: #2c3e50;
-}
-
-.btn-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #6c757d;
-}
-
-.modal-body {
-  padding: 1.5rem;
-}
-
-.detail-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-}
-
-.detail-photos h4,
-.detail-info h4 {
-  color: #2c3e50;
-  margin: 0 0 1rem 0;
-  font-size: 1.2rem;
-}
-
-.photos-gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1rem;
-}
-
-.gallery-photo {
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.no-photos {
-  text-align: center;
-  padding: 2rem;
-  color: #6c757d;
-  background: #f8f9fa;
-  border-radius: 6px;
-}
-
-.info-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 2rem;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f1f3f4;
-}
-
-.info-item .label {
-  font-weight: 600;
-  color: #495057;
-}
-
-.instructions,
-.notes {
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 6px;
-}
-
-.instructions h5,
-.notes h5 {
-  margin: 0 0 0.5rem 0;
-  color: #2c3e50;
-  font-size: 1rem;
-}
-
-.instructions p,
-.notes p {
-  margin: 0;
-  color: #6c757d;
-  line-height: 1.6;
-}
-
-.modal-footer {
-  padding: 1.5rem;
-  border-top: 1px solid #e9ecef;
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-}
-
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
@@ -840,10 +639,6 @@ export default {
   }
   
   .designs-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .detail-grid {
     grid-template-columns: 1fr;
   }
   

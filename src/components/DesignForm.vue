@@ -14,14 +14,8 @@
         <div class="form-row">
           <div class="form-group">
             <label for="designName">Design Name *</label>
-            <input
-              type="text"
-              id="designName"
-              v-model="formData.designName"
-              required
-              class="form-input"
-              placeholder="Enter design name"
-            />
+            <input type="text" id="designName" v-model="formData.designName" required class="form-input"
+              placeholder="Enter design name" />
           </div>
           <div class="form-group">
             <label for="customer">Customer *</label>
@@ -37,20 +31,13 @@
         <div class="form-row">
           <div class="form-group">
             <label for="designDate">Design Date *</label>
-            <input
-              type="date"
-              id="designDate"
-              v-model="formData.designDate"
-              required
-              class="form-input"
-            />
+            <input type="date" id="designDate" v-model="formData.designDate" required class="form-input" />
           </div>
           <div class="form-group">
             <label for="status">Status</label>
             <select id="status" v-model="formData.status" class="form-select">
-              <option value="concept">Concept</option>
-              <option value="in-progress">In Progress</option>
-              <option value="fitting">Fitting</option>
+              <option value="draft">Draft</option>
+              <option value="in_progress">In Progress</option>
               <option value="completed">Completed</option>
               <option value="delivered">Delivered</option>
             </select>
@@ -63,14 +50,8 @@
         <h4>Design Photos</h4>
         <div class="photo-upload-area">
           <div class="upload-zone" @click="triggerFileUpload" @dragover.prevent @drop.prevent="handleDrop">
-            <input
-              ref="fileInput"
-              type="file"
-              multiple
-              accept="image/*"
-              @change="handleFileSelect"
-              style="display: none"
-            />
+            <input ref="fileInput" type="file" multiple accept="image/*" @change="handleFileSelect"
+              style="display: none" />
             <div class="upload-content">
               <div class="upload-icon">📸</div>
               <h5>Upload Design Photos</h5>
@@ -84,16 +65,10 @@
         <div v-if="formData.photos.length > 0" class="photos-preview">
           <h5>Uploaded Photos ({{ formData.photos.length }})</h5>
           <div class="photos-grid">
-            <div
-              v-for="(photo, index) in formData.photos"
-              :key="index"
-              class="photo-item"
-            >
+            <div v-for="(photo, index) in formData.photos" :key="index" class="photo-item">
               <img :src="photo.preview" :alt="photo.name" class="photo-preview" />
               <div class="photo-overlay">
-                <button type="button" @click="removePhoto(index)" class="btn-remove">
-                  ×
-                </button>
+                <button type="button" @click="removePhoto(index)" class="btn-remove">×</button>
                 <div class="photo-info">
                   <span class="photo-name">{{ photo.name }}</span>
                   <span class="photo-size">{{ formatFileSize(photo.size) }}</span>
@@ -110,23 +85,13 @@
         <div class="form-row">
           <div class="form-group">
             <label for="fabricType">Fabric Type</label>
-            <input
-              type="text"
-              id="fabricType"
-              v-model="formData.fabricType"
-              class="form-input"
-              placeholder="e.g., Silk, Cotton, Wool"
-            />
+            <input type="text" id="fabricType" v-model="formData.fabricType" class="form-input"
+              placeholder="e.g., Silk, Cotton, Wool" />
           </div>
           <div class="form-group">
             <label for="color">Primary Color</label>
-            <input
-              type="text"
-              id="color"
-              v-model="formData.color"
-              class="form-input"
-              placeholder="e.g., Navy Blue, Burgundy"
-            />
+            <input type="text" id="color" v-model="formData.color" class="form-input"
+              placeholder="e.g., Navy Blue, Burgundy" />
           </div>
         </div>
 
@@ -147,25 +112,15 @@
           </div>
           <div class="form-group">
             <label for="occasion">Occasion</label>
-            <input
-              type="text"
-              id="occasion"
-              v-model="formData.occasion"
-              class="form-input"
-              placeholder="e.g., Wedding, Business, Casual"
-            />
+            <input type="text" id="occasion" v-model="formData.occasion" class="form-input"
+              placeholder="e.g., Wedding, Business, Casual" />
           </div>
         </div>
 
         <div class="form-group">
           <label for="specialInstructions">Special Instructions</label>
-          <textarea
-            id="specialInstructions"
-            v-model="formData.specialInstructions"
-            class="form-textarea"
-            rows="4"
-            placeholder="Any specific requirements, modifications, or special notes..."
-          ></textarea>
+          <textarea id="specialInstructions" v-model="formData.specialInstructions" class="form-textarea" rows="4"
+            placeholder="Any specific requirements, modifications, or special notes..."></textarea>
         </div>
       </div>
 
@@ -175,42 +130,22 @@
         <div class="form-row">
           <div class="form-group">
             <label for="firstFitting">First Fitting Date</label>
-            <input
-              type="date"
-              id="firstFitting"
-              v-model="formData.firstFitting"
-              class="form-input"
-            />
+            <input type="date" id="firstFitting" v-model="formData.firstFitting" class="form-input" />
           </div>
           <div class="form-group">
             <label for="finalFitting">Final Fitting Date</label>
-            <input
-              type="date"
-              id="finalFitting"
-              v-model="formData.finalFitting"
-              class="form-input"
-            />
+            <input type="date" id="finalFitting" v-model="formData.finalFitting" class="form-input" />
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label for="completionDate">Expected Completion Date</label>
-            <input
-              type="date"
-              id="completionDate"
-              v-model="formData.completionDate"
-              class="form-input"
-            />
+            <input type="date" id="completionDate" v-model="formData.completionDate" class="form-input" />
           </div>
           <div class="form-group">
             <label for="deliveryDate">Delivery Date</label>
-            <input
-              type="date"
-              id="deliveryDate"
-              v-model="formData.deliveryDate"
-              class="form-input"
-            />
+            <input type="date" id="deliveryDate" v-model="formData.deliveryDate" class="form-input" />
           </div>
         </div>
       </div>
@@ -218,48 +153,45 @@
       <!-- Pricing Information -->
       <div class="form-section">
         <h4>Pricing & Notes</h4>
-        <div class="form-row">
+        <div class="form-row d-flex">
           <div class="form-group">
             <label for="estimatedPrice">Estimated Price</label>
             <div class="price-input">
               <span class="currency">$</span>
-              <input
-                type="number"
-                id="estimatedPrice"
-                v-model="formData.estimatedPrice"
-                class="form-input"
-                placeholder="0.00"
-                step="0.01"
-                min="0"
-              />
+              <input type="number" id="estimatedPrice" v-model="formData.estimatedPrice" class="form-input"
+                placeholder="0.00" step="0.01" min="0" />
             </div>
           </div>
           <div class="form-group">
             <label for="finalPrice">Final Price</label>
             <div class="price-input">
               <span class="currency">$</span>
-              <input
-                type="number"
-                id="finalPrice"
-                v-model="formData.finalPrice"
-                class="form-input"
-                placeholder="0.00"
-                step="0.01"
-                min="0"
-              />
+              <input type="number" id="finalPrice" v-model="formData.finalPrice" class="form-input"
+                placeholder="0.00" step="0.01" min="0" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="partPayment">Part Payment</label>
+            <div class="price-input">
+              <span class="currency">$</span>
+              <input type="number" id="partPayment" v-model="formData.partPayment" class="form-input"
+                placeholder="0.00" step="0.01" min="0" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="balance">Balance</label>
+            <div class="price-input">
+              <span class="currency">$</span>
+              <input type="number" id="balance" v-model="formData.balance" class="form-input"
+                placeholder="0.00" step="0.01" min="0" readonly />
             </div>
           </div>
         </div>
 
         <div class="form-group">
           <label for="notes">Additional Notes</label>
-          <textarea
-            id="notes"
-            v-model="formData.notes"
-            class="form-textarea"
-            rows="3"
-            placeholder="Any additional notes about this design project..."
-          ></textarea>
+          <textarea id="notes" v-model="formData.notes" class="form-textarea" rows="3"
+            placeholder="Any additional notes about this design project..."></textarea>
         </div>
       </div>
 
@@ -276,7 +208,7 @@
 </template>
 
 <script>
-import { syncUtils } from '@/utils/sync.js'
+import { designAPI } from '@/services/api.js'
 import Swal from 'sweetalert2'
 
 export default {
@@ -295,7 +227,7 @@ export default {
         designName: '',
         customerId: '',
         designDate: new Date().toISOString().split('T')[0],
-        status: 'concept',
+        status: 'draft',
         photos: [],
         fabricType: '',
         color: '',
@@ -308,6 +240,8 @@ export default {
         deliveryDate: '',
         estimatedPrice: '',
         finalPrice: '',
+        partPayment: '',
+        balance: '',
         notes: ''
       },
       customers: []
@@ -323,22 +257,24 @@ export default {
       handler(newDesign) {
         if (newDesign) {
           this.formData = {
-            designName: newDesign.designName || '',
-            customerId: newDesign.customerId || '',
-            designDate: newDesign.designDate || new Date().toISOString().split('T')[0],
-            status: newDesign.status || 'concept',
+            designName: newDesign.name || '',
+            customerId: newDesign.customer_id || '',
+            designDate: newDesign.design_date || new Date().toISOString().split('T')[0],
+            status: newDesign.status || 'draft',
             photos: newDesign.photos || [],
-            fabricType: newDesign.fabricType || '',
+            fabricType: newDesign.fabric_type || '',
             color: newDesign.color || '',
             style: newDesign.style || '',
             occasion: newDesign.occasion || '',
-            specialInstructions: newDesign.specialInstructions || '',
-            firstFitting: newDesign.firstFitting || '',
-            finalFitting: newDesign.finalFitting || '',
-            completionDate: newDesign.completionDate || '',
-            deliveryDate: newDesign.deliveryDate || '',
-            estimatedPrice: newDesign.estimatedPrice || '',
-            finalPrice: newDesign.finalPrice || '',
+            specialInstructions: newDesign.special_instructions || '',
+            firstFitting: newDesign.first_fitting || '',
+            finalFitting: newDesign.final_fitting || '',
+            completionDate: newDesign.completion_date || '',
+            deliveryDate: newDesign.delivery_date || '',
+            estimatedPrice: newDesign.estimated_price || '',
+            finalPrice: newDesign.final_price || '',
+            partPayment: newDesign.part_payment || '',
+            balance: newDesign.balance || '',
             notes: newDesign.notes || ''
           }
         } else {
@@ -346,25 +282,38 @@ export default {
         }
       },
       immediate: true
-    }
+    },
+
+    // 💰 Auto-calculate balance whenever price fields change
+    'formData.finalPrice': 'calculateBalance',
+    'formData.partPayment': 'calculateBalance'
   },
   mounted() {
     this.loadCustomers()
   },
   methods: {
-    loadCustomers() {
+    calculateBalance() {
+      const finalPrice = parseFloat(this.formData.finalPrice) || 0
+      const partPayment = parseFloat(this.formData.partPayment) || 0
+      const balance = finalPrice - partPayment
+      this.formData.balance = balance > 0 ? balance.toFixed(2) : '0.00'
+    },
+
+    async loadCustomers() {
       try {
-        this.customers = syncUtils.getAllCustomers()
+        const response = await fetch('http://localhost:8000/api/v1/customers')
+        const result = await response.json()
+        this.customers = result.data || result
       } catch (error) {
         console.error('Error loading customers:', error)
         this.customers = []
       }
     },
+
     async handleSubmit() {
       this.isSubmitting = true
-      
+
       try {
-        // Validate required fields
         if (!this.formData.designName || !this.formData.customerId || !this.formData.designDate) {
           Swal.fire({
             icon: 'warning',
@@ -374,41 +323,37 @@ export default {
           return
         }
 
-        // Prepare design data
-        const designData = {
-          ...this.formData,
-          id: this.design?.id || null,
-          createdAt: this.design?.createdAt || new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }
+        let result
+        const formData = new FormData()
+        formData.append('name', this.formData.designName)
+        formData.append('customer_id', this.formData.customerId)
+        formData.append('status', this.formData.status)
+        formData.append('design_date', this.formData.designDate)
 
-        // Convert price strings to numbers
-        if (designData.estimatedPrice) {
-          designData.estimatedPrice = parseFloat(designData.estimatedPrice)
-        }
-        if (designData.finalPrice) {
-          designData.finalPrice = parseFloat(designData.finalPrice)
-        }
+        // Add optional fields if they exist
+        const fields = [
+          'description', 'fabricType', 'color', 'style', 'occasion', 'specialInstructions',
+          'firstFitting', 'finalFitting', 'completionDate', 'deliveryDate',
+          'estimatedPrice', 'finalPrice', 'partPayment', 'balance', 'notes'
+        ]
+        fields.forEach(field => {
+          const key = field.replace(/[A-Z]/g, m => '_' + m.toLowerCase())
+          if (this.formData[field]) formData.append(key, this.formData[field])
+        })
 
-        // Save using sync utilities
-        if (this.isEditing) {
-          await syncUtils.updateDesign(this.design.id, designData)
-        } else {
-          await syncUtils.saveDesign(designData)
-        }
+        this.formData.photos.forEach(photo => {
+          if (photo.file) formData.append('photos[]', photo.file)
+        })
 
-        // Emit save event with design data
-        this.$emit('save', designData)
-        
-        // Emit a custom event to notify other components
-        window.dispatchEvent(new CustomEvent('design-saved', { detail: designData }))
-        
-        // Reset form after successful save
-        if (!this.isEditing) {
-          this.resetForm()
-        }
-        
-        // Show success message
+        result = this.isEditing
+          ? await designAPI.update(this.design.id, formData)
+          : await designAPI.create(formData)
+
+        this.$emit('save', result.data || result)
+        window.dispatchEvent(new CustomEvent('design-saved', { detail: result.data || result }))
+
+        if (!this.isEditing) this.resetForm()
+
         Swal.fire({
           icon: 'success',
           title: 'Success',
@@ -427,15 +372,17 @@ export default {
         this.isSubmitting = false
       }
     },
+
     handleCancel() {
       this.$emit('cancel')
     },
+
     resetForm() {
       this.formData = {
         designName: '',
         customerId: '',
         designDate: new Date().toISOString().split('T')[0],
-        status: 'concept',
+        status: 'draft',
         photos: [],
         fabricType: '',
         color: '',
@@ -448,20 +395,27 @@ export default {
         deliveryDate: '',
         estimatedPrice: '',
         finalPrice: '',
+        partPayment: '',
+        balance: '',
         notes: ''
       }
+      if (this.$refs.fileInput) this.$refs.fileInput.value = ''
     },
+
     triggerFileUpload() {
       this.$refs.fileInput.click()
     },
+
     handleFileSelect(event) {
       const files = Array.from(event.target.files)
       this.processFiles(files)
     },
+
     handleDrop(event) {
       const files = Array.from(event.dataTransfer.files)
       this.processFiles(files)
     },
+
     processFiles(files) {
       files.forEach(file => {
         if (file.type.startsWith('image/')) {
@@ -471,7 +425,7 @@ export default {
               name: file.name,
               size: file.size,
               type: file.type,
-              file: file,
+              file,
               preview: e.target.result
             }
             this.formData.photos.push(photo)
@@ -480,9 +434,11 @@ export default {
         }
       })
     },
+
     removePhoto(index) {
       this.formData.photos.splice(index, 1)
     },
+
     formatFileSize(bytes) {
       if (bytes === 0) return '0 Bytes'
       const k = 1024
@@ -494,12 +450,13 @@ export default {
 }
 </script>
 
+
 <style scoped>
 .design-form {
   background: white;
   border-radius: 8px;
   padding: 2rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
 }
 
@@ -656,7 +613,7 @@ export default {
   position: relative;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .photo-preview {
@@ -671,7 +628,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -764,15 +721,15 @@ export default {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .design-form {
     padding: 1.5rem;
   }
-  
+
   .form-actions {
     flex-direction: column;
   }
-  
+
   .photos-grid {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
