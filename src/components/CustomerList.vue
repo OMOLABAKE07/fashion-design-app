@@ -112,7 +112,8 @@ export default {
   methods: {
     async loadCustomers() {
       try {
-        const response = await axios.get('http://localhost:3000/api/v1/customers')
+
+        const response = await axios.get(`${process.env.BASE_URL}customers`)
         this.customers = response.data.map(c => ({
           ...c,
           id: c.id,
@@ -142,7 +143,9 @@ export default {
       if (this.editingCustomer) {
         // Edit customer
         try {
-          const res = await axios.put(`http://localhost:3000/api/v1/customers/${this.editingCustomer.id}`, payload)
+         
+
+          const res = await axios.put(`${process.env.BASE_URL}customers/${this.editingCustomer.id}`, payload)
           const updatedCustomer = res.data
           const index = this.customers.findIndex(c => c.id === this.editingCustomer.id)
           if (index > -1) {
@@ -181,7 +184,7 @@ export default {
       } else {
         // Add new customer
         try {
-          const res = await axios.post('http://localhost:3000/api/v1/customers', payload)
+          const res = await axios.post(`${process.env.BASE_URL}customers`, payload)
           // Process the new customer data the same way as in loadCustomers
           const newCustomer = {
             ...res.data,
@@ -228,7 +231,7 @@ export default {
       }).then(async (result) => {
         if (result.isConfirmed) {
           try {
-            await axios.delete(`http://localhost:3000/api/v1/customers/${customerId}`)
+            await axios.delete(`${process.env.BASE_URL}customers/${customerId}`)
             this.customers = this.customers.filter(c => c.id !== customerId)
             Swal.fire({ icon: "success", title: "Deleted", text: "Customer deleted successfully!", timer: 2000, showConfirmButton: false })
           } catch (error) {

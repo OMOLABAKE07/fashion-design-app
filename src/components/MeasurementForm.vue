@@ -564,7 +564,7 @@ export default {
     // Customer Search Methods
     async loadAllCustomers() {
       try {
-        const response = await fetch("http://localhost:3000/api/v1/customers")
+        const response = await fetch(`${process.env.BASE_URL}customers`)
         if (!response.ok) throw new Error("Network response was not ok")
         const customers = await response.json()
         this.allCustomers = customers.data || customers
@@ -630,7 +630,7 @@ export default {
         if (forceRefresh || this.measurementHistory.length === 0) {
           try {
             // console.log('📡 Fetching from backend...')
-            const response = await fetch(`http://localhost:3000/api/v1/measurements/customer/${this.customer.id}`)
+            const response = await fetch(`${process.env.BASE_URL}measurements/customer/${this.customer.id}`)
 
             if (response.ok) {
               const result = await response.json()
@@ -754,7 +754,7 @@ export default {
         // ✅ 1. BACKEND FIRST
         let savedToDb = null
         try {
-          const response = await fetch("http://localhost:3000/api/v1/measurements", {
+          const response = await fetch(`${process.env.BASE_URL}measurements`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(measurementData),
@@ -906,7 +906,7 @@ export default {
         // 1. TRY BACKEND FIRST
         let savedToDb = null
         try {
-          const response = await fetch(`http://localhost:3000/api/v1/measurements/${updatedMeasurement.id}`, {
+          const response = await fetch(`${process.env.BASE_URL}measurements/${updatedMeasurement.id}`, {
             method: 'PUT',
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
