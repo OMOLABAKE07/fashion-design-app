@@ -1,1 +1,21 @@
-{"name":"Fashion Design App","short_name":"FashionApp","description":"A PWA fashion design app built with Vue and Vite","start_url":"/","display":"standalone","background_color":"#ffffff","theme_color":"#ffffff","lang":"en","scope":"/","icons":[{"src":"/img/icons/android-chrome-192x192.png","sizes":"192x192","type":"image/png"},{"src":"/img/icons/android-chrome-512x512.png","sizes":"512x512","type":"image/png"}]}
+{
+  "name": "Fashion Design Studio",
+  "short_name": "Efizzy Studio",
+  "description": "Manage customers, measurements, and designs all in one place.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "icons": [
+   {
+      "src": "/img/icons/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/icons/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
