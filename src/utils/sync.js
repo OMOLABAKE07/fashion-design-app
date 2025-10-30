@@ -136,7 +136,7 @@ class OfflineSyncManager {
   // Simulate API call - replace with actual HTTP requests
   async apiCall(method, url, data = null) {
     // In a real app, you would use fetch or axios here:
-    const fullUrl = `http://localhost:8000/api/v1${url}`;
+    const fullUrl = `http://localhost:3000/api${url}`;
     
     const options = {
       method,
@@ -176,10 +176,10 @@ class OfflineSyncManager {
   // Get API endpoint for entity type
   getApiEndpoint(entityType) {
     const endpoints = {
-      customer: '/api/customers',
-      measurement: '/api/measurements',
-      design: '/api/designs',
-      message: '/api/messages'
+      customer: '/api/v1/customers',
+      measurement: '/api/v1/measurements',
+      design: '/api/v1/designs',
+      message: '/api/v1/messages'
     }
     return endpoints[entityType] || '/api/unknown'
   }

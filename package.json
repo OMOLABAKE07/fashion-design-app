@@ -6,9 +6,13 @@
     "build": "vite build",
     "dev": "vite",
     "preview": "vite preview",
-    "deploy": "npm run build"
+    "deploy": "npm run build",
+    "start": "node server.js",
+    "dev:backend": "nodemon server.js"
   },
   "dependencies": {
+    "express": "^4.21.1",
+    "cors": "^2.8.5",
     "@popperjs/core": "^2.11.8",
     "axios": "^1.12.2",
     "bootstrap": "^5.3.8",
