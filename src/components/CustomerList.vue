@@ -27,13 +27,13 @@
         <table class="table table-sm table-striped table-bordered table-hover">
           <thead>
             <tr>
-              <th width="3%">#</th>
+              <th width="4%">#</th>
               <th width="20%">Name</th>
               <th width="10%">Email</th>
               <th width="8%">Phone No.</th>
-              <th width="10%">Address</th>
+              <th width="15%">Address</th>
               <th width="5%">Gender</th>
-              <th width="15%">Comment</th>
+              <th width="20%">Comment</th>
               <th width="10%">Date Added</th>
               <th width="8%">Actions</th>
             </tr>
