@@ -15,7 +15,7 @@
 
     <div class="message-layout">
       <!-- Customer List Sidebar -->
-      <div class="customer-sidebar">
+      <div class="customer-sidebar" :class="{ 'mobile-hidden': selectedCustomer && isMobile }">
         <div class="search-box">
           <input
             type="text"
@@ -54,7 +54,7 @@
       </div>
 
       <!-- Message Thread -->
-      <div class="message-thread">
+      <div class="message-thread" :class="{ 'mobile-full': selectedCustomer && isMobile }">
         <div v-if="!selectedCustomer" class="no-selection">
           <div class="no-selection-content">
             <h3>Select a customer to start messaging</h3>
@@ -75,6 +75,9 @@
                 </p>
               </div>
             </div>
+            <button @click="selectedCustomer = null" class="btn-secondary btn-small mobile-back-btn">
+              Back to Customers
+            </button>
             <!-- <div class="thread-actions">
               <button @click="markAsRead" class="btn-secondary btn-small">
                 Mark as Read
@@ -221,7 +224,8 @@ export default {
       searchDebounce: null,
       // Attachment handling
       attachmentFile: null,
-      attachmentType: 'none'
+      attachmentType: 'none',
+      isMobile: false
     }
   },
   computed: {
@@ -260,15 +264,21 @@ export default {
     await this.loadMessages()
     window.addEventListener('storage', this.handleStorageChange)
     this.$nextTick(() => this.scrollToBottom())
+    this.checkMobile()
+    window.addEventListener('resize', this.checkMobile)
   },
   beforeUnmount() {
     window.removeEventListener('storage', this.handleStorageChange)
+    window.removeEventListener('resize', this.checkMobile)
     // Clean up debounce timer
     if (this.searchDebounce) {
       clearTimeout(this.searchDebounce)
     }
   },
   methods: {
+    checkMobile() {
+      this.isMobile = window.innerWidth <= 768
+    },
     // ✅ LOAD CUSTOMERS - WORKS WITH YOUR SEARCH CONTROLLER
     // ✅ FIXED loadCustomers() - - WORKS WITH YOUR API
     async loadCustomers() {
@@ -1114,17 +1124,45 @@ export default {
   font-size: 0.875rem;
 }
 
+/* Mobile-specific styles */
+.mobile-back-btn {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .customer-sidebar {
+    width: 100%;
+    position: absolute;
+    z-index: 10;
+    height: calc(100vh - 180px);
+    transition: transform 0.3s ease;
+  }
+  
+  .customer-sidebar.mobile-hidden {
+    transform: translateX(-100%);
+  }
+  
+  .message-thread {
+    width: 100%;
+  }
+  
+  .message-thread.mobile-full {
+    position: absolute;
+    z-index: 11;
+    height: calc(100vh - 180px);
     width: 100%;
   }
   
   .message-layout {
     flex-direction: column;
+    position: relative;
   }
   
   .thread-header {
     padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
   }
   
   .messages-container {
@@ -1142,6 +1180,61 @@ export default {
   
   .thread-actions {
     margin-top: 0.5rem;
+  }
+  
+  .message {
+    max-width: 85%;
+  }
+  
+  .mobile-back-btn {
+    display: block;
+    margin-top: 1rem;
+  }
+  
+  .composer-input {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .composer-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+  }
+  
+  .attachment-indicator {
+    top: -10px;
+    right: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .message-header {
+    padding: 1rem;
+  }
+  
+  .message {
+    max-width: 95%;
+  }
+  
+  .message-content {
+    padding: 0.75rem;
+  }
+  
+  .customer-item {
+    padding: 0.75rem;
+  }
+  
+  .customer-avatar {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+  
+  .customer-avatar.large {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
   }
 }
 </style>
