@@ -2,14 +2,15 @@
   <div class="customer-list">
     <div class="header">
       <h2>Customer List</h2>
-      <div class="header-actions">
-        <div class="search-wrapper">
-          <input type="text" v-model="searchQuery" placeholder="Search customers..." class="search-input" />
-        </div>
-        <button @click="showCustomerForm = !showCustomerForm" class="btn-primary">
-          {{ showCustomerForm ? 'Hide Form' : 'Add New Customer' }}
-        </button>
+
+    </div>
+    <div class="header-actions">
+      <div class="search-wrapper">
+        <input type="text" v-model="searchQuery" placeholder="Search customers..." class="search-input" />
       </div>
+      <button @click="showCustomerForm = !showCustomerForm" class="btn-primary">
+        {{ showCustomerForm ? 'Hide Form' : 'Add New Customer' }}
+      </button>
     </div>
 
     <!-- Customer Form -->
@@ -26,15 +27,15 @@
         <table class="table table-sm table-striped table-bordered table-hover">
           <thead>
             <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone No.</th>
-              <th>Address</th>
-              <th>Gender</th>
-              <th>Comment</th>
-              <th>Date Added</th>
-              <th>Actions</th>
+              <th width="4%">#</th>
+              <th width="20%">Name</th>
+              <th width="10%">Email</th>
+              <th width="8%">Phone No.</th>
+              <th width="15%">Address</th>
+              <th width="5%">Gender</th>
+              <th width="20%">Comment</th>
+              <th width="10%">Date Added</th>
+              <th width="8%">Actions</th>
             </tr>
           </thead>
 
@@ -133,9 +134,9 @@ export default {
     },
     async handleCustomerSave(customerData) {
       // Ensure name is properly set
-      const payload = { 
-        ...customerData, 
-        name: customerData.name || `${customerData.first_name} ${customerData.last_name}`.trim() 
+      const payload = {
+        ...customerData,
+        name: customerData.name || `${customerData.first_name} ${customerData.last_name}`.trim()
       }
 
       if (this.editingCustomer) {
@@ -265,7 +266,7 @@ export default {
   /* margin: 0 auto; */
   /* height: 100% !important; */
   width: 100%;
-  
+
   /* margin-top: 50px; */
 }
 
@@ -312,8 +313,8 @@ export default {
   font-weight: 500;
   transition: background 0.3s;
   white-space: nowrap;
-  flex: 1;
-  min-width: fit-content;
+  /* flex: 1; */
+  /* min-width: fit-content; */
 }
 
 @media (max-width: 768px) {
@@ -330,20 +331,20 @@ export default {
   .search-input {
     min-width: auto;
   }
-  
+
   .table-container {
     overflow-x: auto;
   }
-  
+
   .table {
     min-width: 800px;
   }
-  
+
   .action-buttons {
     flex-direction: column;
     gap: 0.25rem !important;
   }
-  
+
   .btn-sm {
     width: 100%;
     margin-bottom: 0.25rem;
@@ -354,16 +355,16 @@ export default {
   .header h2 {
     font-size: 1.5rem;
   }
-  
+
   .header-actions {
     flex-direction: row;
   }
-  
+
   .btn-primary {
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
   }
-  
+
   .search-input {
     padding: 0.5rem 0.75rem;
     font-size: 0.9rem;
