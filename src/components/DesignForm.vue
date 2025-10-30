@@ -301,7 +301,7 @@ export default {
 
     async loadCustomers() {
       try {
-        const response = await fetch('http://localhost:8000/api/v1/customers')
+        const response = await fetch('http://localhost:3000/api/v1/customers')
         const result = await response.json()
         this.customers = result.data || result
       } catch (error) {
