@@ -291,7 +291,7 @@ export default {
 
         // 2️⃣ YOUR BACKEND API with search support
         const searchParam = this.searchQuery ? `?search=${encodeURIComponent(this.searchQuery)}` : ''
-        const response = await fetch(`http://localhost:3000/api/v1/customers${searchParam}`)
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}customers${searchParam}`) 
         if (response.ok) {
           const result = await response.json()
           // Handle both array and object responses
@@ -328,7 +328,7 @@ export default {
     // ✅ LOAD YOUR SENT EMAILS
     async loadMessages() {
       try {
-        const response = await fetch('http://localhost:3000/api/v1/messages')
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}messages`)    
         if (response.ok) {
           const result = await response.json()
           // Handle Laravel's response format
@@ -418,8 +418,7 @@ export default {
           } else {
             formData.append('attachment_type', 'none')
           }
-          
-          const response = await fetch('http://localhost:3000/api/v1/messages', {
+          const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}messages`, {
             method: 'POST',
             // Don't set Content-Type header, let browser set it with boundary for FormData
             body: formData

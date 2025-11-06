@@ -14,7 +14,7 @@ export default defineConfig({
     },
   },
   // Add base configuration for deployment
-  base: '/fashion-design-app/',
+  base: '/',
   // Optimize for production
   build: {
     outDir: 'dist',

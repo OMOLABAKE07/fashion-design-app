@@ -195,7 +195,7 @@ export default {
     },
     async loadCustomers() {
       try {
-        const response = await fetch('http://localhost:3000/api/v1/customers')
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}customers`) 
         const result = await response.json()
         this.customers = result.data || result
       } catch (error) {
