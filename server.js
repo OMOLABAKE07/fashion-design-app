@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 
 // CORS configuration
 const corsOptions = {
-  origin: 'http://localhost:5173', // Vue dev server
+  origin: 'https://effizy-fashion.giftedsociety.org/', // Vue dev server
   credentials: true,
   optionsSuccessStatus: 200
 };
