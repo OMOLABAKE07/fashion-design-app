@@ -1,5 +1,5 @@
 // API service for connecting to the backend
-const API_BASE_URL = "http://localhost:3000/api"; // Changed from 8000 to 3000 to match backend port
+const API_BASE_URL = "http://localhost:8000/api/v1"; // Changed from 8000 to 3000 to match backend port
 
 // Generic API call function
 const apiCall = async (endpoint, options = {}) => {
