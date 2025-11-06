@@ -288,7 +288,7 @@ export default {
   margin-left: 280px;
   overflow-y: auto;
   padding-top: 180px; /* Prevent content from hiding under the fixed header */
-  min-height: calc(100vh - 180px);
+  min-height: calc(100vh);
 }
 
 /* Mobile */
