@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://effizy-fashion.giftedsociety.org/api/v1';
+const API_BASE_URL = 'https://api-effizy.giftedsociety.org/api/v1';
 
 // Generic API call function
 const apiCall = async (endpoint, options = {}) => {
