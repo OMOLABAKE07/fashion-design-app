@@ -128,6 +128,7 @@
 import { designAPI } from '@/services/api.js'
 import Swal from 'sweetalert2'
 import DesignModal from './DesignModal.vue'
+import { syncUtils } from '@/utils/sync.js'
 
 export default {
   name: 'DesignList',
@@ -185,12 +186,25 @@ export default {
         this.designs = response.data || response
         // console.log('Loaded designs:', this.designs)
       } catch (error) {
-        // console.error('Error loading designs:', error)
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Failed to load designs. Please try again.'
-        })
+        // console.error('Error loading designs from API, falling back to local storage:', error)
+        // Fallback to local storage data when offline
+        try {
+          const localDesigns = syncUtils.getAllDesigns()
+          this.designs = localDesigns.map(d => ({
+            id: d.id,
+            name: d.name || '',
+            customer_id: d.customer_id || d.customerId || '',
+            status: d.status || 'draft',
+            description: d.description || '',
+            created_at: d.createdAt || d.created_at || new Date().toISOString(),
+            updated_at: d.updatedAt || d.updated_at || new Date().toISOString(),
+            photo_url: d.photo_url || null,
+            photos: d.photos || []
+          }))
+        } catch (localError) {
+          // console.error('Error loading designs from local storage:', localError)
+          this.designs = []
+        }
       }
     },
     async loadCustomers() {
@@ -199,7 +213,20 @@ export default {
         const result = await response.json()
         this.customers = result.data || result
       } catch (error) {
-        // console.error('Error loading customers:', error)
+        // console.error('Error loading customers from API, falling back to local storage:', error)
+        // Fallback to local storage data when offline
+        try {
+          const localCustomers = syncUtils.getAllCustomers()
+          this.customers = localCustomers.map(c => ({
+            id: c.id,
+            name: c.name || `${c.first_name || c.firstName || ''} ${c.last_name || c.lastName || ''}`.trim(),
+            email: c.email || '',
+            phone: c.phone || ''
+          }))
+        } catch (localError) {
+          // console.error('Error loading customers from local storage:', localError)
+          this.customers = []
+        }
       }
     },
     getImageUrl(path) {
@@ -266,12 +293,25 @@ export default {
               showConfirmButton: false
             })
           } catch (error) {
-            // console.error('Error deleting design:', error)
-            Swal.fire({
-              title: 'Error',
-              text: 'Failed to delete the design. Please try again.',
-              icon: 'error'
-            })
+            // Fallback to local storage when offline
+            try {
+              await syncUtils.deleteDesign(designId)
+              this.loadDesigns()
+              Swal.fire({
+                title: 'Deleted Offline!',
+                text: 'The design has been deleted locally. Will sync when online.',
+                icon: 'warning',
+                timer: 2000,
+                showConfirmButton: false
+              })
+            } catch (localError) {
+              // console.error('Error deleting design:', error)
+              Swal.fire({
+                title: 'Error',
+                text: 'Failed to delete the design. Please try again.',
+                icon: 'error'
+              })
+            }
           }
         }
       })

@@ -1,16 +1,61 @@
 <!DOCTYPE html>
-<html lang="">
+<html lang="en">
   <head>
     <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" href="/favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
+    <title>Fashion Design App</title>
     <link rel="manifest" href="/manifest.webmanifest">
-<meta name="theme-color" content="#1a1a1a">
-
+    <meta name="theme-color" content="#667eea">
+    
+    <!-- Add meta tags for offline support -->
+    <meta name="description" content="Fashion Design Studio Management App - Manage customers, measurements, designs, and communications">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Fashion Design">
+    
+    <!-- Add offline fallback styles -->
+    <style>
+      .offline-fallback {
+        display: none;
+        text-align: center;
+        padding: 2rem;
+        font-family: Arial, sans-serif;
+      }
+      
+      .offline-fallback h1 {
+        color: #333;
+      }
+      
+      .offline-fallback p {
+        color: #666;
+      }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <!-- Offline fallback content -->
+      <div class="offline-fallback">
+        <h1>Fashion Design App</h1>
+        <p>Loading application...</p>
+        <p>If this message persists, please check your internet connection.</p>
+      </div>
+    </div>
     <script type="module" src="/src/main.js"></script>
+    
+    <!-- Add service worker registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js')
+            .then(registration => {
+              console.log('SW registered: ', registration);
+            })
+            .catch(registrationError => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+    </script>
   </body>
 </html>

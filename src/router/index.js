@@ -21,4 +21,11 @@ const router = createRouter({
   routes,
 })
 
+// Add navigation guards for offline support
+router.beforeEach((to, from, next) => {
+  // Log navigation for debugging
+  console.log('Navigating to:', to.path)
+  next()
+})
+
 export default router

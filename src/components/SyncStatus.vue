@@ -69,7 +69,7 @@ export default {
         case 'syncing':
           return 'Syncing...'
         case 'offline':
-          return 'Offline'
+          return 'Offline - App still functional'
         case 'error':
           return 'Sync Error'
         default:
@@ -140,7 +140,7 @@ export default {
         this.autoSync()
       } catch (error) {
         this.syncState = 'offline'
-        console.log('Offline mode activated')
+        console.log('Offline mode activated - app still functional')
       }
     },
     startConnectionMonitoring() {

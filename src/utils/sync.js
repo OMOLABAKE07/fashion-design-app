@@ -135,8 +135,9 @@ class OfflineSyncManager {
 
   // Simulate API call - replace with actual HTTP requests
   async apiCall(method, url, data = null) {
-    // In a real app, you would use fetch or axios here:
-    const fullUrl = `http://localhost:3000/api${url}`;
+    // Use the configured API URL from environment variables
+    const baseUrl = import.meta.env.VITE_API_URL || 'https://api-effizy.giftedsociety.org/api/v1/';
+    const fullUrl = `${baseUrl.replace(/\/$/, '')}${url}`;
     
     const options = {
       method,
@@ -176,12 +177,12 @@ class OfflineSyncManager {
   // Get API endpoint for entity type
   getApiEndpoint(entityType) {
     const endpoints = {
-      customer: '/api/v1/customers',
-      measurement: '/api/v1/measurements',
-      design: '/api/v1/designs',
-      message: '/api/v1/messages'
+      customer: '/customers',
+      measurement: '/measurements',
+      design: '/designs',
+      message: '/messages'
     }
-    return endpoints[entityType] || '/api/unknown'
+    return endpoints[entityType] || '/unknown'
   }
 
   // Generate unique sync ID

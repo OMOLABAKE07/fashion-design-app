@@ -210,6 +210,7 @@
 <script>
 import { designAPI } from '@/services/api.js'
 import Swal from 'sweetalert2'
+import { syncUtils } from '@/utils/sync.js'
 
 export default {
   name: 'DesignForm',
@@ -305,8 +306,20 @@ export default {
         const result = await response.json()
         this.customers = result.data || result
       } catch (error) {
-        console.error('Error loading customers:', error)
-        this.customers = []
+        console.error('Error loading customers from API, falling back to local storage:', error)
+        // Fallback to local storage data when offline
+        try {
+          const localCustomers = syncUtils.getAllCustomers()
+          this.customers = localCustomers.map(c => ({
+            id: c.id,
+            name: c.name || `${c.first_name || c.firstName || ''} ${c.last_name || c.lastName || ''}`.trim(),
+            email: c.email || '',
+            phone: c.phone || ''
+          }))
+        } catch (localError) {
+          console.error('Error loading customers from local storage:', localError)
+          this.customers = []
+        }
       }
     },
 
@@ -345,22 +358,70 @@ export default {
           if (photo.file) formData.append('photos[]', photo.file)
         })
 
-        result = this.isEditing
-          ? await designAPI.update(this.design.id, formData)
-          : await designAPI.create(formData)
+        try {
+          result = this.isEditing
+            ? await designAPI.update(this.design.id, formData)
+            : await designAPI.create(formData)
 
-        this.$emit('save', result.data || result)
-        window.dispatchEvent(new CustomEvent('design-saved', { detail: result.data || result }))
+          this.$emit('save', result.data || result)
+          window.dispatchEvent(new CustomEvent('design-saved', { detail: result.data || result }))
 
-        if (!this.isEditing) this.resetForm()
+          if (!this.isEditing) this.resetForm()
 
-        Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: `Design ${this.isEditing ? 'updated' : 'created'} successfully!`,
-          timer: 2000,
-          showConfirmButton: false
-        })
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: `Design ${this.isEditing ? 'updated' : 'created'} successfully!`,
+            timer: 2000,
+            showConfirmButton: false
+          })
+        } catch (apiError) {
+          // Fallback to local storage when offline
+          try {
+            const designData = {
+              name: this.formData.designName,
+              customer_id: this.formData.customerId,
+              status: this.formData.status,
+              design_date: this.formData.designDate,
+              fabric_type: this.formData.fabricType,
+              color: this.formData.color,
+              style: this.formData.style,
+              occasion: this.formData.occasion,
+              special_instructions: this.formData.specialInstructions,
+              first_fitting: this.formData.firstFitting,
+              final_fitting: this.formData.finalFitting,
+              completion_date: this.formData.completionDate,
+              delivery_date: this.formData.deliveryDate,
+              estimated_price: this.formData.estimatedPrice,
+              final_price: this.formData.finalPrice,
+              part_payment: this.formData.partPayment,
+              balance: this.formData.balance,
+              notes: this.formData.notes
+            }
+
+            let savedDesign
+            if (this.isEditing) {
+              savedDesign = await syncUtils.updateDesign(this.design.id, designData)
+            } else {
+              savedDesign = await syncUtils.saveDesign(designData)
+            }
+
+            this.$emit('save', savedDesign)
+            window.dispatchEvent(new CustomEvent('design-saved', { detail: savedDesign }))
+
+            if (!this.isEditing) this.resetForm()
+
+            Swal.fire({
+              icon: 'warning',
+              title: 'Saved Offline',
+              text: `Design ${this.isEditing ? 'updated' : 'created'} locally. Will sync when online.`,
+              timer: 2000,
+              showConfirmButton: false
+            })
+          } catch (localError) {
+            throw localError
+          }
+        }
       } catch (error) {
         console.error('Error saving design:', error)
         Swal.fire({

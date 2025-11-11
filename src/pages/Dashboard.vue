@@ -63,15 +63,8 @@ export default {
   margin: 0 auto;
 }
 
-.dashboard-overview {
-  /* margin-bottom: 2rem; */
-  /* margin-top: 2rem; */
-}
-
 .overview-header {
   text-align: center;
-  /* margin-bottom: 1rem; */
-  /* margin-top: 2rem; */
 }
 
 .overview-header h2 {

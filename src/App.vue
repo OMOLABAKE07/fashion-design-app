@@ -3,7 +3,7 @@
     <!-- Header -->
     <header class="app-header">
       <div class="header-content">
-        <h1 class="app-title">Welcome to Efizzy Clothing Studio</h1>
+        <h1 class="app-title typing">Welcome to Efizzy Clothing Studio</h1>
         <p class="app-subtitle">Manage your customers, measurements, designs, and communications all in one place.</p>
       </div>
       <!-- Hamburger button for mobile -->
@@ -84,6 +84,14 @@ export default {
         this.isSidebarOpen = true
       }
     })
+    
+    // Initialize sidebar state based on screen size
+    if (window.innerWidth > 768) {
+      this.isSidebarOpen = true
+    }
+    
+    // Log app initialization
+    console.log('Fashion Design App initialized')
   }
 }
 </script>
@@ -287,7 +295,7 @@ export default {
   background: #f8f9fa;
   margin-left: 280px;
   overflow-y: auto;
-  padding-top: 180px; /* Prevent content from hiding under the fixed header */
+  padding-top: 120px; /* Prevent content from hiding under the fixed header */
   min-height: calc(100vh);
 }
 
