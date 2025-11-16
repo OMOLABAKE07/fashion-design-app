@@ -15,23 +15,22 @@ export default defineConfig({
       },
       disable: process.env.NODE_ENV === "development",
       manifestFilename: "manifest.json",
-      injectManifest: true,
       workbox: {
         // Exclude development files from precaching
-        exclude: [
-          /\/node_modules\//,
-          /\.map$/,
-          /\/vite\/deps\//,
-          /\/src\/components\/.*\.vue\?vue&type=style/,
-          /\/src\/components\/.*\.vue$/,
-          /DesignModal\.vue/,
-          /DesignList\.vue/,
-          /MeasurementModal\.vue/,
-          /MeasurementForm\.vue/,
-          /SyncStatus\.vue/,
-          /MessageCenter\.vue/,
-          /\/src\/services\/api\.js/,
-          /\/src\/utils\/api\.js/,
+        globIgnores: [
+          "**/node_modules/**",
+          "**/*.map",
+          "**/vite/deps/**",
+          "**/src/components/**/*.vue?vue&type=style*",
+          "**/src/components/**/*.vue",
+          "**/DesignModal.vue",
+          "**/DesignList.vue",
+          "**/MeasurementModal.vue",
+          "**/MeasurementForm.vue",
+          "**/SyncStatus.vue",
+          "**/MessageCenter.vue",
+          "**/src/services/api.js",
+          "**/src/utils/api.js"
         ],
         // Include public assets in precaching
         globPatterns: ["**/*.{js,css,html,ico,png,svg,json}"],
