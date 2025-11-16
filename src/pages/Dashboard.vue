@@ -3,8 +3,19 @@
     <!-- Dashboard Overview -->
     <div class="dashboard-overview">
       <div class="overview-header">
-        <h2>Dashboard Overview</h2>
-        <p>Welcome back! Here's a quick overview of your fashion design business.</p>2
+        <div class="header-content">
+          <div>
+            <h2>Dashboard Overview</h2>
+            <p>Welcome back! Here's a quick overview of your fashion design business.</p>
+          </div>
+          <button 
+            v-if="deferredPrompt" 
+            @click="installPWA"
+            class="install-button"
+          >
+            Install App
+          </button>
+        </div>
       </div>
       
       <div class="overview-cards mb-2">
@@ -52,7 +63,35 @@
 
 <script>
 export default {
-  name: 'Dashboard'
+  name: 'Dashboard',
+  data() {
+    return {
+      deferredPrompt: null
+    }
+  },
+  mounted() {
+    // Listen for the beforeinstallprompt event
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Prevent the mini-infobar from appearing on mobile
+      e.preventDefault()
+      // Stash the event so it can be triggered later
+      this.deferredPrompt = e
+    })
+  },
+  methods: {
+    async installPWA() {
+      if (!this.deferredPrompt) return
+      
+      // Show the install prompt
+      this.deferredPrompt.prompt()
+      
+      // Wait for the user to respond to the prompt
+      const { outcome } = await this.deferredPrompt.userChoice
+      
+      // We've used the prompt, and can't use it again, throw it away
+      this.deferredPrompt = null
+    }
+  }
 }
 </script>
 
@@ -74,6 +113,14 @@ export default {
   /* margin-top: 2rem; */
 }
 
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
 .overview-header h2 {
   color: #2c3e50;
   margin: 0 0 1rem 0;
@@ -85,6 +132,21 @@ export default {
   color: #6c757d;
   font-size: 1.1rem;
   margin: 0;
+}
+
+.install-button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.install-button:hover {
+  background-color: #2980b9;
 }
 
 /* .overview-cards {
@@ -144,6 +206,11 @@ export default {
   
   .overview-header h2 {
     font-size: 1.5rem;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    text-align: center;
   }
   
   .overview-cards {
