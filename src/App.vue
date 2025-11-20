@@ -3,7 +3,8 @@
     <!-- Header -->
     <header class="app-header">
       <div class="header-content">
-        <h1 class="app-title typing">Welcome to Efizzy Clothing Studio</h1>
+        <h1 class="app-title">Welcome to <span class="typing">Efizzy</span></h1>
+        <!-- <h1 class="app-title typing">Welcome to Efizzy Clothing Studio</h1> -->
         <p class="app-subtitle">Manage your customers, measurements, designs, and communications all in one place.</p>
       </div>
       <!-- Hamburger button for mobile -->
@@ -52,6 +53,7 @@
   </div>
 </template>
 <script>
+import Typed from 'typed.js';
 export default {
   name: 'App',
   data() {
@@ -78,6 +80,12 @@ export default {
     }
   },
   mounted() {
+       new Typed(".typing", {
+      strings: ["", "Efizzy", "Clothing Studio"],
+      typeSpeed: 100,
+      backSpeed: 60,
+      loop: true
+    });
     // Auto-close sidebar on resize if screen > 768px
     window.addEventListener('resize', () => {
       if (window.innerWidth > 768) {

@@ -688,8 +688,20 @@ export default {
     gap: 0.5rem;
   }
   
-  .design-actions {
+  /* .design-actions {
     flex-direction: column;
+  } */
+  
+  .design-actions .btn-primary,
+  .design-actions .btn-secondary,
+  .design-actions .btn-danger {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .design-actions .btn-small {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
   }
 }
 

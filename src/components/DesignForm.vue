@@ -151,9 +151,9 @@
       </div>
 
       <!-- Pricing Information -->
-      <div class="form-section">
+      <div class="form-section pricing-section">
         <h4>Pricing & Notes</h4>
-        <div class="form-row d-flex">
+        <div class="form-row">
           <div class="form-group">
             <label for="estimatedPrice">Estimated Price</label>
             <div class="price-input">
@@ -781,6 +781,22 @@ export default {
   .form-row {
     grid-template-columns: 1fr;
     gap: 1rem;
+  }
+  
+  /* Make pricing section block on mobile */
+  .form-section .form-row:not(.photos-grid) {
+    display: block;
+  }
+  
+  /* Specific styling for pricing section on mobile */
+  .pricing-section .form-row .form-group {
+    display: block;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
   }
 
   .design-form {
