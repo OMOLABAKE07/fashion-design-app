@@ -21,7 +21,7 @@
 <script>
 import CustomerForm from '@/components/CustomerForm.vue'
 import CustomerList from '@/components/CustomerList.vue'
-import { syncUtils } from '@/utils/sync.js'
+import { useCustomerStore } from '@/store/customerStore'
 
 export default {
   name: 'Customers',
@@ -37,13 +37,11 @@ export default {
   methods: {
     async handleCustomerSave(customerData) {
       try {
+        const customerStore = useCustomerStore()
         // Add new customer to storage
-        const newCustomer = await syncUtils.saveCustomer({
+        const newCustomer = await customerStore.addCustomer({
           ...customerData,
-          name: `${customerData.firstName} ${customerData.lastName}`.trim(),
-          status: 'active',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          status: 'active'
         })
 
         if (newCustomer) {

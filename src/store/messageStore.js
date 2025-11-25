@@ -167,6 +167,19 @@ export const useMessageStore = defineStore("message", () => {
     }
   }
 
+  // Additional helper methods for MessageCenter component
+  function getAllMessages() {
+    return syncUtils.getAllMessages();
+  }
+
+  function getAllCustomers() {
+    return syncUtils.getAllCustomers();
+  }
+
+  function saveAllCustomers(customers) {
+    syncUtils.saveAllCustomers(customers);
+  }
+
   return {
     messages,
     loading,
@@ -175,5 +188,8 @@ export const useMessageStore = defineStore("message", () => {
     addMessage,
     updateMessage,
     deleteMessage,
+    getAllMessages,
+    getAllCustomers,
+    saveAllCustomers
   };
 });

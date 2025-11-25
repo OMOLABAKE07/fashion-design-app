@@ -113,6 +113,8 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2'
+
 export default {
   name: 'CustomerForm',
   props: {
@@ -170,24 +172,29 @@ export default {
         // Validate required fields
         if (!this.formData.first_name || !this.formData.last_name || 
             !this.formData.email || !this.formData.phone) {
-          alert('Please fill in all required fields')
+          Swal.fire({
+            icon: 'warning',
+            title: 'Missing Required Fields',
+            text: 'Please fill in all required fields'
+          })
           return
         }
 
         // Prepare customer data (without ID for new customers)
         const customerData = {
           ...this.formData,
-          name: `${this.formData.first_name} ${this.formData.last_name}`.trim(),
-          status: 'active',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          name: `${this.formData.first_name} ${this.formData.last_name}`.trim()
         }
 
         // Emit save event with customer data for parent to handle storage
         this.$emit('save', customerData)
       } catch (error) {
         console.error('Error preparing customer data:', error)
-        alert('Error preparing customer data. Please try again.')
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error preparing customer data. Please try again.'
+        })
       } finally {
         this.isSubmitting = false
       }
